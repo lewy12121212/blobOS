@@ -5,8 +5,6 @@
 #include<stdlib.h>
 #include"Help.h"
 
-using namespace std;
-
 Shell::Shell() {
 	status = true;
 	this->line.clear();
@@ -20,8 +18,8 @@ void Shell::boot() {
 }
 
 void Shell::read_line() {
-	cout << "$ ";
-	getline(cin, line);
+	std::cout << "$ ";
+	getline(std::cin, line);
 	parse();
 }
 
@@ -29,7 +27,7 @@ void Shell::parse() {
 
 	line = line + ' ';
 
-	string temp;
+	std::string temp;
 	for (int i = 0; i < line.size(); i++) {
 		if (line[i] != ' ') {
 			temp += line[i];
@@ -47,9 +45,9 @@ void Shell::loop() {
 		try {
 			execute();
 		}
-		catch (string & e) {
-			cout << e << endl;
-			cout << "Try \'" << parsed[0] << " --help\' for more information." << endl;
+		catch (std::string & e) {
+			std::cout << e << std::endl;
+			std::cout << "Try \'" << parsed[0] << " --help\' for more information." << std::endl;
 		}
 
 		line.clear();
@@ -59,12 +57,11 @@ void Shell::loop() {
 }
 
 void Shell::not_recognized() {
-	cout << parsed[0] << ": command not found" << endl;
+	std::cout << parsed[0] << ": command not found" << std::endl;
 }
 
 void Shell::help() {
-	cout << "Help" << endl;
-
+	std::cout << "Help" << std::endl;
 }
 
 void Shell::execute() {
@@ -78,7 +75,7 @@ void Shell::execute() {
 	else if (parsed[0] == "fileinfo") { fileinfo(); }
 	else if (parsed[0] == "go" || parsed[0] == "") { go(); }
 	else if (parsed[0] == "help") { help(); }
-	else if (parsed[0] == "cls") { cls(); }
+	else if (parsed[0] == "clear") { clear(); }
 	else if (parsed[0] == "exit") { exit(); }
 	else not_recognized();
 
@@ -86,12 +83,12 @@ void Shell::execute() {
 
 void Shell::exit() {
 	status = false;
-	cout << "Koniec" << endl;
+	std::cout << "Koniec" << std::endl;
 }
 
-void Shell::cls() {
+void Shell::clear() {
 	system("cls");
-	cout << "Czysto" << endl;
+	std::cout << "Czysto" << std::endl;
 }
 
 void Shell::cp() {
@@ -100,11 +97,11 @@ void Shell::cp() {
 		Help::cp();
 	}
 	if ((parsed.size() == 2 && parsed[1] != "--help") || parsed.size() > 3) {
-		string exc = "error: unsupported option";
+		std::string exc = "error: unsupported option";
 		throw exc;
 	}
 
-	else cout << "cp" << endl;
+	else std::cout << "cp" << std::endl;
 }
 
 void Shell::dp() {
@@ -112,7 +109,7 @@ void Shell::dp() {
 		Help::dp();
 	}
 	else
-		cout << "df" << endl;
+		std::cout << "df" << std::endl;
 }
 
 void Shell::show() {
@@ -125,16 +122,16 @@ void Shell::show() {
 		else if (parsed[1] == "-ram") showram();
 		else if (parsed[1] == "-pgf") showpagefile();
 		else {
-			string exc = "error: unsupported option";
+			std::string exc = "error: unsupported option";
 			throw exc;
 		}
 	}
 	else if (parsed.size() == 1) {
-			string exc = parsed[0] + ": " + "missing operand";
+			std::string exc = parsed[0] + ": " + "missing operand";
 			throw exc;
 	}
 	else {
-		string exc = parsed[0] + ": " + "extra operand \'" + parsed[1] + "\'";
+		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[1] + "\'";
 		throw exc;
 	}
 }
@@ -144,11 +141,11 @@ void Shell::showpcblist() {
 		Help::show();
 	}
 	else if (parsed.size() == 1) {
-		string exc = parsed[0] + ": " + "missing operand";
+		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
 	}
 	else {
-		cout << "showpcblist" << endl;
+		std::cout << "showpcblist" << std::endl;
 	}
 }
 
@@ -157,11 +154,11 @@ void Shell::showpcb() {
 		Help::show();
 	}
 	else if (parsed.size() > 1) {
-		string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
+		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
 		throw temp;
 	}
 	else {
-		cout << "showpcblist" << endl;
+		std::cout << "showpcblist" << std::endl;
 	}
 }
 
@@ -170,11 +167,11 @@ void Shell::showram() {
 		Help::show();
 	}
 	else if (parsed.size() > 1) {
-		string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
+		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
 		throw temp;
 	}
 	else {
-		cout << "ram" << endl;
+		std::cout << "ram" << std::endl;
 	}
 }
 
@@ -183,11 +180,11 @@ void Shell::showpagefile() {
 		Help::show();
 	}
 	else if (parsed.size() > 1) {
-		string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
+		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
 		throw temp;
 	}
 	else {
-		cout << "showpagefile" << endl;
+		std::cout << "showpagefile" << std::endl;
 	}
 }
 
@@ -196,11 +193,11 @@ void Shell::showroot() {
 		Help::show();
 	}
 	else if (parsed.size() > 1) {
-		string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
+		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
 		throw temp;
 	}
 	else {
-		cout << "root" << endl;
+		std::cout << "root" << std::endl;
 	}
 }
 
@@ -209,7 +206,7 @@ void Shell::cf() {
 		Help::cf();
 	}
 	else
-		cout << "cf cf" << endl;
+		std::cout << "cf cf" << std::endl;
 }
 
 void Shell::df() {
@@ -217,7 +214,7 @@ void Shell::df() {
 		Help::df();
 	}
 	else
-		cout << "df df" << endl;
+		std::cout << "df df" << std::endl;
 }
 
 void Shell::wf() {
@@ -225,7 +222,7 @@ void Shell::wf() {
 		Help::wf();
 	}
 	else
-		cout << "wf wf" << endl;
+		std::cout << "wf wf" << std::endl;
 }
 
 void Shell::fileinfo() {
@@ -233,11 +230,11 @@ void Shell::fileinfo() {
 		Help::fileinfo();
 	}
 	else if (parsed.size() > 1) {
-		string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
+		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
 		throw temp;
 	}
 	else {
-		cout << "file info" << endl;
+		std::cout << "file info" << std::endl;
 	}
 }
 
@@ -246,6 +243,6 @@ void Shell::go() {
 		Help::go();
 	}
 	else
-		cout << "go go go" << endl;
+		std::cout << "go go go" << std::endl;
 }
 

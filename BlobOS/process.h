@@ -44,4 +44,3 @@ protected:
 
 //void create_process_size(string &name, int &size, int &ppid); 
 void create_process_file(string &name, string &file_name, int &ppid); // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
-

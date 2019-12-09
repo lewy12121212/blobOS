@@ -2,14 +2,11 @@
 #include<vector>
 #include<string>
 
-
-using namespace std;
-
 class Shell {
 protected:
 	bool status;
-	string line;
-	vector<string>parsed;
+	std::string line;
+	std::vector<std::string>parsed;
 	
 
 	void read_line();
@@ -18,7 +15,7 @@ protected:
 	void loop();
 	void not_recognized();
 	void help();
-	void cls();
+	void clear();
 	void exit();
 
 	//procesy i proces

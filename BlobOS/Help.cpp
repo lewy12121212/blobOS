@@ -2,8 +2,6 @@
 #include"Shell.h"
 #include <iostream>
 
-using namespace std;
-
 void Help:: cp() {
 
 
@@ -26,8 +24,7 @@ Help
 
 
 
-
-	)EOF");
+)EOF");
 }
 
 
