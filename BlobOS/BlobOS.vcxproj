@@ -99,8 +99,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
@@ -153,11 +152,13 @@
   <ItemGroup>
     <ClCompile Include="BlobOS.cpp" />
     <ClCompile Include="Help.cpp" />
+    <ClCompile Include="mutex.cpp" />
     <ClCompile Include="process.cpp" />
     <ClCompile Include="Shell.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Help.h" />
+    <ClInclude Include="mutex.h" />
     <ClInclude Include="process.h" />
     <ClInclude Include="Shell.h" />
   </ItemGroup>

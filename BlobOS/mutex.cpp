@@ -1,4 +1,3 @@
-#include "pch.h"
 #include "mutex.h"
 
 mutex::mutex()
