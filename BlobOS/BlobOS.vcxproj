@@ -152,12 +152,14 @@
   <ItemGroup>
     <ClCompile Include="BlobOS.cpp" />
     <ClCompile Include="Help.cpp" />
+    <ClCompile Include="Memory.cpp" />
     <ClCompile Include="mutex.cpp" />
     <ClCompile Include="process.cpp" />
     <ClCompile Include="Shell.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Help.h" />
+    <ClInclude Include="Memory.h" />
     <ClInclude Include="mutex.h" />
     <ClInclude Include="process.h" />
     <ClInclude Include="Shell.h" />
