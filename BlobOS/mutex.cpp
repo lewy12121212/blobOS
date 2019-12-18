@@ -33,10 +33,12 @@ void mutex::unlock(std::shared_ptr<PCB>process)
 	//jesli proces jest wlascicielem
 	if (LOCKED && process->pid == OWNER_ID)
 	{
+		//sprawdza stan kolejki i usuwa z niej wykonany proces 
+		if (!WAITING_PCB.empty())
+			WAITING_PCB.pop();
 		std::cout << "unlock(): " << process->name << ": Wywolanie notify()\n";
 		notify();
 	}
-	
 }
 
 void mutex::wait(std::shared_ptr<PCB>process)
@@ -45,16 +47,11 @@ void mutex::wait(std::shared_ptr<PCB>process)
 	process_state state = process_state::wait;//ing
 	process->change_state(state);
 	//wywoluje planiste - przekazanie sterowania
-	//planist.check();//sexyOS
+	planist.check();
 }
 
 void mutex::notify()
-{
-	//sprawdza stan kolejki i:
-	if (!WAITING_PCB.empty()) 
-	{
-		//usuwa wykonany proces z kolejki zamka
-		WAITING_PCB.pop();
+{		
 		if (!WAITING_PCB.empty())
 		{
 			//zmienia stan procesu kolejnego w kolejce: waiting->ready
@@ -64,7 +61,7 @@ void mutex::notify()
 			OWNER_ID = WAITING_PCB.front()->pid;
 			std::cout << "notify(): Odblokowano zamek, przydzielono dostep kolejnemu procesowi w kolejce zamka(" << WAITING_PCB.front()->name << ") i zmieniono jego stan na ready\n";
 			//wywoluje planiste - przekazanie sterowania
-			//planist.check();//sexyOS
+			planist.check();
 		}
 		//albo otwiera zamek
 		else 
@@ -74,7 +71,6 @@ void mutex::notify()
 			std::cout << "notify(): Odblokowano zamek\n";
 		}
 		//badz wolny pliku		
-	}
 }
 
 const int mutex::get_owner_id() const

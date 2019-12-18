@@ -26,4 +26,5 @@ class Planist{
     void check();
     void display_PCB_list();
 };
+extern Planist planist;
 

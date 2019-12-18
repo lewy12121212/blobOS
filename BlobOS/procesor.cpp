@@ -1,5 +1,4 @@
 #pragma once
-
 #include "procesor.h"
 #include "process.h"
 #include <memory>
@@ -9,12 +8,6 @@
 using namespace std;
 
 Planist planist;
-
-void PCB::copy_register(array<int, 5> &cpu_register){ //kopiowanie zawartości rejestru do PCB
-    for(int i=0; i<5; i++){
-        this->copy_register[i] = cpu_register[i];
-    }
-}
 
 void Planist::check(){
     // ReadyPCB
