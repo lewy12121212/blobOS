@@ -1,6 +1,6 @@
 ﻿#include "Memory.h"
 
-//Metody struktury PageInfo
+//Metody struktury PageInfo 
 
 PageInfo::PageInfo()
 {
