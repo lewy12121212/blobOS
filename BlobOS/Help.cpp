@@ -28,15 +28,23 @@ Help
 }
 
 
-void Help::cf() {
+void Help::touch() {
 
 }
 
-void Help::df() {
+void Help::rm() {
 
 }
 
 void Help::wf() {
+
+}
+
+void Help::copy() {
+
+}
+
+void Help::cat() {
 
 }
 

@@ -64,3 +64,5 @@ public:
 	/*Wyświetla strony danego procesu.*/
 	void show_pages(int PID);
 };
+
+extern Memory memory;

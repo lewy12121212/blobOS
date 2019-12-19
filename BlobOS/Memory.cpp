@@ -1,5 +1,7 @@
 ﻿#include "Memory.h"
 
+Memory memory;
+
 //Metody struktury PageInfo 
 
 PageInfo::PageInfo()
@@ -102,6 +104,7 @@ void Memory::show_ram()
 				std::cout << c;
 		}
 	}
+	std::cout << "\n" << "\n";
 }
 
 void Memory::show_pages(int PID)

@@ -5,6 +5,7 @@
 #include<stdlib.h>
 #include"Help.h"
 
+
 Shell::Shell() {
 	status = true;
 	this->line.clear();
@@ -65,12 +66,14 @@ void Shell::help() {
 }
 
 void Shell::execute() {
-
+									 //procesy
 	if (parsed[0] == "cp") { cp(); }
 	else if (parsed[0] == "dp") { dp(); }
 	else if (parsed[0] == "show") { show(); }
-	else if (parsed[0] == "cf") { cf(); }
-	else if (parsed[0] == "df") { df(); }
+	else if (parsed[0] == "touch") { touch(); } //pliki
+	else if (parsed[0] == "rm") { rm(); }
+	else if (parsed[0] == "copy") { copy(); }
+	else if (parsed[0] == "cat") { cat(); }
 	else if (parsed[0] == "wf") { wf(); }
 	else if (parsed[0] == "fileinfo") { fileinfo(); }
 	else if (parsed[0] == "go" || parsed[0] == "") { go(); }
@@ -109,7 +112,7 @@ void Shell::dp() {
 		Help::dp();
 	}
 	else
-		std::cout << "df" << std::endl;
+		std::cout << "rm" << std::endl;
 }
 
 void Shell::show() {
@@ -119,8 +122,13 @@ void Shell::show() {
 	else if (parsed.size() == 2) {
 		if (parsed[1] == "-pcb") showpcb();
 		else if (parsed[1] == "-pcblist") showpcblist();
+		else if (parsed[1] == "-tree") showtree();
 		else if (parsed[1] == "-ram") showram();
-		else if (parsed[1] == "-pgf") showpagefile();
+		else if (parsed[1] == "-pagetable") showpagetable();
+		else if (parsed[1] == "-queue") showqueue();
+		else if (parsed[1] == "-frames") showframes();
+		else if (parsed[1] == "-pagefile") showpagefile();
+
 		else {
 			std::string exc = "error: unsupported option";
 			throw exc;
@@ -145,7 +153,7 @@ void Shell::showpcblist() {
 		throw exc;
 	}
 	else {
-		std::cout << "showpcblist" << std::endl;
+		planist.display_PCB_list();
 	}
 }
 
@@ -166,25 +174,12 @@ void Shell::showram() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::show();
 	}
-	else if (parsed.size() > 1) {
+	else if (parsed.size() > 1 && parsed[1] != "-ram") {
 		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
 		throw temp;
 	}
 	else {
-		std::cout << "ram" << std::endl;
-	}
-}
-
-void Shell::showpagefile() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::show();
-	}
-	else if (parsed.size() > 1) {
-		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
-		throw temp;
-	}
-	else {
-		std::cout << "showpagefile" << std::endl;
+		memory.show_ram();
 	}
 }
 
@@ -201,20 +196,54 @@ void Shell::showroot() {
 	}
 }
 
-void Shell::cf() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::cf();
-	}
-	else
-		std::cout << "cf cf" << std::endl;
+void Shell::showtree() {
+
+
 }
 
-void Shell::df() {
+
+void Shell::showpagetable() {
+
+
+}
+
+void Shell::showqueue() {
+
+
+}
+
+void Shell::showframes() {
+
+
+}
+
+void Shell::showpagefile() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::df();
+		Help::show();
+	}
+	else if (parsed.size() > 1) {
+		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
+		throw temp;
+	}
+	else {
+		std::cout << "showpagefile" << std::endl;
+	}
+}
+
+void Shell::touch() {
+	if (parsed.size() == 2 && parsed[1] == "--help") {
+		Help::touch();
 	}
 	else
-		std::cout << "df df" << std::endl;
+		std::cout << "touch touch" << std::endl;
+}
+
+void Shell::rm() {
+	if (parsed.size() == 2 && parsed[1] == "--help") {
+		Help::rm();
+	}
+	else
+		std::cout << "rm rm" << std::endl;
 }
 
 void Shell::wf() {
@@ -223,6 +252,17 @@ void Shell::wf() {
 	}
 	else
 		std::cout << "wf wf" << std::endl;
+}
+
+void Shell::cat() {
+
+
+
+}
+
+void Shell::copy() {
+
+
 }
 
 void Shell::fileinfo() {

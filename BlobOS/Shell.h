@@ -1,6 +1,8 @@
 #pragma once
 #include<vector>
 #include<string>
+#include"procesor.h"
+#include"Memory.h"
 
 class Shell {
 protected:
@@ -29,12 +31,17 @@ protected:
 	//pamiêæ
 	void showram();
 	void showpagefile();
+	void showpagetable();
+	void showqueue();
+	void showframes();
 
 	//pliki i katalogi
 	void showroot();
-	void cf();
-	void df();
+	void touch();
+	void rm();
 	void wf();
+	void copy();
+	void cat();
 	void fileinfo();
 
 	//interpreter
