@@ -1,10 +1,12 @@
 ﻿#pragma once
 
-#include <vector>
-#include <memory>
-#include <iostream>
-#include <map>
 #include <array>
+#include <vector>
+#include <queue>
+#include <map>
+
+#include <iostream>
+#include <memory>
 #include <algorithm>
 
 /*Struktura z informacją o tym, czy dana strona znajduje się w RAM i jaką ramkę zajmuje. Wykorzystywana do tablicy stronic w PCB.*/
@@ -21,7 +23,7 @@ public:
 	std::array<char, 16> data;
 	Page();
 	Page(std::string s);
-	void print();
+	void Print();
 };
 
 class Memory{
@@ -48,16 +50,16 @@ public:
 
 	// Ładowanie programu do pliku stronnicowania
 	// Na razie do testowania std::string ale to zależy od syetmu plików
-	void load_program(std::string kod, int PID);
+	void LoadProgram(std::string kod, int PID);
 
 	/*Tworzy wskaźnik do tablicy stronic procesu znajdującej się w PCB.
 	Używana przy tworzeniu nowego procesu.
 	size - potrzebna ilość bajtów
 	pid  - ID procesu*/
-	void create_page_table(int PID);
+	void CreatePageTable(int PID);
 
 	/*Wyświetla strony danego procesu.*/
-	void show_pages(int PID);
+	void ShowPages(int PID);
 };
 
 extern Memory memory;

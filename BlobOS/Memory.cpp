@@ -71,7 +71,7 @@ Page::Page(std::string s){
 	std::copy(s.begin(), s.end(), data.data());
 }
 
-void Memory::load_program(std::string kod, int PID)
+void Memory::LoadProgram(std::string kod, int PID)
 {
 	// Kontener na stronnice procesu 
 	this->PageFile.insert(std::pair<int, std::vector<Page>>(PID, std::vector<Page>()));
@@ -86,10 +86,10 @@ void Memory::load_program(std::string kod, int PID)
 	}
 
 	// Wypełnienie tablicy stronnic w PCB
-	this->create_page_table(PID);
+	this->CreatePageTable(PID);
 }
 
-void Memory::create_page_table(int PID)
+void Memory::CreatePageTable(int PID)
 {
 	auto v = std::vector<PageInfo>();
 	std::for_each(this->PageFile.at(PID).begin(), this->PageFile.at(PID).end(), [&](Page& page) {
@@ -97,7 +97,7 @@ void Memory::create_page_table(int PID)
 	});
 }
 
-void Page::print()
+void Page::Print()
 {
 	for (char c : this->data)
 	{
@@ -109,11 +109,11 @@ void Page::print()
 	std::cout << "\n";
 }
 
-void Memory::show_pages(int PID)
+void Memory::ShowPages(int PID)
 {
 	std::cout << "PID: " << PID << "\n";
 	for (Page p : PageFile.at(PID))
 	{
-		p.print();
+		p.Print();
 	}
 }
