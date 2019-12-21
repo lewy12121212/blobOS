@@ -5,6 +5,7 @@
 #include <array>
 #include <iostream>
 #include "process.h"
+
 using namespace std;
 
 void PCB::copy_register(array<int, 5> &cpu_register) //kopiowanie zawartości rejestru do PCB
