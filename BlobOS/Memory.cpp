@@ -11,13 +11,42 @@ Memory::Memory()
 }
 
 
-void Memory::write_to_ram(int address, char *data)
+void Memory::write_to_ram(int nr, char* data)
 {
+	char c;
+	for (int j = 0; j < 16; j++)
+	{
+		c = data[j];
+		if (c == '\0')
+			RAM[16 * nr + j] = ' ';
+		else
+			RAM[16 * nr + j] = c;
+	}
+}
+
+char* Memory::get_frame(int nr)
+{
+	char data[16];
+	for (int j = 0; j < 16; j++)
+	{
+		data[j] = RAM[16 * nr + j];
+	}
+	return data;
 }
 
 void Memory::show_frame(int nr)
 {
-
+	char c;
+	std::cout << "Frame nr " << nr << ":" << "\n";
+	for (int j = 0; j < 16; j++)
+	{
+		c = RAM[16 * nr + j];
+		if (c == ' ')
+			std::cout << '_';
+		else
+			std::cout << c;
+	}
+	std::cout << "\n" << "\n";
 }
 
 void Memory::show_ram()

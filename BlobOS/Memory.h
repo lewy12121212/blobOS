@@ -35,8 +35,11 @@ public:
 	//Zmienne
 	char RAM[256] = {' '};
 
-	/*Zapisuje dane do RAMu*/
-	void write_to_ram(int address, char *data);
+	/*Zapisuje stronę do danej ramki (przy założeniu, że data to tablica wielkości 16)*/
+	void write_to_ram(int nr, char *data);
+
+	/*Pobranie danej ramki z RAMu*/
+	char* get_frame(int nr);
 
 	/*Wyświetla daną ramkę.*/
 	void show_frame(int nr);
