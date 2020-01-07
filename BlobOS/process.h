@@ -72,6 +72,7 @@ public:
     }
 
     void create_process_file(string &name, string &file_name, int &parent_pid); // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
+    shared_ptr<PCB> find_pid(int &pid_proc); // przeszukiwanie drzewa 
 
     void kill_pid(int &pid); // zabicie procesu po PID
     void kill_name(string &name); // zabicie procesu po nazwie
