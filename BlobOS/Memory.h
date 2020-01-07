@@ -57,12 +57,9 @@ public:
 
 	/*Tworzy wskaźnik do tablicy stronic procesu znajdującej się w PCB.
 	Używana przy tworzeniu nowego procesu.
-	size - potrzebna ilość bajtów
 	pid  - ID procesu*/
 	void CreatePageTable(int PID);
 
 	/*Wyświetla strony danego procesu.*/
 	void ShowPages(int PID);
 };
-
-extern Memory memory;

@@ -6,6 +6,7 @@
 #include<algorithm>
 #include"Help.h"
 
+extern Memory memory;
 
 Shell::Shell() {
 	status = true;

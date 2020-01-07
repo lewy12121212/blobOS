@@ -1,6 +1,8 @@
 ﻿#include "Memory.h"
+#include "process.h"
 
 Memory memory;
+extern ProcTree PTree;
 
 //Metody użytkowe
 
@@ -114,6 +116,10 @@ void Memory::LoadProgram(std::string kod, int PID)
 			this->PageFile.at(PID).push_back(Page(kod.substr(i)));
 	}
 
+	while (this->PageFile.at(PID).size() < 16) {
+		this->PageFile.at(PID).push_back(Page());
+	}
+
 	// Wypełnienie tablicy stronnic w PCB
 	this->CreatePageTable(PID);
 }
@@ -121,9 +127,13 @@ void Memory::LoadProgram(std::string kod, int PID)
 void Memory::CreatePageTable(int PID)
 {
 	auto v = std::vector<PageInfo>();
+
 	std::for_each(this->PageFile.at(PID).begin(), this->PageFile.at(PID).end(), [&](Page& page) {
 		v.push_back(PageInfo());
 	});
+
+	// Zapisanie PageTable w PCB
+	PTree.find_pid(PID)->page_table = v;
 }
 
 void Page::Print()
