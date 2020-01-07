@@ -27,3 +27,5 @@ class Planist{
     void display_PCB_list();
 };
 
+extern Planist planist;
+

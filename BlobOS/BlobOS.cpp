@@ -1,7 +1,4 @@
-﻿#include <iostream>
-#include "Shell.h"
-#include <iostream>
-
+﻿#include "Shell.h"
 
 int main()
 {

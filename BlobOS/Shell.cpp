@@ -3,7 +3,9 @@
 #include<string>
 #include<vector>
 #include<stdlib.h>
+#include<algorithm>
 #include"Help.h"
+
 
 Shell::Shell() {
 	status = true;
@@ -20,6 +22,7 @@ void Shell::boot() {
 void Shell::read_line() {
 	std::cout << "$ ";
 	getline(std::cin, line);
+	std::transform(line.begin(), line.end(), line.begin(), ::tolower);
 	parse();
 }
 
@@ -65,12 +68,14 @@ void Shell::help() {
 }
 
 void Shell::execute() {
-
+									 //procesy
 	if (parsed[0] == "cp") { cp(); }
 	else if (parsed[0] == "dp") { dp(); }
 	else if (parsed[0] == "show") { show(); }
-	else if (parsed[0] == "cf") { cf(); }
-	else if (parsed[0] == "df") { df(); }
+	else if (parsed[0] == "touch") { touch(); } //pliki
+	else if (parsed[0] == "rm") { rm(); }
+	else if (parsed[0] == "copy") { copy(); }
+	else if (parsed[0] == "cat") { cat(); }
 	else if (parsed[0] == "wf") { wf(); }
 	else if (parsed[0] == "fileinfo") { fileinfo(); }
 	else if (parsed[0] == "go" || parsed[0] == "") { go(); }
@@ -78,7 +83,6 @@ void Shell::execute() {
 	else if (parsed[0] == "clear") { clear(); }
 	else if (parsed[0] == "exit") { exit(); }
 	else not_recognized();
-
 }
 
 void Shell::exit() {
@@ -96,153 +100,208 @@ void Shell::cp() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::cp();
 	}
-	if ((parsed.size() == 2 && parsed[1] != "--help") || parsed.size() > 3) {
-		std::string exc = "error: unsupported option";
+	else if (parsed.size() == 2||parsed.size()==1) {
+		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
 	}
-
-	else std::cout << "cp" << std::endl;
+	else if (parsed.size() == 3) {
+		std::cout << "Czekamy na Eryka -cp()" << std::endl;
+	}
+	else {
+		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::dp() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
+	if (parsed.size() == 1) {
+		std::string exc = parsed[0] + ": " + "missing operand";
+		throw exc;
+	}
+	else if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::dp();
 	}
-	else
-		std::cout << "df" << std::endl;
+	else if (parsed.size() == 2) {
+		std::cout << "Czekamy na Eryka -kill" << std::endl;
+	}
+	else {
+		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::show() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
+	 if (parsed.size() == 1) {
+			std::string exc = parsed[0] + ": " + "missing operand";
+			throw exc;
+	}
+	else if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::show();
 	}
 	else if (parsed.size() == 2) {
 		if (parsed[1] == "-pcb") showpcb();
 		else if (parsed[1] == "-pcblist") showpcblist();
+		else if (parsed[1] == "-tree") showtree();
 		else if (parsed[1] == "-ram") showram();
-		else if (parsed[1] == "-pgf") showpagefile();
+		else if (parsed[1] == "-pagetable") showpagetable();
+		else if (parsed[1] == "-queue") showqueue();
+		else if (parsed[1] == "-frames") showframes();
+		else if (parsed[1] == "-pagefile") showpagefile();
+
 		else {
 			std::string exc = "error: unsupported option";
 			throw exc;
 		}
 	}
-	else if (parsed.size() == 1) {
-			std::string exc = parsed[0] + ": " + "missing operand";
-			throw exc;
-	}
 	else {
-		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[1] + "\'";
+		std::string exc = parsed[0] + " " + parsed[1]+": " + "extra operand \'" + parsed[2] + "\'";
 		throw exc;
 	}
 }
 
 void Shell::showpcblist() {
+	planist.display_PCB_list();
+}
+
+void Shell::showpcb() {
+
+	std::cout << "showpcblist" << std::endl;
+}
+
+void Shell::showram() {
+	
+	memory.show_ram();
+}
+
+void Shell::showroot() {
+
+	std::cout << "root" << std::endl;
+}
+
+void Shell::showtree() {
+
+
+}
+
+
+void Shell::showpagetable() {
+
+
+}
+
+void Shell::showqueue() {
+
+
+}
+
+void Shell::showframes() {
+
+
+}
+
+void Shell::showpagefile() {
+		std::cout << "showpagefile" << std::endl;
+}
+
+
+void Shell::touch() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::show();
+		Help::touch();
 	}
+	else if(parsed.size()==2) std::cout << "touch -tworzenie pliku" << std::endl;
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
 	}
 	else {
-		std::cout << "showpcblist" << std::endl;
+		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
+		throw exc;
 	}
 }
 
-void Shell::showpcb() {
+void Shell::rm() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::show();
+		Help::rm();
 	}
-	else if (parsed.size() > 1) {
-		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
-		throw temp;
+	else if (parsed.size() == 2) std::cout << "rm -usuwanie pliku" << std::endl;
+	else if (parsed.size() == 1) {
+		std::string exc = parsed[0] + ": " + "missing operand";
+		throw exc;
 	}
 	else {
-		std::cout << "showpcblist" << std::endl;
+		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
+		throw exc;
 	}
-}
-
-void Shell::showram() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::show();
-	}
-	else if (parsed.size() > 1) {
-		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
-		throw temp;
-	}
-	else {
-		std::cout << "ram" << std::endl;
-	}
-}
-
-void Shell::showpagefile() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::show();
-	}
-	else if (parsed.size() > 1) {
-		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
-		throw temp;
-	}
-	else {
-		std::cout << "showpagefile" << std::endl;
-	}
-}
-
-void Shell::showroot() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::show();
-	}
-	else if (parsed.size() > 1) {
-		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
-		throw temp;
-	}
-	else {
-		std::cout << "root" << std::endl;
-	}
-}
-
-void Shell::cf() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::cf();
-	}
-	else
-		std::cout << "cf cf" << std::endl;
-}
-
-void Shell::df() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::df();
-	}
-	else
-		std::cout << "df df" << std::endl;
 }
 
 void Shell::wf() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::wf();
+		if (parsed.size() == 2 && parsed[1] == "--help") {
+			Help::wf();
+		}
+		else if (parsed.size() == 2) std::cout << "wf -edytor pliku" << std::endl;
+		else if (parsed.size() == 1) {
+			std::string exc = parsed[0] + ": " + "missing operand";
+			throw exc;
+		}
+		else {
+			std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
+			throw exc;
+		}
+}
+
+void Shell::cat() {
+	if (parsed.size() == 1) {
+		std::string exc = parsed[0] + ": " + "missing operand";
+		throw exc;
 	}
-	else
-		std::cout << "wf wf" << std::endl;
+	else if (parsed.size() == 2 && parsed[1] == "--help") {
+		Help::cat();
+	}
+	else if (parsed.size() == 2) {
+		std::cout << "Wyswietlanie plikow" << std::endl;
+	}
+}
+
+void Shell::copy() {
+	if (parsed.size() < 3) {
+		std::string exc = parsed[0] + ": " + "missing operand";
+		throw exc;
+	}
+	else if (parsed.size() == 3) {
+		std::cout << "Kopiowanie pliku" << std::endl;
+	}
+	else {
+		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::fileinfo() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
+	if (parsed.size() == 1) {
+		std::string exc = parsed[0] + ": " + "missing operand";
+		throw exc;
+	}
+	else if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::fileinfo();
 	}
-	else if (parsed.size() > 1) {
-		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
-		throw temp;
+	else if (parsed.size() == 2) {
+		std::cout << "file info" << std::endl;
 	}
 	else {
-		std::cout << "file info" << std::endl;
+		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
+		throw temp;
 	}
 }
 
 void Shell::go() {
-	if (parsed.size() == 2 && parsed[1] == "--help") {
+	if (parsed.size() == 1) {
+		std::cout << "go go go" << std::endl;
+	}
+	else if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::go();
 	}
-	else
-		std::cout << "go go go" << std::endl;
+	else{
+		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
+		throw temp;
+	}
 }
-

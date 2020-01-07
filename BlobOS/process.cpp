@@ -5,6 +5,7 @@
 #include <array>
 #include <iostream>
 #include "process.h"
+
 using namespace std;
 
 void PCB::copy_register(array<int, 5> &cpu_register) //kopiowanie zawartości rejestru do PCB
@@ -36,6 +37,10 @@ void PCB::change_state(process_state &new_state) // zmiana stanu procesu (planis
 
 shared_ptr<PCB> PCB::get_kid(int &find_pid)
 {
+    if(this->children_vector.size() == 0){
+        return nullptr;
+    }
+
     for(int i=0; i<this->children_vector.size(); i++){ // przeszukujemy wektor dzieci w celu znalezienia szukanego PID
         if(this->children_vector[i]->pid == find_pid){
             return children_vector[i];  // zwracamy wskaźnik na PCB o znalezionym PID
@@ -68,7 +73,27 @@ void ProcTree::create_process_file(string &name, string &file_name, int &parent_
 
 }
 
+shared_ptr<PCB> ProcTree::find_pid(int &pid_proc){
+
+    shared_ptr<PCB> PCB_return = nullptr;
+
+    for(int i=0; i<init_proc->children_vector.size(); i++){ // przeszukujemy wektor dzieci w celu znalezienia szukanego PID
+        if(init_proc->children_vector[i]->pid == pid_proc){
+            return init_proc->children_vector[i];  // zwracamy wskaźnik na PCB o znalezionym PID
+        }
+    }
+
+    for(int i=0; i<init_proc->children_vector.size(); i++){ // jeśli nie znajdziemy szukanego PID dla każdego z dzieci wywołujemy funkcję get_kid 
+        PCB_return = init_proc->children_vector[i]->get_kid(pid_proc); // rekurencja
+    }
+
+    return PCB_return;
+}
+
 void ProcTree::display_tree()
 {
+    
+
+
     // sposób wyświetlania drzewa do ugadania z Anią :) 
 }
