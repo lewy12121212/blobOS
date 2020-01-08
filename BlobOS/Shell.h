@@ -4,6 +4,8 @@
 #include "procesor.h"
 #include "Memory.h"
 #include "process.h"
+#include<conio.h>
+
 
 class Shell {
 protected:
@@ -29,7 +31,7 @@ protected:
 	void showpcblist();
 	void showtree();
 	
-	//pamiêæ
+	//pamiï¿½ï¿½
 	void showram();
 	void showpagefile();
 	void showpagetable();
@@ -44,6 +46,7 @@ protected:
 	void copy();
 	void cat();
 	void fileinfo();
+	void editor(std::string filename);
 
 	//interpreter
 	void go();

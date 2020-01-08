@@ -270,10 +270,10 @@ void Shell::rm() {
 }
 
 void Shell::wf() {
-		if (parsed.size() == 2 && parsed[1] == "--help") {
-			Help::wf();
-		}
-		else if (parsed.size() == 2) std::cout << "wf -edytor pliku" << std::endl;
+	if (parsed.size() == 2 && parsed[1] == "--help") {
+		Help::wf();
+	}
+	else if (parsed.size() == 2) editor(parsed[1]);
 		else if (parsed.size() == 1) {
 			std::string exc = parsed[0] + ": " + "missing operand";
 			throw exc;
@@ -339,4 +339,48 @@ void Shell::go() {
 		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
 		throw temp;
 	}
+}
+void Shell::editor(std::string filename){
+
+	std::string poczatkowy = { "To jest nowy tekst." };
+		std::vector<char>tekst;
+		system("cls");
+		std::copy(poczatkowy.begin(), poczatkowy.end(), std::back_inserter(tekst));
+		std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
+		std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+		for (auto i:poczatkowy) {
+			std::cout << i;
+		}
+		unsigned char znak;
+		
+		do{
+			znak = _getch();
+		
+			if((znak !=19) && (znak!=17)) {
+				if (znak == 8) {
+					if (tekst.size() > 0) {
+						system("cls");
+						tekst.pop_back();
+						std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
+						std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+						for (auto i : tekst) {
+							std::cout << i;
+						}
+					}
+				}
+				else if (znak == 13) {
+					tekst.push_back('\n');
+					std::cout << std::endl;
+				}
+				else {
+					tekst.push_back(znak);
+					system("cls");
+					std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
+					std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+					for (auto i : tekst) {
+						std::cout << i;
+					}
+				}
+			}
+		} while ((znak !=19) && (znak!=17)); //17 ^Q  19 ^S 
 }
