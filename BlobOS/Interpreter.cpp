@@ -2,9 +2,13 @@
 #include <iostream>
 #include "process.h"
 #include "procesor.h"
+#include "File.h"
 
 
 using namespace std;
+
+extern FileManager FM;
+
 
 Interpreter interpeter;
 
@@ -49,6 +53,17 @@ array<string, 4> Interpreter::instruction_separate(const std::string & instructi
 	return command;
 }
 
+
+void Interpreter::display_registers()
+{
+
+	cout << "Registers: " << endl;
+	cout << "A:  " << "  " << A << "B:  " << B << "  " << "C:  " << C << "  " << "D:  " << D << endl;
+	cout << "Instruction counter:  " << instruction_counter << endl;
+
+}
+
+
 int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& running_proc)
 {
 	
@@ -65,6 +80,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 
 	string command;
+	string file_name;
 	command = exec_instruction[0];
 
 
@@ -79,6 +95,14 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 			exec_instruction[1].erase(exec_instruction[1].begin());
 
 			adres = stoi(exec_instruction[1]);
+
+		}
+		else if (exec_instruction[1] == "(") {
+
+			exec_instruction[1].pop_back();
+			exec_instruction[1].erase(exec_instruction[1].begin());
+
+			file_name=exec_instruction[1];
 
 		}
 		else {
@@ -98,6 +122,14 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 			exec_instruction[2].erase(exec_instruction[2].begin());
 
 			adres = stoi(exec_instruction[2]);
+
+		}
+		else if (exec_instruction[1] == "(") {
+
+			exec_instruction[1].pop_back();
+			exec_instruction[1].erase(exec_instruction[1].begin());
+
+			file_name = exec_instruction[1];
 
 		}
 		else {
@@ -139,9 +171,11 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	}
 	else if (command == "MF") {
 
+		FM.create_file(file_name);
 		//tu poleci coœ od plików
 	}
 	else if (command == "OF") {
+
 		//tu te¿
 	}
 	else if (command == "WF") {
