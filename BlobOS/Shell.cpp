@@ -347,7 +347,8 @@ void Shell::go() {
 }
 void Shell::editor(std::string filename){
 
-	std::string poczatkowy = { "To jest nowy tekst." };
+	//std::string poczatkowy = { "To jest nowy tekst." };
+	std::string poczatkowy = FM.show_file(parsed[1]);
 		std::vector<char>tekst;
 		system("cls");
 		std::copy(poczatkowy.begin(), poczatkowy.end(), std::back_inserter(tekst));
@@ -388,4 +389,15 @@ void Shell::editor(std::string filename){
 				}
 			}
 		} while ((znak !=19) && (znak!=17)); //17 ^Q  19 ^S 
+
+		//Tu chyba na razie brakuje opcji zapis/bez zapisu więc po prostu poczotkowy to tekst zapisany w pliku
+		//który potem jest zmieniany edytorem, poczotkowy jest nadpisywany i przesyłany do zapisu
+		
+		//Na razie mam pliki do 32 bajtów, jakby ktoś chciał testować
+
+		poczatkowy.clear();
+		for (int i = 0; i < tekst.size();i++) {
+			poczatkowy.push_back(tekst[i]);
+		}
+		FM.edit_file(parsed[1],poczatkowy);
 }

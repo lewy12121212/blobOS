@@ -27,7 +27,8 @@ class FileManager {
 	void create_file(string name);
 	int free_block();
 	void save_data_to_file( string text, int pom);
-	void edit_file(string name);
+	void edit_file(string name, string text);
+	string show_file(string name);
 	void add_to_file();
 	void delete_file();
 };

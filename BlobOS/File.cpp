@@ -67,13 +67,17 @@ int FileManager::free_block() {
 }
 
 void FileManager::save_data_to_file(string text, int pom) {
+
+	cout << "!!! " << text << endl;
 	unsigned int length = text.size();
 	if (length <= 32) {
 		int nr = FileManager::free_block();
 		cataloge[pom].second.number.push_back(nr);
 		//zapis danych
-
-
+		for (int i = 0; i < length; i++) {
+			disc[cataloge[pom].second.number[0]].block[i] = text[i];
+		}
+		cataloge[pom].second.size_int_byte = length;
 		disc[nr].free = 1;
 	}
 	if (length <= 64 || length > 32) {
@@ -90,10 +94,10 @@ void FileManager::save_data_to_file(string text, int pom) {
 	//if z blokiem indeksowym
 }
 
-void FileManager::edit_file(string name) {
+void FileManager::edit_file(string name, string text) {
 	//edytor tekstu od Ani
 
-	string text = "POMOCY";
+	//string text = "POMOCY";
 
 	int pom = -1;
 	for (int i = 0; i < cataloge.size(); i++) {
@@ -105,6 +109,7 @@ void FileManager::edit_file(string name) {
 	}
 	if (pom == -1)cout << "Nie znaleziono pliku" << endl;
 
+	save_data_to_file(text, pom);
 
 	if (pom != -1)
 		cout << "Dlugosc=" << cataloge[pom].second.size_int_byte << endl;
@@ -115,7 +120,7 @@ void FileManager::edit_file(string name) {
 
 
 
-	fstream plik;
+	/*fstream plik;
 	plik.open(name.c_str(), ios::in | ios::out);
 	if (plik) {
 
@@ -141,7 +146,32 @@ void FileManager::edit_file(string name) {
 		cout << "Nie ma takiego pliku";
 	}
 
+	*/
+}
 
+string FileManager::show_file(string name) {
+	string text;
+	int pom = -1;
+	for (int i = 0; i < cataloge.size(); i++) {
+		if (cataloge[i].first == name) {
+			pom = i;
+			cout << "ZNALEZIONO plik" << endl;
+		}
+
+	}
+	if (pom == -1)cout << "Nie znaleziono pliku" << endl;
+	int length = cataloge[pom].second.size_int_byte;
+	if (length<= 32) {
+		
+		
+		for (int i = 0; i < length; i++) {
+			text.push_back(disc[cataloge[pom].second.number[0]].block[i]);
+		}
+
+	}
+	cout << "??? " << text << endl;
+
+	return text;
 }
 
 void FileManager::add_to_file() {
