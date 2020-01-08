@@ -5,7 +5,9 @@
 #include<stdlib.h>
 #include<algorithm>
 #include"Help.h"
+#include"File.h"
 
+extern FileManager FM;
 extern Memory memory;
 extern ProcTree PTree;
 
@@ -243,7 +245,10 @@ void Shell::touch() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::touch();
 	}
-	else if(parsed.size()==2) std::cout << "touch -tworzenie pliku" << std::endl;
+	else if (parsed.size() == 2) {
+		std::cout << "touch -tworzenie pliku" << std::endl;
+		FM.create_file(parsed[1]);
+	}
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
