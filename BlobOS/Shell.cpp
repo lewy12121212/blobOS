@@ -13,7 +13,7 @@ Shell::Shell() {
 	this->line.clear();
 	this->parsed.clear();
 
-	//Coœ potem do procesów
+	//Coï¿½ potem do procesï¿½w
 }
 
 void Shell::boot() {
@@ -65,7 +65,40 @@ void Shell::not_recognized() {
 }
 
 void Shell::help() {
-	std::cout << "Help" << std::endl;
+	printf(R"EOF(
+
+show 
+	-pcb [PROC NAME] [FILENAME] [PARENT PID]  display information about the process with this PID
+	-pcblist	display pcb lists: READYPCB and WAITINGPCB
+	-tree		print the tree of processes
+	-ram		display the contents of RAM
+	-pagetable	display the contents of page table
+	-queue		display the contents of FIFO queue
+	-frames		display the content of frames
+	-pagefile	display the contents of page file
+
+cp [PROC NAME] [FILENAME] [PARENT PID] 
+
+dp [PROC NAME]
+dp [PID]
+
+touch [FILENAME] - A FILE argument that does not exist is created empty
+
+rm [FILENAME] -remove the FILE
+
+wf [FILENAME] - display the contain of FILE and edit the FILE in text editor
+
+copy [SOURCE FILENAME1] [DEST FILENAME2] - copy the contain of SOURCE to DEST
+
+cat [FILENAME]... - concatenate FILE(s) to standard output
+
+fileinfo [OPTION] [FILENAME] - list information about FILE
+
+go 
+
+.... --help	display this help and exit
+
+)EOF");
 }
 
 void Shell::execute() {
@@ -88,12 +121,10 @@ void Shell::execute() {
 
 void Shell::exit() {
 	status = false;
-	std::cout << "Koniec" << std::endl;
 }
 
 void Shell::clear() {
 	system("cls");
-	std::cout << "Czysto" << std::endl;
 }
 
 void Shell::cp() {
