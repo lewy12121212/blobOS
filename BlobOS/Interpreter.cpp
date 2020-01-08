@@ -60,6 +60,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 	int *rej1=0;
 	int *rej2=0;
+	int counter=0;
 
 
 
@@ -71,7 +72,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		if (exec_instruction[1] == "A") { rej1 = &A; }
 		else if (exec_instruction[1] == "B") { rej1 = &B; }
 		else if (exec_instruction[1] == "C") { rej1 = &C; }
-		else if (exec_instruction[1] == "D") { rej1 = &D; }
+		else if (exec_instruction[1] == "D") { counter = D; }
 		else if (exec_instruction[1] == "[") {
 			
 			exec_instruction[1].pop_back();
@@ -90,7 +91,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		if (exec_instruction[2] == "A") { rej2 = &A; }
 		else if (exec_instruction[2] == "B") { rej2 = &B; }
 		else if (exec_instruction[2] == "C") { rej2 = &C; }
-		else if (exec_instruction[2] == "D") { rej2 = &D; }
+		else if (exec_instruction[2] == "D") { counter = D; }
 		else if (exec_instruction[2] == "[") {
 			
 			exec_instruction[2].pop_back();
@@ -137,6 +138,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 			instruction_counter = adres;
 	}
 	else if (command == "MF") {
+
 		//tu poleci coœ od plików
 	}
 	else if (command == "OF") {
@@ -159,8 +161,11 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	}
 	else if (command == "KP") {
 		//a tu go zabic 
+		running_proc->kill();
 	}
 	else if (command == "HT") {
+
+		running_proc->kill();
 		return -1;
 	}
 	else if (command == "NN") {
