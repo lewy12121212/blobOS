@@ -8,7 +8,7 @@
 #include "Memory.h"
 
 using namespace std;
-static int pid_pcb = 0;
+static int pid_pcb = 1;
 
 enum process_state
 {
@@ -71,7 +71,7 @@ public:
         this->init_proc = init_proc;
     }
 
-    void create_process_file(string &name, string &file_name, int &parent_pid); // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
+    void create_process_file(string &name, string &file_name, int parent_pid); // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
     shared_ptr<PCB> find_pid(int &pid_proc); // przeszukiwanie drzewa 
 
     void kill_pid(int &pid); // zabicie procesu po PID
