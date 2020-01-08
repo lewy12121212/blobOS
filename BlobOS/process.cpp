@@ -6,6 +6,10 @@
 #include <iostream>
 #include "process.h"
 
+ProcTree PTree(make_shared<PCB>());
+
+extern Memory memory;
+
 using namespace std;
 
 void PCB::copy_register(array<int, 5> &cpu_register) //kopiowanie zawartości rejestru do PCB
@@ -54,11 +58,13 @@ shared_ptr<PCB> PCB::get_kid(int &find_pid)
     return nullptr; // jeśli nie znajdziemy PID , zwracamy nullptr
 }
 
-void ProcTree::create_process_file(string &name, string &file_name, int &parent_pid)  // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
+void ProcTree::create_process_file(string &name, string &file_name, int parent_pid)  // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
 {
+        cout << parent_pid << " " << this->init_proc->pid << "\n";
     if(parent_pid == this->init_proc->pid){
         shared_ptr<PCB> proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
         this->init_proc->children_vector.push_back(proc); // dodanie procesu jako dziecka procesu INIT
+        memory.LoadProgram(file_name, proc->pid); // Załaduj kod programu do pamięci wirtualnej
     } else {
         shared_ptr<PCB> parent = this->init_proc->get_kid(parent_pid);
 
@@ -67,6 +73,7 @@ void ProcTree::create_process_file(string &name, string &file_name, int &parent_
         } else {
             shared_ptr<PCB> proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
             parent->children_vector.push_back(proc); // dodanie procesu jako dziecka odnalezionego procesu rodzica
+            memory.LoadProgram(file_name, proc->pid); // Załaduj kod programu do pamięci wirtualnej
         }
     }
 

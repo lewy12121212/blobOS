@@ -1,6 +1,9 @@
 ﻿#include "Memory.h"
+#include "process.h"
+#include <fstream>
 
 Memory memory;
+extern ProcTree PTree;
 
 //Metody użytkowe
 
@@ -100,18 +103,31 @@ Page::Page(std::string s){
 	std::copy(s.begin(), s.end(), data.data());
 }
 
-void Memory::LoadProgram(std::string kod, int PID)
+void Memory::LoadProgram(std::string file_name, int PID)
 {
 	// Kontener na stronnice procesu 
 	this->PageFile.insert(std::pair<int, std::vector<Page>>(PID, std::vector<Page>()));
 
+	// Wczytywanie kodu z pliku do pamięci wirtualnej
+	std::fstream file(file_name, std::ios::in);
+	std::string code = "";
+	char ch;
+	while (file >> std::noskipws >> ch) {
+		code += ch;
+	}
+	file.close();
+
 	// Tworzenie stronnic z kodem programu
-	for (int i = 0; i < kod.length(); i += 16)
+	for (int i = 0; i < code.length(); i += 16)
 	{
-		if (16 > kod.length() - i)
-			this->PageFile.at(PID).push_back(Page(kod.substr(i, 16)));
+		if (16 > code.length() - i)
+			this->PageFile.at(PID).push_back(Page(code.substr(i, 16)));
 		else
-			this->PageFile.at(PID).push_back(Page(kod.substr(i)));
+			this->PageFile.at(PID).push_back(Page(code.substr(i)));
+	}
+
+	while (this->PageFile.at(PID).size() < 16) {
+		this->PageFile.at(PID).push_back(Page());
 	}
 
 	// Wypełnienie tablicy stronnic w PCB
@@ -121,9 +137,13 @@ void Memory::LoadProgram(std::string kod, int PID)
 void Memory::CreatePageTable(int PID)
 {
 	auto v = std::vector<PageInfo>();
+
 	std::for_each(this->PageFile.at(PID).begin(), this->PageFile.at(PID).end(), [&](Page& page) {
 		v.push_back(PageInfo());
 	});
+
+	// Zapisanie PageTable w PCB
+	PTree.find_pid(PID)->page_table = v;
 }
 
 void Page::Print()

@@ -6,6 +6,8 @@
 #include<algorithm>
 #include"Help.h"
 
+extern Memory memory;
+extern ProcTree PTree;
 
 Shell::Shell() {
 	status = true;
@@ -105,7 +107,9 @@ void Shell::cp() {
 		throw exc;
 	}
 	else if (parsed.size() == 3) {
-		std::cout << "Czekamy na Eryka -cp()" << std::endl;
+		//std::cout << "Czekamy na Eryka -cp()" << std::endl;
+		// To do dadania 3 parametr (nazwa procesu, nazwa pliku, parent_pid)
+		PTree.create_process_file(parsed[1], parsed[2], 1);
 	}
 	else {
 		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[3] + "\'";
@@ -200,7 +204,7 @@ void Shell::showframes() {
 }
 
 void Shell::showpagefile() {
-		std::cout << "showpagefile" << std::endl;
+	memory.ShowPages(2);
 }
 
 
