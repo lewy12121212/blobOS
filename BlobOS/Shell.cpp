@@ -14,7 +14,7 @@ Shell::Shell() {
 	this->line.clear();
 	this->parsed.clear();
 
-	//Coœ potem do procesów
+	//Coï¿½ potem do procesï¿½w
 }
 
 void Shell::boot() {
@@ -66,7 +66,40 @@ void Shell::not_recognized() {
 }
 
 void Shell::help() {
-	std::cout << "Help" << std::endl;
+	printf(R"EOF(
+
+show 
+	-pcb [PROC NAME] [FILENAME] [PARENT PID]  display information about the process with this PID
+	-pcblist	display pcb lists: READYPCB and WAITINGPCB
+	-tree		print the tree of processes
+	-ram		display the contents of RAM
+	-pagetable	display the contents of page table
+	-queue		display the contents of FIFO queue
+	-frames		display the content of frames
+	-pagefile	display the contents of page file
+
+cp [PROC NAME] [FILENAME] [PARENT PID] 
+
+dp [PROC NAME]
+dp [PID]
+
+touch [FILENAME] - A FILE argument that does not exist is created empty
+
+rm [FILENAME] -remove the FILE
+
+wf [FILENAME] - display the contain of FILE and edit the FILE in text editor
+
+copy [SOURCE FILENAME1] [DEST FILENAME2] - copy the contain of SOURCE to DEST
+
+cat [FILENAME]... - concatenate FILE(s) to standard output
+
+fileinfo [OPTION] [FILENAME] - list information about FILE
+
+go 
+
+.... --help	display this help and exit
+
+)EOF");
 }
 
 void Shell::execute() {
@@ -89,12 +122,10 @@ void Shell::execute() {
 
 void Shell::exit() {
 	status = false;
-	std::cout << "Koniec" << std::endl;
 }
 
 void Shell::clear() {
 	system("cls");
-	std::cout << "Czysto" << std::endl;
 }
 
 void Shell::cp() {
@@ -239,10 +270,10 @@ void Shell::rm() {
 }
 
 void Shell::wf() {
-		if (parsed.size() == 2 && parsed[1] == "--help") {
-			Help::wf();
-		}
-		else if (parsed.size() == 2) std::cout << "wf -edytor pliku" << std::endl;
+	if (parsed.size() == 2 && parsed[1] == "--help") {
+		Help::wf();
+	}
+	else if (parsed.size() == 2) editor(parsed[1]);
 		else if (parsed.size() == 1) {
 			std::string exc = parsed[0] + ": " + "missing operand";
 			throw exc;
@@ -308,4 +339,48 @@ void Shell::go() {
 		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
 		throw temp;
 	}
+}
+void Shell::editor(std::string filename){
+
+	std::string poczatkowy = { "To jest nowy tekst." };
+		std::vector<char>tekst;
+		system("cls");
+		std::copy(poczatkowy.begin(), poczatkowy.end(), std::back_inserter(tekst));
+		std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
+		std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+		for (auto i:poczatkowy) {
+			std::cout << i;
+		}
+		unsigned char znak;
+		
+		do{
+			znak = _getch();
+		
+			if((znak !=19) && (znak!=17)) {
+				if (znak == 8) {
+					if (tekst.size() > 0) {
+						system("cls");
+						tekst.pop_back();
+						std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
+						std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+						for (auto i : tekst) {
+							std::cout << i;
+						}
+					}
+				}
+				else if (znak == 13) {
+					tekst.push_back('\n');
+					std::cout << std::endl;
+				}
+				else {
+					tekst.push_back(znak);
+					system("cls");
+					std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
+					std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+					for (auto i : tekst) {
+						std::cout << i;
+					}
+				}
+			}
+		} while ((znak !=19) && (znak!=17)); //17 ^Q  19 ^S 
 }
