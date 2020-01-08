@@ -58,8 +58,9 @@ shared_ptr<PCB> PCB::get_kid(int &find_pid)
     return nullptr; // jeśli nie znajdziemy PID , zwracamy nullptr
 }
 
-void ProcTree::create_process_file(string &name, string &file_name, int &parent_pid)  // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
+void ProcTree::create_process_file(string &name, string &file_name, int parent_pid)  // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
 {
+        cout << parent_pid << " " << this->init_proc->pid << "\n";
     if(parent_pid == this->init_proc->pid){
         shared_ptr<PCB> proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
         this->init_proc->children_vector.push_back(proc); // dodanie procesu jako dziecka procesu INIT

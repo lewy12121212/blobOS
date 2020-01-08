@@ -1,8 +1,9 @@
 #pragma once
 #include<vector>
 #include<string>
-#include"procesor.h"
-#include"Memory.h"
+#include "procesor.h"
+#include "Memory.h"
+#include "process.h"
 
 class Shell {
 protected:
