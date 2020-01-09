@@ -134,7 +134,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 			exec_instruction[1].pop_back();
 			exec_instruction[1].erase(exec_instruction[1].begin());
-
+			//bal
 			text = exec_instruction[1];
 
 		}
