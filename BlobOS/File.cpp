@@ -15,7 +15,7 @@ struct inode
 	}
 
 	void change_size(string name) {
-		fstream plik(name.c_str(), ios::app);
+		/*fstream plik(name.c_str(), ios::app);
 
 		if (plik)
 		{
@@ -29,7 +29,7 @@ struct inode
 		}
 
 
-		plik.close();
+		plik.close();*/
 	}
 
 };
@@ -38,26 +38,19 @@ struct inode
 
 FileManager FM;
 
+//Tworzy plik o podanej nazwie, umieszcza go w katalogu
 void FileManager::create_file(string name) {
+
 	inode file_node;
-
-	/*	ofstream plik(name.c_str());
-		if (plik) {
-			cout << "UTWORZONO PLIK" << endl;
-		}
-		else
-		{
-			cout << "BLAD TWORZENIA PLIKU" << endl;
-		}
-		plik.close();*/
-
 	pair<string, inode> file(name, file_node);
+
 	cataloge.push_back(file);
 
 	//zamek???
 
 }
 
+//Wyszukuje pusty blok pamiêci
 int FileManager::free_block() {
 	for (int i = 0; i < 32; i++) {
 		if (disc[i].free == 0)return i;
@@ -66,10 +59,27 @@ int FileManager::free_block() {
 	return -1;
 }
 
-void FileManager::save_data_to_file(string text, int pom) {
+//Odszukuje plik o danej nazwie w katalogu i zwraca jego numer
+int FileManager::find_file(string name) {
 
-	cout << "!!! " << text << endl;
+	int pom = -1;
+	for (int i = 0; i < cataloge.size(); i++) {
+		if (cataloge[i].first == name) {
+			pom = i;
+			//cout << "ZNALEZIONO plik" << endl;
+		}
+
+	}
+	//if (pom == -1)cout << "Nie znaleziono pliku" << endl;
+	return pom;
+}
+
+//Zapisuje tekst do pamiêci dla podanego pliku 
+//Dzia³a do 32 bajtów
+void FileManager::save_data_to_file(string name, string text) {
+	int pom = find_file(name);
 	unsigned int length = text.size();
+
 	if (length <= 32) {
 		int nr = FileManager::free_block();
 		cataloge[pom].second.number.push_back(nr);
@@ -80,6 +90,7 @@ void FileManager::save_data_to_file(string text, int pom) {
 		cataloge[pom].second.size_int_byte = length;
 		disc[nr].free = 1;
 	}
+
 	if (length <= 64 || length > 32) {
 		int nr1 = free_block();
 		int nr2 = free_block();
@@ -94,61 +105,17 @@ void FileManager::save_data_to_file(string text, int pom) {
 	//if z blokiem indeksowym
 }
 
+//W sumie teraz to chyba nic nie robi, zobaczê potem czy nie bêdê tego potrzebowa³a do czegoœ innego
 void FileManager::edit_file(string name, string text) {
 	//edytor tekstu od Ani
 
-	//string text = "POMOCY";
+	save_data_to_file(name, text);
 
-	int pom = -1;
-	for (int i = 0; i < cataloge.size(); i++) {
-		if (cataloge[i].first == name) {
-			pom = i;
-			cout << "ZNALEZIONO plik" << endl;
-		}
-
-	}
-	if (pom == -1)cout << "Nie znaleziono pliku" << endl;
-
-	save_data_to_file(text, pom);
-
-	if (pom != -1)
-		cout << "Dlugosc=" << cataloge[pom].second.size_int_byte << endl;
-	else {
-		cout << "Nie ma takiego pliku";
-	}
-
-
-
-
-	/*fstream plik;
-	plik.open(name.c_str(), ios::in | ios::out);
-	if (plik) {
-
-		getline(cin, text);
-		plik << text;
-		plik << "qwerty";
-
-	}
-	else
-	{
-		cout << "BLAD" << endl;
-	}
-	plik.close();
-	if (pom != -1)
-		cataloge[pom].second.change_size(name);
-	else {
-		cout << "Nie ma takiego pliku";
-	}
-
-	if (pom != -1)
-		cout << "2=" << cataloge[pom].second.size_int_byte << endl;
-	else {
-		cout << "Nie ma takiego pliku";
-	}
-
-	*/
+	
 }
 
+
+// Po podaniu nazwy pliku zwraca stringa z jego zawartoœci¹
 string FileManager::show_file(string name) {
 	string text;
 	int pom = -1;
@@ -174,6 +141,8 @@ string FileManager::show_file(string name) {
 	return text;
 }
 
+
+//Jeszcze nie dzia³a
 void FileManager::add_to_file() {
 	string name;
 	string text;
@@ -240,6 +209,8 @@ void FileManager::add_to_file() {
 	//dodawanie czegoœ na koñcu pliku
 }
 
+
+//Jeszcze nie usuwa, bêdzie mieæ nazwê pliku jako argument
 void FileManager::delete_file() {
 	/*
 	vector<pair<string, inode>>::iterator i = FileManager::cataloge.begin();
