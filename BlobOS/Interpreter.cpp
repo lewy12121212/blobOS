@@ -111,7 +111,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 		}
 		else {
-			val = exec_instruction[1].c_str;
+			//val = exec_instruction[1].c_str;
 			i = stoi(exec_instruction[1]);
 			*rej1 = i;
 		}
@@ -139,7 +139,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 		}
 		else {
-			val = exec_instruction[2].c_str;
+			//val = exec_instruction[2].c_str;
 			i = stoi(exec_instruction[2]);
 			*rej2 = i;
 		}
