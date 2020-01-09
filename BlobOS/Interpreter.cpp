@@ -210,12 +210,14 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	}
 	else if (command == "KP") {
 		//a tu go zabic 
-		running_proc->kill();
+		//running_proc->kill();
+		PTree.kill_pid(running_proc->pid);
 		//blaa
 	}
 	else if (command == "HT") {
-
-		running_proc->kill();
+		//
+		//running_proc->kill();
+		PTree.kill_pid(running_proc->pid);
 		return -1;
 	}
 	else if (command == "NN") {

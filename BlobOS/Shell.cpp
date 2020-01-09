@@ -217,7 +217,7 @@ void Shell::showroot() {
 
 void Shell::showtree() {
 
-
+	PTree.display_tree();
 }
 
 
