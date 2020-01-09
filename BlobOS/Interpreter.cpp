@@ -171,11 +171,11 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		instruction_counter = adres;
 	}
 	else if (command == "JZ") {
-		if (*rej1 == 0)
+		if (counter == 0)
 			instruction_counter = adres;
 	}
 	else if (command == "JN") {
-		if (*rej1 != 0)
+		if (counter != 0)
 			instruction_counter = adres;
 	}
 	else if (command == "MF") {
