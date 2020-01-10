@@ -6,10 +6,18 @@
 #include<algorithm>
 #include"Help.h"
 #include"File.h"
+#include<windows.h>
 
 extern FileManager FM;
 extern Memory memory;
 extern ProcTree PTree;
+
+inline void set_color(int col) {
+
+	HANDLE color = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(color, col);
+}
+
 
 Shell::Shell() {
 	status = true;
@@ -20,25 +28,28 @@ Shell::Shell() {
 }
 
 void Shell::boot() {
+	system("color 8");
 	loop();
 }
 
 void Shell::read_line() {
+	set_color(lightGreen);
 	std::cout << "$ ";
+	set_color(lightAqua);
 	getline(std::cin, line);
 	std::transform(line.begin(), line.end(), line.begin(), ::tolower);
+	if (line.size()>0) {
+		while ((line.at(line.size() - 1) == ' '))	line.pop_back();
+	}
 	parse();
 }
 
 void Shell::parse() {
 
 	line = line + ' ';
-
 	std::string temp;
 	for (int i = 0; i < line.size(); i++) {
-		if (line[i] != ' ') {
-			temp += line[i];
-		}
+		if (line[i] != ' ') temp += line[i];
 		else {
 			parsed.push_back(temp);
 			temp.clear();
@@ -53,6 +64,7 @@ void Shell::loop() {
 			execute();
 		}
 		catch (std::string & e) {
+			set_color(gray);
 			std::cout << e << std::endl;
 			std::cout << "Try \'" << parsed[0] << " --help\' for more information." << std::endl;
 		}
@@ -64,12 +76,13 @@ void Shell::loop() {
 }
 
 void Shell::not_recognized() {
+	set_color(gray);
 	std::cout << parsed[0] << ": command not found" << std::endl;
 }
 
 void Shell::help() {
+	set_color(white);
 	printf(R"EOF(
-
 show 
 	-pcb [PROC NAME] [FILENAME] [PARENT PID]  display information about the process with this PID
 	-pcblist	display pcb lists: READYPCB and WAITINGPCB
@@ -98,8 +111,9 @@ cat [FILENAME]... - concatenate FILE(s) to standard output
 fileinfo [OPTION] [FILENAME] - list information about FILE
 
 go 
+ENTER
 
-.... --help	display this help and exit
+[COMMAND] --help	display help for this command
 
 )EOF");
 }
@@ -135,17 +149,16 @@ void Shell::cp() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::cp();
 	}
-	else if (parsed.size() == 2||parsed.size()==1) {
+	else if (parsed.size() == 2||parsed.size()==1 || parsed.size()==3) {
 		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
 	}
-	else if (parsed.size() == 3) {
-		//std::cout << "Czekamy na Eryka -cp()" << std::endl;
+	else if (parsed.size() == 4) {
 		// To do dadania 3 parametr (nazwa procesu, nazwa pliku, parent_pid)
-		PTree.create_process_file(parsed[1], parsed[2], 1);
+		PTree.create_process_file(parsed[1], parsed[2], std::stoi(parsed[3]));
 	}
 	else {
-		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[3] + "\'";
+		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[4] + "\'";
 		throw exc;
 	}
 }
@@ -216,6 +229,7 @@ void Shell::showroot() {
 }
 
 void Shell::showtree() {
+	
 
 
 }
@@ -246,7 +260,7 @@ void Shell::touch() {
 		Help::touch();
 	}
 	else if (parsed.size() == 2) {
-		std::cout << "touch -tworzenie pliku" << std::endl;
+		//std::cout << "touch -tworzenie pliku" << std::endl;
 		FM.create_file(parsed[1]);
 	}
 	else if (parsed.size() == 1) {
@@ -346,8 +360,7 @@ void Shell::go() {
 	}
 }
 void Shell::editor(std::string filename){
-
-	//std::string poczatkowy = { "To jest nowy tekst." };
+	
 	std::string poczatkowy = FM.show_file(parsed[1]);
 		std::vector<char>tekst;
 		system("cls");

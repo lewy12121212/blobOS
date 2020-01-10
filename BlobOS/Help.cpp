@@ -3,18 +3,18 @@
 #include <iostream>
 
 void Help::cp() {
+	set_color(white);
 	std::cout << "cp [PROC NAME] [FILENAME] [PARENT PID]" << std::endl;
 }
 
 void Help::dp() {
-
+	set_color(white);
 	std::cout << "dp [PROC NAME]" << std::endl;
 	std::cout << "dp [PID]" << std::endl;
-
 }
 
 void Help::show() {
-
+	set_color(white);
 	printf(R"EOF(
 Usage: show [OPTION]
 Show the information about OPTION.
@@ -37,6 +37,7 @@ Example:
 
 void Help::touch() {
 
+	set_color(white);
 	printf(R"EOF(
 Usage: touch [FILENAME]
 
@@ -48,7 +49,7 @@ A FILE argument that does not exist is created empty.
 }
 
 void Help::rm() {
-
+	set_color(white);
 	printf(R"EOF(
 Usage: rm [FILENAME]
 
@@ -60,7 +61,7 @@ Remove the FILE.
 }
 
 void Help::wf() {
-
+	set_color(white);
 	printf(R"EOF(
 Usage: wf [FILENAME]
 
@@ -72,7 +73,7 @@ Display the contain of FILE and edit the FILE in text editor.
 }
 
 void Help::copy() {
-
+	set_color(white);
 	printf(R"EOF(
 Usage: copy [SOURCE FILENAME1] [DEST FILENAME2]
 
@@ -84,7 +85,7 @@ Copy the contain of SOURCE to DEST.
 }
 
 void Help::cat() {
-
+	set_color(white);
 	printf(R"EOF(
 Usage: cat [FILENAME]...
 
@@ -98,7 +99,7 @@ With no FILE read standard input. // Mo¿e zrobie
 }
 
 void Help::fileinfo() {
-
+	set_color(white);
 	printf(R"EOF(
 Usage: fileinfo [OPTION] [FILENAME]
 
@@ -112,5 +113,6 @@ List information about FILE.
 }
 
 void Help::go() {
-
+	set_color(white);
+	std::cout << "Musze pomyslec jak tutaj napisac";
 }

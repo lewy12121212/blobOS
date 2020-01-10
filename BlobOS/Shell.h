@@ -6,6 +6,14 @@
 #include "process.h"
 #include<conio.h>
 
+typedef enum color {
+	white = 7,
+	gray = 8,
+	lightGreen = 10,
+	lightAqua = 11
+};
+
+void set_color(int col);
 
 class Shell {
 protected:
@@ -13,7 +21,6 @@ protected:
 	std::string line;
 	std::vector<std::string>parsed;
 	
-
 	void read_line();
 	void parse();
 	void execute();
