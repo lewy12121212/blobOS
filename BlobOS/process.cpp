@@ -8,9 +8,9 @@
 #include "process.h"
 //#include "procesor.h"
 
-ProcTree PTree(make_shared<PCB>());
-
 extern Memory memory;
+
+ProcTree PTree(make_shared<PCB>());
 
 using namespace std;
 

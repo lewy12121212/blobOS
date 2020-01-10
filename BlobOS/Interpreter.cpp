@@ -164,12 +164,15 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		//tutaj pisanko do pamiêci
 			//edytowalem to wywolanie, by sie kompilowalo po zmianach u mnie,
 			//ale poza tym to raczej nie jest poprawne, bo nie wiem, czym jest val - Bartek Czarnecki
-		memory.insert_to_ram(adres, (int)val);
+			// EDIT 2 Doda³em pid ¿eby pasowa³o do definicji funkcji z "dzia³aj¹cym"
+			// algorytmem wymiany stron - Bartek Ciesielczyk
+		memory.insert_to_ram(adres, (int)val, running_proc->pid);
 	}
 	else if (command == "GT") {
 		//pobieranko z pamiêci
 			//to tez zmienilem, bo dodalem nowa funkcje
-		memory.get_data(adres, 2);
+			// EDIT 2 to te¿ zmieni³em bo zmieni³em funkcjê pierwszego Bartka
+		memory.get_data(adres, 2, running_proc->pid);
 	}
 	else if (command == "LP") {
 		C = instruction_counter++;

@@ -8,6 +8,8 @@
 #include "Memory.h"
 //#include "procesor.h"
 
+extern Memory memory;
+
 using namespace std;
 static int pid_pcb = 1;
 
@@ -40,7 +42,6 @@ public:
         this->pid = 0;							// poprawione na 0 :) 
         this->parent_pid = 0;
         this->state = ready;
-        memory.SetupInitProcess();
     }
 
     PCB(string &name, int &parent_pid)
@@ -72,9 +73,9 @@ public:
 
     shared_ptr<PCB> init_proc;
 
-
     ProcTree(shared_ptr<PCB> init_proc){
         this->init_proc = init_proc;
+        memory.SetupInitProcess();
     }
 
     void create_process_file(string &name, string &file_name, int parent_pid); // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku

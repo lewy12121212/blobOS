@@ -244,7 +244,7 @@ void Memory::CreatePageTable(int PID)
 	});
 
 	// Zapisanie PageTable w PCB
-	PTree.find_pid(PID)->page_table = v;
+	PTree.init_proc->page_table = v;
 }
 
 void Page::Print()
