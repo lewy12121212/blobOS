@@ -230,9 +230,15 @@ void Memory::LoadProgram(std::string file_name, int PID)
 void Memory::SetupInitProcess() {
 	this->PageFile.insert(std::pair<int, std::vector<Page>>(0, std::vector<Page>()));
 
-	this->PageFile.at(0).push_back(Page("JP [0];        "));
+	this->PageFile.at(0).push_back(Page("JP [0];"));
 
 	this->CreatePageTable(0);
+
+	for (int i = 0; i < 16; i++) {
+		RAM.at(i) = PageFile.at(0).at(0).data.at(i);
+	}
+
+	FIFO.push(0);
 }
 
 void Memory::CreatePageTable(int PID)
@@ -268,4 +274,30 @@ void Memory::ShowPages(int PID)
 	{
 		p.Print();
 	}
+}
+
+void Memory::ShowPageFile() {
+	for (auto it : PageFile) {
+		std::cout << "PID: " << it.first << "\n";
+		for (Page p : it.second)
+		{
+			p.Print();
+		}
+	}
+	std::cout << "\n";
+}
+
+void Memory::ShowQueue() {
+	std::queue<int> q = memory.FIFO;
+	std::vector<int> t;
+	while (!q.empty()) {
+		t.push_back(q.front());
+		q.pop();
+	}
+	std::reverse(t.begin(), t.end());
+	std::cout << "|-[";
+	for (auto i : t) {
+		std::cout << " " << i;
+	}
+	std::cout << " ]->\n\n";
 }

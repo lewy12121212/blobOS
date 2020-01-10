@@ -81,6 +81,7 @@ public:
 	// Na razie do testowania std::string ale to zależy od syetmu plików
 	void LoadProgram(std::string kod, int PID);
 
+	// Funkcja ładująca program Init
 	void SetupInitProcess();
 
 	/*Tworzy wskaźnik do tablicy stronic procesu znajdującej się w PCB.
@@ -90,4 +91,10 @@ public:
 
 	/*Wyświetla strony danego procesu.*/
 	void ShowPages(int PID);
+
+	/*Wyświetla strony w pliku wymiany.*/
+	void ShowPageFile();
+
+	/*Wyświetla kolejkę FIFO.*/
+	void ShowQueue();
 };

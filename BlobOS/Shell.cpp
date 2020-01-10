@@ -235,13 +235,13 @@ void Shell::show() {
 	else if (parsed.size() == 2) {
 		if (parsed[1] == "-pcb") showpcb();
 		else if (parsed[1] == "-pcblist") showpcblist();
-		else if (parsed[1] == "-tree") showtree();
+		else if (parsed[1] == "-tree") showtree(); // Chyba jak jest tree to nie musi być pcblist bo to na to samo wychodzi
 		else if (parsed[1] == "-ram") showram();
-		else if (parsed[1] == "-pagetable") showpagetable();
+		else if (parsed[1] == "-pagetable") showpagetable(); // Potrzebuje jednego parametru
 		else if (parsed[1] == "-queue") showqueue();
-		else if (parsed[1] == "-frames") showframes();
+		else if (parsed[1] == "-frames") showframes(); // zmienić nazwę na showframe i dodac jeden parametr
 		else if (parsed[1] == "-pagefile") showpagefile();
-
+		// TODO showpages(arg) 
 		else {
 			std::string exc = "error: unsupported option";
 			throw exc;
@@ -280,22 +280,22 @@ void Shell::showtree() {
 
 
 void Shell::showpagetable() {
-
-
+	//memory.ShowPages(parsed[2]);
+	// jak dodasz argument to odkomentuj
 }
 
 void Shell::showqueue() {
-
+	memory.ShowQueue();
 
 }
 
 void Shell::showframes() {
-
+	
 
 }
 
 void Shell::showpagefile() {
-	memory.ShowPages(2);
+	memory.ShowPageFile();
 }
 
 
