@@ -29,6 +29,7 @@ protected:
 	void help();
 	void clear();
 	void exit();
+	void logo();
 
 	//procesy i proces
 	void cp();
