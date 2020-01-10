@@ -28,7 +28,7 @@ public:
     int parent_pid;                             // pid rodzica
     int time_run;                               //przydzielony kwant czasu do wykonania
     process_state state;                        // stan procesu
-    array<int, 4> register_copy{0, 0, 0, 0}; // kopia rejestru
+    array<int, 5> register_copy{0, 0, 0, 0, 0}; // kopia rejestru
     shared_ptr<PCB> parent_pcb = nullptr;       // wskaźnik na rodzica
     vector<shared_ptr<PCB>> children_vector;    // wektor dzieci
     vector<PageInfo> page_table;                // coś tam co Bartek chce i mi truł że mo być - to jest. :D

@@ -168,6 +168,9 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		//pobieranko z pamiêci
 		memory.get_frame(adres);
 	}
+	else if (command == "LP") {
+
+	}
 	else if (command == "JP") {
 		instruction_counter = adres;
 	}
@@ -224,7 +227,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 	}
 
-
+	instruction_counter++;
 
 	return 1;
 }
