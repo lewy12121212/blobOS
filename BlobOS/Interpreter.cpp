@@ -169,14 +169,14 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		memory.get_frame(adres);
 	}
 	else if (command == "LP") {
-
+		C = instruction_counter++;
 	}
 	else if (command == "JP") {
 		instruction_counter = adres;
 	}
 	else if (command == "JZ") {
 		if (counter == 0)
-			instruction_counter = adres;
+			instruction_counter = C;
 	}
 	else if (command == "JN") {
 		if (counter != 0)
