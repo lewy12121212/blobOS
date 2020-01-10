@@ -40,6 +40,7 @@ public:
         this->pid = 0;							// poprawione na 0 :) 
         this->parent_pid = 0;
         this->state = ready;
+        memory.SetupInitProcess();
     }
 
     PCB(string &name, int &parent_pid)

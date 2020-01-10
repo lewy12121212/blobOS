@@ -41,13 +41,10 @@ public:
 
 	//Funkcje - nie jestem pewny, które się przydadzą
 
-	/*Zapisuje stronę do ramki o podanym numerze (przy założeniu, że data to tablica wielkości 16)*/
-	void write_to_ram(int nr, std::array<char, 16> data);
-
 	/*Zapisuje liczbę we wskazane miejsce w RAMie.
 	nr - numer komórki RAM
 	data - zmienna do zapisania*/
-	void insert_to_ram(int nr, int data);
+	void insert_to_ram(int nr, int data, int PID);
 
 	/*Pobranie danej ramki z RAMu*/
 	std::array<char, 16> get_frame(int nr);
@@ -55,7 +52,13 @@ public:
 	/*Pobranie liczby o podanej ilości cyfr z RAMu.
 	nr - numer komórki RAM
 	size - ilość cyfr*/
-	int get_data(int nr, int size);
+	int get_data(int nr, int size, int PID);
+
+	/*Ustawianie zawartości komórki*/
+	void set(int address, int val, int PID);
+
+	/*Pobieranie zawartości komórki*/
+	char get(int address, int PID);
 
 	/*Wyświetla daną ramkę.*/
 	void show_frame(int nr);
@@ -77,6 +80,8 @@ public:
 	// Ładowanie programu do pliku stronnicowania
 	// Na razie do testowania std::string ale to zależy od syetmu plików
 	void LoadProgram(std::string kod, int PID);
+
+	void SetupInitProcess();
 
 	/*Tworzy wskaźnik do tablicy stronic procesu znajdującej się w PCB.
 	Używana przy tworzeniu nowego procesu.

@@ -10,30 +10,12 @@ extern ProcTree PTree;
 Memory::Memory()
 {
 	for (char &e : RAM)
-		e = ' ';
-	char temp[16] = "JP [0];        ";
-	std::array<char, 16> dummy;
-	for (int i = 0; i < 16; i++)
-		dummy[i] = temp[i];
-	write_to_ram(0, dummy);
+		e = '\0';
 }
 
-
-void Memory::write_to_ram(int nr, std::array<char, 16> data)
+void Memory::insert_to_ram(int nr, int data, int PID)
 {
-	char c;
-	for (int j = 0; j < 16; j++)
-	{
-		c = data[j];
-		if (c == '\0')
-			RAM[16 * nr + j] = ' ';
-		else
-			RAM[16 * nr + j] = c;
-	}
-}
-
-void Memory::insert_to_ram(int nr, int data)
-{
+	PageHandler(nr, PID);
 	int n = data;
 	int size = 0;
 	while (n != 0) {
@@ -56,12 +38,13 @@ std::array<char, 16> Memory::get_frame(int nr)
 	return data;
 }
 
-int Memory::get_data(int nr, int size)
+int Memory::get_data(int nr, int size, int PID)
 {
 	int data = 0;
 	char c = '\0';
 	for (int i = 0; i < size; i++)
 	{
+		PageHandler(nr + i, PID);
 		c = RAM[nr + i];
 		if (c >= 48 && c <= 57)
 			data += pow(10, size - i - 1) * ((int)c - 48);
@@ -74,6 +57,16 @@ int Memory::get_data(int nr, int size)
 	return data;
 }
 
+void Memory::set(int address,int val, int PID){
+	PageHandler(address, PID);
+	RAM[address] = val;
+}
+
+char Memory::get(int address, int PID) {
+	PageHandler(address, PID);
+	return RAM[address];
+}
+
 void Memory::show_frame(int nr)
 {
 	char c;
@@ -81,7 +74,7 @@ void Memory::show_frame(int nr)
 	for (int j = 0; j < 16; j++)
 	{
 		c = RAM[16 * nr + j];
-		if (c == ' ')
+		if (c == '\0')
 			std::cout << '_';
 		else
 			std::cout << c;
@@ -99,7 +92,7 @@ void Memory::show_ram()
 		for (int j = 0; j < 16; j++)
 		{
 			c = RAM[16 * i + j];
-			if (c == ' ')
+			if (c == '\0')
 				std::cout << '_';
 			else
 				std::cout << c;
@@ -152,7 +145,7 @@ void Memory::PageHandler(int address, int PID) {
 			if (FIFO.size() == 0) {
 				// Jeśli wszystkie ramki wolne
 				for (int i = 0; i < 16; i++) {
-					RAM[(page * 16) + i] = PageFile.at(PID).at(page).data.at(i);
+					RAM.at((page * 16) + i) = PageFile.at(PID).at(page).data.at(i);
 				}
 				FIFO.push(0);
 				Frames.insert(Frames.end(), std::pair<int, std::pair<int, int>>(0, std::pair<int, int>(PID, page)));
@@ -163,7 +156,7 @@ void Memory::PageHandler(int address, int PID) {
 				// Jeśli są jeszcze wolne ramki
 				int next_empty_frame = FIFO.back() + 1;
 				for (int i = 0; i < 16; i++) {
-					RAM[(next_empty_frame * 16) + i] = PageFile.at(PID).at(page).data.at(i);
+					RAM.at((next_empty_frame * 16) + i) = PageFile.at(PID).at(page).data.at(i);
 				}
 				FIFO.push(next_empty_frame);
 				Frames.insert(Frames.end(), std::pair<int, std::pair<int, int>>(next_empty_frame, std::pair<int, int>(PID, page)));
@@ -184,7 +177,7 @@ void Memory::PageHandler(int address, int PID) {
 
 			// Przepisz zmiany z RAM do pliku wymiany
 			for (int i = 0; i < 16; i++) {
-				PageFile.at(process_to_update->pid).at(page_to_update).data.at(i) = RAM[(victim * 16) + i];
+				PageFile.at(process_to_update->pid).at(page_to_update).data.at(i) = RAM.at((victim * 16) + i);
 			}
 
 			// Update informacji w page_table procesu victima
@@ -193,7 +186,7 @@ void Memory::PageHandler(int address, int PID) {
 
 			// Nadpisanie ramki victim nową stroną
 			for (int i = 0; i < 16; i++) {
-				RAM[(victim * 16) + i] = PageFile.at(PID).at(page).data.at(i);
+				RAM.at((victim * 16) + i) = PageFile.at(PID).at(page).data.at(i);
 			}
 
 			// Update informacji w page_table procesu działającego
@@ -234,6 +227,14 @@ void Memory::LoadProgram(std::string file_name, int PID)
 	this->CreatePageTable(PID);
 }
 
+void Memory::SetupInitProcess() {
+	this->PageFile.insert(std::pair<int, std::vector<Page>>(0, std::vector<Page>()));
+
+	this->PageFile.at(0).push_back(Page("JP [0];        "));
+
+	this->CreatePageTable(0);
+}
+
 void Memory::CreatePageTable(int PID)
 {
 	auto v = std::vector<PageInfo>();
@@ -250,8 +251,10 @@ void Page::Print()
 {
 	for (char c : this->data)
 	{
-		if (c != '\0')
-			std::cout << "'" << c << "' ";
+		if (c != '\0') {
+			if (c != '\n') std::cout << "'" << c << "' ";
+			else std::cout << "'" << '\\' << "'";
+		}
 		else
 			std::cout << "[ ] ";
 	}
