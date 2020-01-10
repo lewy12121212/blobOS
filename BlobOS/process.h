@@ -47,8 +47,8 @@ public:
     PCB(string &name, int &parent_pid)
     {
         this->name = name;
-        pid_pcb++;
         this->pid = pid_pcb;
+        pid_pcb++;
         this->parent_pid = parent_pid;
         this->state = ready;
     }
