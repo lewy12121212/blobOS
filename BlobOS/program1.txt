@@ -1,0 +1,19 @@
+MV A 0; 
+MV B 0; 
+MV C 0; 
+WR [200] 1;
+MV D 7;
+LP; 
+AD A B; 
+AD A C; 
+AD A [200];
+WR [201] A;
+MV A B;
+MV B C;
+MV C [200];
+WR [200] [201];
+DE D;
+JN LP;
+HT;
+
+
