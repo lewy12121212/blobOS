@@ -26,7 +26,8 @@ class FileManager {
 	vector < pair < string, inode >> cataloge;
 	void create_file(string name);
 	int free_block();
-	void save_data_to_file( string text, int pom);
+	int find_file(string name);
+	void save_data_to_file(string name, string text);
 	void edit_file(string name, string text);
 	string show_file(string name);
 	void add_to_file();

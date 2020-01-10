@@ -21,6 +21,8 @@ private:
 	void update_proc(const shared_ptr<PCB>& running_proc);
 	array<string, 4> instruction_separate(const std::string & instruction);
 	int execute_instruction(std::string& instruction, shared_ptr<PCB>& running_proc);
+	void display_registers();
+
 
 public:
 
