@@ -213,7 +213,7 @@ void Memory::LoadProgram(std::string file_name, int PID)
 	// Tworzenie stronnic z kodem programu
 	for (int i = 0; i < code.length(); i += 16)
 	{
-		if (16 > code.length() - i)
+		if (16 <= code.length() - i)
 			this->PageFile.at(PID).push_back(Page(code.substr(i, 16)));
 		else
 			this->PageFile.at(PID).push_back(Page(code.substr(i)));

@@ -171,6 +171,8 @@
     <ClInclude Include="Shell.h" />
   </ItemGroup>
   <ItemGroup>
+    <Text Include="program1.txt" />
+    <Text Include="program2.txt" />
     <Text Include="test.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
