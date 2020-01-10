@@ -33,13 +33,25 @@ public:
 	/*---------RAM---------*/
 
 	//Zmienne
-	char RAM[256] = {' '};
+	std::array<char, 256> RAM = { ' ' };
 
-	/*Zapisuje stronę do danej ramki (przy założeniu, że data to tablica wielkości 16)*/
-	void write_to_ram(int nr, char *data);
+	//Funkcje - nie jestem pewny, które się przydadzą
+
+	/*Zapisuje stronę do ramki o podanym numerze (przy założeniu, że data to tablica wielkości 16)*/
+	void write_to_ram(int nr, std::array<char, 16> data);
+
+	/*Zapisuje liczbę we wskazane miejsce w RAMie.
+	nr - numer komórki RAM
+	data - zmienna do zapisania*/
+	void insert_to_ram(int nr, int data);
 
 	/*Pobranie danej ramki z RAMu*/
-	char* get_frame(int nr);
+	std::array<char, 16> get_frame(int nr);
+
+	/*Pobranie liczby o podanej ilości cyfr z RAMu.
+	nr - numer komórki RAM
+	size - ilość cyfr*/
+	int get_data(int nr, int size);
 
 	/*Wyświetla daną ramkę.*/
 	void show_frame(int nr);

@@ -11,10 +11,15 @@ Memory::Memory()
 {
 	for (char &e : RAM)
 		e = ' ';
+	char temp[16] = "JP [0];        ";
+	std::array<char, 16> dummy;
+	for (int i = 0; i < 16; i++)
+		dummy[i] = temp[i];
+	write_to_ram(0, dummy);
 }
 
 
-void Memory::write_to_ram(int nr, char* data)
+void Memory::write_to_ram(int nr, std::array<char, 16> data)
 {
 	char c;
 	for (int j = 0; j < 16; j++)
@@ -27,12 +32,44 @@ void Memory::write_to_ram(int nr, char* data)
 	}
 }
 
-char* Memory::get_frame(int nr)
+void Memory::insert_to_ram(int nr, int data)
 {
-	char data[16];
+	int n = data;
+	int size = 0;
+	while (n != 0) {
+		n = n / 10;
+		++size;
+	}
+	char str[16];
+	_itoa_s(data, str, 10);
+	for (int i = 0; i < size; i++)
+		RAM[nr + i] = str[i];
+}
+
+std::array<char, 16> Memory::get_frame(int nr)
+{
+	std::array<char, 16> data;
 	for (int j = 0; j < 16; j++)
 	{
 		data[j] = RAM[16 * nr + j];
+	}
+	return data;
+}
+
+int Memory::get_data(int nr, int size)
+{
+	int data = 0;
+	char c = '\0';
+	for (int i = 0; i < size; i++)
+	{
+		c = RAM[nr + i];
+		if (c >= 48 && c <= 57)
+			data += pow(10, size - i - 1) * ((int)c - 48);
+		else
+		{
+			data = data / pow(10, size - i);
+			break;
+		}
 	}
 	return data;
 }
@@ -55,11 +92,10 @@ void Memory::show_frame(int nr)
 void Memory::show_ram()
 {
 	char c;
-	std::cout << "RAM content:";
+	std::cout << "RAM: ";
 	for (int i = 0; i < 16; i++)
 	{
-		std::cout << std::endl
-				  << "frame " << i << ":\t";
+		std::cout << std::endl << "frame " << i << ":\t";
 		for (int j = 0; j < 16; j++)
 		{
 			c = RAM[16 * i + j];

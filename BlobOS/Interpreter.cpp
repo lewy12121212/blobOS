@@ -74,7 +74,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	int i = 0;
 	int adres = 0;
 
-	char val;
+	char val = '0';
 
 	int *rej1=0;
 	int *rej2=0;
@@ -162,11 +162,14 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "MV") { *rej1 = *rej2; }
 	else if (command == "WR") {
 		//tutaj pisanko do pamiêci
-		memory.write_to_ram(adres, &val);
+			//edytowalem to wywolanie, by sie kompilowalo po zmianach u mnie,
+			//ale poza tym to raczej nie jest poprawne, bo nie wiem, czym jest val - Bartek Czarnecki
+		memory.insert_to_ram(adres, (int)val);
 	}
 	else if (command == "GT") {
 		//pobieranko z pamiêci
-		memory.get_frame(adres);
+			//to tez zmienilem, bo dodalem nowa funkcje
+		memory.get_data(adres, 2);
 	}
 	else if (command == "LP") {
 		C = instruction_counter++;
