@@ -139,6 +139,70 @@ Page::Page(std::string s){
 	std::copy(s.begin(), s.end(), data.data());
 }
 
+void Memory::PageHandler(int address, int PID) {
+	// Stałe pomocnicze
+	const int page = address / 16;
+	const int offset = address % 16;
+	shared_ptr<PCB> process = PTree.find_pid(PID);
+
+	// Jeśli strona nie jest w RAM, załadują ją do RAM
+	if(!process->page_table.at(page).bit){
+		if (FIFO.size() < 16) {
+			// Jeśli są wolne ramki
+			if (FIFO.size() == 0) {
+				// Jeśli wszystkie ramki wolne
+				for (int i = 0; i < 16; i++) {
+					RAM[(page * 16) + i] = PageFile.at(PID).at(page).data.at(i);
+				}
+				FIFO.push(0);
+				Frames.insert(Frames.end(), std::pair<int, std::pair<int, int>>(0, std::pair<int, int>(PID, page)));
+				process->page_table.at(page).frame = 0;
+				process->page_table.at(page).bit = true;
+			}
+			else {
+				// Jeśli są jeszcze wolne ramki
+				int next_empty_frame = FIFO.back() + 1;
+				for (int i = 0; i < 16; i++) {
+					RAM[(next_empty_frame * 16) + i] = PageFile.at(PID).at(page).data.at(i);
+				}
+				FIFO.push(next_empty_frame);
+				Frames.insert(Frames.end(), std::pair<int, std::pair<int, int>>(next_empty_frame, std::pair<int, int>(PID, page)));
+				process->page_table.at(page).frame = next_empty_frame;
+				process->page_table.at(page).bit = true;
+			}
+		}
+		else {
+			// Jeśli nie ma wolnych ramek (wymiana)
+			// Ramka do zabicia
+			int victim = FIFO.front();
+
+			// Stronnica która znajduje się w ramce victim
+			int page_to_update = Frames.at(victim).second;
+
+			// Do kogo należy stronnica z ramki victim
+			shared_ptr<PCB> process_to_update = PTree.find_pid(Frames.at(victim).first);
+
+			// Przepisz zmiany z RAM do pliku wymiany
+			for (int i = 0; i < 16; i++) {
+				PageFile.at(process_to_update->pid).at(page_to_update).data.at(i) = RAM[(victim * 16) + i];
+			}
+
+			// Update informacji w page_table procesu victima
+			process_to_update->page_table.at(page_to_update).bit = false;
+			process_to_update->page_table.at(page_to_update).frame = -1;
+
+			// Nadpisanie ramki victim nową stroną
+			for (int i = 0; i < 16; i++) {
+				RAM[(victim * 16) + i] = PageFile.at(PID).at(page).data.at(i);
+			}
+
+			// Update informacji w page_table procesu działającego
+			process->page_table.at(page).bit = true;
+			process->page_table.at(page).frame = victim;
+		}
+	}
+}
+
 void Memory::LoadProgram(std::string file_name, int PID)
 {
 	// Kontener na stronnice procesu 

@@ -35,6 +35,10 @@ public:
 	//Zmienne
 	std::array<char, 256> RAM = { ' ' };
 
+	// Mapa do wyszukiwania stronnic procesów
+	//      RAMKA           PID  STRONA
+	std::map<int, std::pair<int, int>> Frames;
+
 	//Funkcje - nie jestem pewny, które się przydadzą
 
 	/*Zapisuje stronę do ramki o podanym numerze (przy założeniu, że data to tablica wielkości 16)*/
@@ -61,7 +65,14 @@ public:
 
 	/*---------Virtual---------*/
 
+	// Kolejka FIFO dla algorytmu wymiany stronnic
+	std::queue<int> FIFO;
+
+	// Plik wymiany
 	std::map<int, std::vector<Page>> PageFile;
+
+	// Obsługa ładowania stron do RAM
+	void PageHandler(int address, int PID);
 
 	// Ładowanie programu do pliku stronnicowania
 	// Na razie do testowania std::string ale to zależy od syetmu plików
