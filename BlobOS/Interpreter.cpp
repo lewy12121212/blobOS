@@ -20,13 +20,12 @@ string Interpreter::get_instruction(unsigned int& instruction_counter, const sha
 	string instruction;
 	char sign; 
 
-	while (memory.RAM[instruction_counter] != ';') {
+	while (memory.get(instruction_counter, running_proc->pid) != ';') {
 		sign = memory.get(instruction_counter, running_proc->pid);
 		instruction.push_back(sign);
 		instruction_counter++;
 	}
 
-	instruction_counter++;
 
 	return instruction;
 }
@@ -280,7 +279,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 	}
 
-	instruction_counter++;
+	
 
 	return 1;
 }
