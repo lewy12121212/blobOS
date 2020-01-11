@@ -361,7 +361,10 @@ void Shell::rm() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::rm();
 	}
-	else if (parsed.size() == 2) std::cout << "rm -usuwanie pliku" << std::endl;
+	else if (parsed.size() == 2) {
+		std::cout << "rm -usuwanie pliku" << std::endl;
+		FM.delete_file(parsed[1]);
+	}
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
@@ -445,7 +448,9 @@ void Shell::go() {
 	interpreter.execute_line();
 }
 void Shell::editor(std::string filename){
-	
+	//Do testowania plików
+	FM.show_disc();
+
 	std::string poczatkowy = FM.show_file(parsed[1]);
 		std::vector<char>tekst;
 		system("cls");
@@ -467,9 +472,12 @@ void Shell::editor(std::string filename){
 						tekst.pop_back();
 						std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
 						std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+						//Do testowania plików
+						FM.show_disc();
 						for (auto i : tekst) {
 							std::cout << i;
 						}
+					
 					}
 				}
 				else if (znak == 13) {
@@ -481,6 +489,8 @@ void Shell::editor(std::string filename){
 					system("cls");
 					std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
 					std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+					//Do testowania plików
+					FM.show_disc();
 					for (auto i : tekst) {
 						std::cout << i;
 					}
@@ -491,7 +501,7 @@ void Shell::editor(std::string filename){
 		//Tu chyba na razie brakuje opcji zapis/bez zapisu więc po prostu poczotkowy to tekst zapisany w pliku
 		//który potem jest zmieniany edytorem, poczotkowy jest nadpisywany i przesyłany do zapisu
 		
-		//Na razie mam pliki do 32 bajtów, jakby ktoś chciał testować
+		
 
 		poczatkowy.clear();
 		for (int i = 0; i < tekst.size();i++) {
