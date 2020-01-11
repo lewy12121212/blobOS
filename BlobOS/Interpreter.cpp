@@ -11,7 +11,7 @@ extern FileManager FM;
 extern ProcTree PTree;
 extern Memory memory;
 
-Interpreter interpeter;
+Interpreter interpreter;
 
 string Interpreter::get_instruction(unsigned int& instruction_counter, const shared_ptr<PCB>& running_proc)
 {
@@ -284,7 +284,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	return 1;
 }
 
-int Interpreter::execute_line(const std::string& name_proc) //czy na pewno nazwa?? 
+int Interpreter::execute_line() //czy na pewno nazwa?? 
 {
 	shared_ptr<PCB> running_proc = planist.ReadyPCB.front();
 	take_from_proc(running_proc);
