@@ -92,6 +92,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	int i = 0;
 	int adres = 0;
 
+	vector<char>value; 
 	char val = '0';
 
 	int *rej1=0;
@@ -103,6 +104,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	string command;
 	string file_name;
 	string text;
+	string tmp;
 
 	command = exec_instruction[0];
 
@@ -129,6 +131,13 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 		}
 		else {
+			tmp = exec_instruction[1];
+
+			auto it = tmp.begin();
+			while (it != tmp.end()) {
+				value.push_back(*it);
+				it++;
+			}
 			//val = exec_instruction[1].c_str;
 			i = stoi(exec_instruction[1]);
 			*rej1 = i;
@@ -148,17 +157,26 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 			adres = stoi(exec_instruction[2]);
 
 		}
-		else if (exec_instruction[1] == "(") {
+		else if (exec_instruction[2] == "(") {
 
-			exec_instruction[1].pop_back();
-			exec_instruction[1].erase(exec_instruction[1].begin());
+			exec_instruction[2].pop_back();
+			exec_instruction[2].erase(exec_instruction[2].begin());
 			//bal
-			text = exec_instruction[1];
+			text = exec_instruction[2];
 
 		}
 		else {
 			//val = exec_instruction[2].c_str;
 			//blaa
+
+			tmp = exec_instruction[2];
+
+			auto it = tmp.begin();
+			while (it != tmp.end()) {
+				value.push_back(*it);
+				it++;
+			}
+
 			i = stoi(exec_instruction[2]);
 			*rej2 = i;
 		}
@@ -179,12 +197,12 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "DE") { *rej1--; }
 	else if (command == "MV") { *rej1 = *rej2; }
 	else if (command == "WR") {
-		//tutaj pisanko do pamiêci
-			//edytowalem to wywolanie, by sie kompilowalo po zmianach u mnie,
-			//ale poza tym to raczej nie jest poprawne, bo nie wiem, czym jest val - Bartek Czarnecki
-			// EDIT 2 Doda³em pid ¿eby pasowa³o do definicji funkcji z "dzia³aj¹cym"
-			// algorytmem wymiany stron - Bartek Ciesielczyk
-		memory.set(adres, (int)val, running_proc->pid);
+
+		auto it = value.begin();
+		while (it != value.end()) {
+			memory.set(adres, *it, running_proc->pid);
+			it++;
+		}
 	}
 	else if (command == "GT") {
 		//pobieranko z pamiêci
