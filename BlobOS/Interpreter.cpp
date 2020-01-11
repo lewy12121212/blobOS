@@ -91,6 +91,8 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	exec_instruction = instruction_separate(instruction);
 	int i = 0;
 	int adres = 0;
+	int from_memory = 0;
+
 
 	vector<char>value; 
 	char val = '0';
@@ -138,6 +140,9 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 				value.push_back(*it);
 				it++;
 			}
+
+			value.push_back(';');
+
 			//val = exec_instruction[1].c_str;
 			i = stoi(exec_instruction[1]);
 			*rej1 = i;
@@ -176,7 +181,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 				value.push_back(*it);
 				it++;
 			}
-
+			value.push_back(';');
 			i = stoi(exec_instruction[2]);
 			*rej2 = i;
 		}
@@ -205,10 +210,16 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		}
 	}
 	else if (command == "GT") {
-		//pobieranko z pamiêci
-			//to tez zmienilem, bo dodalem nowa funkcje
-			// EDIT 2 to te¿ zmieni³em bo zmieni³em funkcjê pierwszego Bartka
-		memory.get(adres, running_proc->pid);
+		
+		tmp.clear();
+		while (true) {
+			val = memory.get(adres, running_proc->pid);
+			if (val == ';') false;
+			else tmp.push_back(val);
+		}
+
+		from_memory = stoi(tmp);
+
 	}
 	else if (command == "LP") {
 		C = instruction_counter + 2;
