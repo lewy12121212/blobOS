@@ -129,12 +129,12 @@ void Shell::help() {
 	printf(R"EOF(
 show 
 	-pcb [PROC NAME] [FILENAME] [PARENT PID]  display information about the process with this PID
-	-pcblist	display pcb lists: READYPCB and WAITINGPCB
+	-pagetable [PROC PID]	display the contents of page table
+	-frame [NO FRAME]	display the content of frame
+	-pages [PROC PID]	display the content of pages
 	-tree		print the tree of processes
 	-ram		display the contents of RAM
-	-pagetable	display the contents of page table
 	-queue		display the contents of FIFO queue
-	-frames		display the content of frames
 	-pagefile	display the contents of page file
 
 cp [PROC NAME] [FILENAME] [PARENT PID] 
@@ -225,31 +225,25 @@ void Shell::dp() {
 }
 
 void Shell::show() {
-	 if (parsed.size() == 1) {
-			std::string exc = parsed[0] + ": " + "missing operand";
-			throw exc;
+	if (parsed.size() == 1) {
+		std::string exc = parsed[0] + ": " + "missing operand";
+		throw exc;
 	}
 	else if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::show();
 	}
-	else if (parsed.size() == 2) {
-		if (parsed[1] == "-pcb") showpcb();
-		else if (parsed[1] == "-pcblist") showpcblist();
-		else if (parsed[1] == "-tree") showtree(); // Chyba jak jest tree to nie musi być pcblist bo to na to samo wychodzi
-		else if (parsed[1] == "-ram") showram();
-		else if (parsed[1] == "-pagetable") showpagetable(); // Potrzebuje jednego parametru
-		else if (parsed[1] == "-queue") showqueue();
-		else if (parsed[1] == "-frames") showframes(); // zmienić nazwę na showframe i dodac jeden parametr
-		else if (parsed[1] == "-pagefile") showpagefile();
-		// TODO showpages(arg) 
-		else {
+	else if (parsed[1] == "-pcb") showpcb();
+	else if (parsed[1] == "-pcblist") showpcblist();
+	else if (parsed[1] == "-tree") showtree(); // Chyba jak jest tree to nie musi być pcblist bo to na to samo wychodzi
+	else if (parsed[1] == "-ram") showram();
+	else if (parsed[1] == "-queue") showqueue();
+	else if (parsed[1] == "-pagefile") showpagefile();
+	else if (parsed[1] == "-pages") showpages();
+	else if (parsed[1] == "-pagetable") showpagetable(); //OK
+	else if (parsed[1] == "-frame") showframe(); //OK
+	else {
 			std::string exc = "error: unsupported option";
 			throw exc;
-		}
-	}
-	else {
-		std::string exc = parsed[0] + " " + parsed[1]+": " + "extra operand \'" + parsed[2] + "\'";
-		throw exc;
 	}
 }
 
@@ -280,8 +274,24 @@ void Shell::showtree() {
 
 
 void Shell::showpagetable() {
-	//memory.ShowPages(parsed[2]);
-	// jak dodasz argument to odkomentuj
+
+	if ((parsed.size() == 3)) {
+		try {
+			//int znak = std::stoi(parsed[2]);
+			//memory.ShowPages(znak);
+		}
+		catch(const std::invalid_argument& a){
+			std::cout << "Wrong PID"<<std::endl;
+		}
+	}
+	else if (parsed.size() == 2) {
+		std::string exc = parsed[0] + " "+ parsed[1]+": " + "missing operand";
+		throw exc;
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::showqueue() {
@@ -289,15 +299,44 @@ void Shell::showqueue() {
 
 }
 
-void Shell::showframes() {
-	
-
+void Shell::showframe() {
+	if ((parsed.size() == 3)) {
+		memory.show_frame(std::stoi(parsed[2]));
+	}
+	else if (parsed.size() == 2) {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "missing operand";
+		throw exc;
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::showpagefile() {
 	memory.ShowPageFile();
 }
 
+void Shell:: showpages() {
+
+	if ((parsed.size() == 3)) {
+		try {
+			int znak = std::stoi(parsed[2]);
+			memory.ShowPages(znak);
+		}
+		catch (const std::invalid_argument & a) {
+			std::cout << "Could not convert arg to PID" << std::endl;
+		}
+	}
+	else if (parsed.size() == 2) {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "missing operand";
+		throw exc;
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
+}
 
 void Shell::touch() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {

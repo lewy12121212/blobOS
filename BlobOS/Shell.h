@@ -44,7 +44,8 @@ protected:
 	void showpagefile();
 	void showpagetable();
 	void showqueue();
-	void showframes();
+	void showframe();
+	void showpages();
 
 	//pliki i katalogi
 	void showroot();

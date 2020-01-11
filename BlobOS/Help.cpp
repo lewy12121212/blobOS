@@ -20,16 +20,16 @@ Usage: show [OPTION]
 Show the information about OPTION.
 
 	-pcb [PROC NAME] [FILENAME] [PARENT PID]  display information about the process with this PID
-	-pcblist	display pcb lists: READYPCB and WAITINGPCB
+	-pagetable [PROC PID]	display the contents of page table
+	-frame [NO FRAME]	display the content of frame
+	-pages [PROC PID]	display the content of pages
 	-tree		print the tree of processes
 	-ram		display the contents of RAM
-	-pagetable	display the contents of page table
 	-queue		display the contents of FIFO queue
-	-frames		display the content of frames
 	-pagefile	display the contents of page file
 
 Example:
-	show -pcb 11	Information about the process PID 11. 
+	show -pcb p1 file1 1	Information about the process p1. 
 
 )EOF");
 }
