@@ -221,7 +221,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 	}
 	else if (command == "LP") {
-		C = instruction_counter + 2;
+		C = instruction_counter++;
 	}
 	else if (command == "JP") {
 		instruction_counter = adres;
