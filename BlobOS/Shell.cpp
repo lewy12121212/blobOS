@@ -242,6 +242,9 @@ void Shell::showpagefile() {
 
 
 void Shell::touch() {
+	//WAŻNE dla ANI C
+	//touch tworzy plik nawet jeśli wpiszemy "touch "
+	//czyli chyba liczby spację jako nazwę pliku
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::touch();
 	}
@@ -263,7 +266,11 @@ void Shell::rm() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::rm();
 	}
-	else if (parsed.size() == 2) std::cout << "rm -usuwanie pliku" << std::endl;
+	else if (parsed.size() == 2) {
+		std::cout << "rm -usuwanie pliku" << std::endl;
+		FM.delete_file(parsed[1]);
+	}
+
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
@@ -346,7 +353,7 @@ void Shell::go() {
 	}
 }
 void Shell::editor(std::string filename){
-
+	FM.show_disc();
 	//std::string poczatkowy = { "To jest nowy tekst." };
 	std::string poczatkowy = FM.show_file(parsed[1]);
 		std::vector<char>tekst;
@@ -369,6 +376,7 @@ void Shell::editor(std::string filename){
 						tekst.pop_back();
 						std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
 						std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+						FM.show_disc();
 						for (auto i : tekst) {
 							std::cout << i;
 						}
@@ -383,6 +391,7 @@ void Shell::editor(std::string filename){
 					system("cls");
 					std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
 					std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+					FM.show_disc();
 					for (auto i : tekst) {
 						std::cout << i;
 					}
