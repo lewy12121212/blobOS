@@ -14,7 +14,6 @@ Memory::Memory()
 
 void Memory::insert_to_ram(int nr, int data, int PID)
 {
-	PageHandler(nr, PID);
 	int n = data;
 	int size = 0;
 	while (n != 0) {
@@ -23,8 +22,10 @@ void Memory::insert_to_ram(int nr, int data, int PID)
 	}
 	char str[16];
 	_itoa_s(data, str, 10);
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size; i++) {
+		PageHandler(nr+i, PID);
 		RAM[nr + i] = str[i];
+	}
 }
 
 std::array<char, 16> Memory::get_frame(int nr)
