@@ -5,9 +5,13 @@
 #include <queue>
 #include <map>
 
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <algorithm>
+#include <sstream>
+#include <string>
 
 /*Struktura z informacją o tym, czy dana strona znajduje się w RAM i jaką ramkę zajmuje. Wykorzystywana do tablicy stronic w PCB.*/
 class PageInfo {
@@ -23,7 +27,6 @@ public:
 	std::array<char, 16> data;
 	Page();
 	Page(std::string s);
-	void Print();
 };
 
 class Memory{
@@ -33,13 +36,32 @@ public:
 	/*---------RAM---------*/
 
 	//Zmienne
-	char RAM[256] = {' '};
+	std::array<char, 256> RAM = { ' ' };
 
-	/*Zapisuje stronę do danej ramki (przy założeniu, że data to tablica wielkości 16)*/
-	void write_to_ram(int nr, char *data);
+	// Mapa do wyszukiwania stronnic procesów
+	//      RAMKA           PID  STRONA
+	std::map<int, std::pair<int, int>> Frames;
+
+	//Funkcje - nie jestem pewny, które się przydadzą
+
+	/*Zapisuje liczbę we wskazane miejsce w RAMie.
+	nr - numer komórki RAM
+	data - zmienna do zapisania*/
+	void insert_to_ram(int nr, int data, int PID);
 
 	/*Pobranie danej ramki z RAMu*/
-	char* get_frame(int nr);
+	std::array<char, 16> get_frame(int nr);
+
+	/*Pobranie liczby o podanej ilości cyfr z RAMu.
+	nr - numer komórki RAM
+	size - ilość cyfr*/
+	int get_data(int nr, int size, int PID);
+
+	/*Ustawianie zawartości komórki*/
+	void set(int address, char val, int PID);
+
+	/*Pobieranie zawartości komórki*/
+	char get(int address, int PID);
 
 	/*Wyświetla daną ramkę.*/
 	void show_frame(int nr);
@@ -49,17 +71,36 @@ public:
 
 	/*---------Virtual---------*/
 
+	// Kolejka FIFO dla algorytmu wymiany stronnic
+	std::queue<int> FIFO;
+
+	// Plik wymiany
 	std::map<int, std::vector<Page>> PageFile;
+
+	// Obsługa ładowania stron do RAM
+	void PageHandler(int address, int PID);
 
 	// Ładowanie programu do pliku stronnicowania
 	// Na razie do testowania std::string ale to zależy od syetmu plików
 	void LoadProgram(std::string kod, int PID);
+
+	// Funkcja ładująca program Init
+	void SetupInitProcess();
 
 	/*Tworzy wskaźnik do tablicy stronic procesu znajdującej się w PCB.
 	Używana przy tworzeniu nowego procesu.
 	pid  - ID procesu*/
 	void CreatePageTable(int PID);
 
+	/*Wyświetla tablicę stron danego procesu.*/
+	void ShowPageTable(int PID);
+
 	/*Wyświetla strony danego procesu.*/
 	void ShowPages(int PID);
+
+	/*Wyświetla strony w pliku wymiany.*/
+	void ShowPageFile();
+
+	/*Wyświetla kolejkę FIFO.*/
+	void ShowQueue();
 };

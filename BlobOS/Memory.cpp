@@ -1,6 +1,5 @@
 ﻿#include "Memory.h"
 #include "process.h"
-#include <fstream>
 
 Memory memory;
 extern ProcTree PTree;
@@ -10,31 +9,62 @@ extern ProcTree PTree;
 Memory::Memory()
 {
 	for (char &e : RAM)
-		e = ' ';
+		e = '\0';
 }
 
-
-void Memory::write_to_ram(int nr, char* data)
+void Memory::insert_to_ram(int nr, int data, int PID)
 {
-	char c;
-	for (int j = 0; j < 16; j++)
-	{
-		c = data[j];
-		if (c == '\0')
-			RAM[16 * nr + j] = ' ';
-		else
-			RAM[16 * nr + j] = c;
+	int n = data;
+	int size = 0;
+	while (n != 0) {
+		n = n / 10;
+		++size;
+	}
+	char str[16];
+	_itoa_s(data, str, 10);
+	for (int i = 0; i < size; i++) {
+		PageHandler(nr+i, PID);
+		RAM[nr + i] = str[i];
 	}
 }
 
-char* Memory::get_frame(int nr)
+std::array<char, 16> Memory::get_frame(int nr)
 {
-	char data[16];
+	std::array<char, 16> data;
 	for (int j = 0; j < 16; j++)
 	{
 		data[j] = RAM[16 * nr + j];
 	}
 	return data;
+}
+
+int Memory::get_data(int nr, int size, int PID)
+{
+	int data = 0;
+	char c = '\0';
+	for (int i = 0; i < size; i++)
+	{
+		PageHandler(nr + i, PID);
+		c = RAM[nr + i];
+		if (c >= 48 && c <= 57)
+			data += pow(10, size - i - 1) * ((int)c - 48);
+		else
+		{
+			data = data / pow(10, size - i);
+			break;
+		}
+	}
+	return data;
+}
+
+void Memory::set(int address,char val, int PID){
+	PageHandler(address, PID);
+	RAM[address] = val;
+}
+
+char Memory::get(int address, int PID) {
+	PageHandler(address, PID);
+	return RAM[address];
 }
 
 void Memory::show_frame(int nr)
@@ -44,7 +74,7 @@ void Memory::show_frame(int nr)
 	for (int j = 0; j < 16; j++)
 	{
 		c = RAM[16 * nr + j];
-		if (c == ' ')
+		if (c == '\0')
 			std::cout << '_';
 		else
 			std::cout << c;
@@ -55,15 +85,14 @@ void Memory::show_frame(int nr)
 void Memory::show_ram()
 {
 	char c;
-	std::cout << "RAM content:";
+	std::cout << "RAM: ";
 	for (int i = 0; i < 16; i++)
 	{
-		std::cout << std::endl
-				  << "frame " << i << ":\t";
+		std::cout << std::endl << "frame " << i << ":\t";
 		for (int j = 0; j < 16; j++)
 		{
 			c = RAM[16 * i + j];
-			if (c == ' ')
+			if (c == '\0')
 				std::cout << '_';
 			else
 				std::cout << c;
@@ -73,6 +102,15 @@ void Memory::show_ram()
 }
 
 /*------------Virtual-------------*/
+
+// Funckja do wypisywania tabelki
+template<typename T> void print(T t, const int& width, bool l)
+{
+	if (l) cout << left << setw(width) << setfill(' ') << t;
+	else cout << right << setw(width) << setfill(' ') << t;
+}
+
+// Pamięć wirtualna
 
 PageInfo::PageInfo()
 {
@@ -103,6 +141,70 @@ Page::Page(std::string s){
 	std::copy(s.begin(), s.end(), data.data());
 }
 
+void Memory::PageHandler(int address, int PID) {
+	// Stałe pomocnicze
+	const int page = address / 16;
+	const int offset = address % 16;
+	shared_ptr<PCB> process = PTree.find_pid(PID);
+
+	// Jeśli strona nie jest w RAM, załadują ją do RAM
+	if(!process->page_table.at(page).bit){
+		if (FIFO.size() < 16) {
+			// Jeśli są wolne ramki
+			if (FIFO.size() == 0) {
+				// Jeśli wszystkie ramki wolne
+				for (int i = 0; i < 16; i++) {
+					RAM.at((page * 16) + i) = PageFile.at(PID).at(page).data.at(i);
+				}
+				FIFO.push(0);
+				Frames.insert(Frames.end(), std::pair<int, std::pair<int, int>>(0, std::pair<int, int>(PID, page)));
+				process->page_table.at(page).frame = 0;
+				process->page_table.at(page).bit = true;
+			}
+			else {
+				// Jeśli są jeszcze wolne ramki
+				int next_empty_frame = FIFO.back() + 1;
+				for (int i = 0; i < 16; i++) {
+					RAM.at((next_empty_frame * 16) + i) = PageFile.at(PID).at(page).data.at(i);
+				}
+				FIFO.push(next_empty_frame);
+				Frames.insert(Frames.end(), std::pair<int, std::pair<int, int>>(next_empty_frame, std::pair<int, int>(PID, page)));
+				process->page_table.at(page).frame = next_empty_frame;
+				process->page_table.at(page).bit = true;
+			}
+		}
+		else {
+			// Jeśli nie ma wolnych ramek (wymiana)
+			// Ramka do zabicia
+			int victim = FIFO.front();
+
+			// Stronnica która znajduje się w ramce victim
+			int page_to_update = Frames.at(victim).second;
+
+			// Do kogo należy stronnica z ramki victim
+			shared_ptr<PCB> process_to_update = PTree.find_pid(Frames.at(victim).first);
+
+			// Przepisz zmiany z RAM do pliku wymiany
+			for (int i = 0; i < 16; i++) {
+				PageFile.at(process_to_update->pid).at(page_to_update).data.at(i) = RAM.at((victim * 16) + i);
+			}
+
+			// Update informacji w page_table procesu victima
+			process_to_update->page_table.at(page_to_update).bit = false;
+			process_to_update->page_table.at(page_to_update).frame = -1;
+
+			// Nadpisanie ramki victim nową stroną
+			for (int i = 0; i < 16; i++) {
+				RAM.at((victim * 16) + i) = PageFile.at(PID).at(page).data.at(i);
+			}
+
+			// Update informacji w page_table procesu działającego
+			process->page_table.at(page).bit = true;
+			process->page_table.at(page).frame = victim;
+		}
+	}
+}
+
 void Memory::LoadProgram(std::string file_name, int PID)
 {
 	// Kontener na stronnice procesu 
@@ -113,14 +215,14 @@ void Memory::LoadProgram(std::string file_name, int PID)
 	std::string code = "";
 	char ch;
 	while (file >> std::noskipws >> ch) {
-		code += ch;
+		if(ch != '\n') code += ch;
 	}
 	file.close();
 
 	// Tworzenie stronnic z kodem programu
 	for (int i = 0; i < code.length(); i += 16)
 	{
-		if (16 > code.length() - i)
+		if (16 <= code.length() - i)
 			this->PageFile.at(PID).push_back(Page(code.substr(i, 16)));
 		else
 			this->PageFile.at(PID).push_back(Page(code.substr(i)));
@@ -134,6 +236,20 @@ void Memory::LoadProgram(std::string file_name, int PID)
 	this->CreatePageTable(PID);
 }
 
+void Memory::SetupInitProcess() {
+	this->PageFile.insert(std::pair<int, std::vector<Page>>(0, std::vector<Page>()));
+
+	this->PageFile.at(0).push_back(Page("JP [0];"));
+
+	this->CreatePageTable(0);
+
+	for (int i = 0; i < 16; i++) {
+		RAM.at(i) = PageFile.at(0).at(0).data.at(i);
+	}
+
+	FIFO.push(0);
+}
+
 void Memory::CreatePageTable(int PID)
 {
 	auto v = std::vector<PageInfo>();
@@ -143,26 +259,95 @@ void Memory::CreatePageTable(int PID)
 	});
 
 	// Zapisanie PageTable w PCB
-	PTree.find_pid(PID)->page_table = v;
+	PTree.init_proc->page_table = v;
 }
 
-void Page::Print()
-{
-	for (char c : this->data)
-	{
-		if (c != '\0')
-			std::cout << "'" << c << "' ";
-		else
-			std::cout << "[ ] ";
+void Memory::ShowPageTable(int PID) {
+	//shared_ptr<PCB> process = PTree.find_pid(PID);
+	shared_ptr<PCB> process;
+
+	if (PID == 0) {
+		process = PTree.init_proc;
+	}else process = PTree.find_pid(PID);
+
+	const int header_width = 15;
+	const int field_width = 6;
+
+	print("Page", header_width, true);
+	for (int i = 0; i < process->page_table.size(); i++) {
+		print(i, field_width, false);
 	}
-	std::cout << "\n";
+	std::cout << '\n';
+	print("Frame", header_width, true);
+	for (int i = 0; i < process->page_table.size(); i++) {
+		print(process->page_table.at(i).frame, field_width, false);
+	}
+	std::cout << '\n';
+	print("Present bit", header_width, true);
+	for (int i = 0; i < process->page_table.size(); i++) {
+		print(process->page_table.at(i).bit, field_width, false);
+	}
+	std::cout << '\n';
 }
 
 void Memory::ShowPages(int PID)
 {
-	std::cout << "PID: " << PID << "\n";
-	for (Page p : PageFile.at(PID))
+	char c;
+	std::stringstream ss;
+	std::cout << "\nPID: " << PID;
+	for (int i = 0; i < PageFile.at(PID).size(); i++)
 	{
-		p.Print();
+		ss.width(8);
+		ss << std::left;
+		ss << "\n  Page" << i;
+		std::cout << ss.str() << ":\t";
+		ss.str(std::string());
+		for (int j = 0; j < 16; j++)
+		{
+			c = PageFile.at(PID).at(i).data.at(j);
+			if (c == '\0') std::cout << '_';
+			else if (c == '\n') std::cout << '\\';
+			else std::cout << c;
+		}
 	}
+	std::cout << "\n" << "\n";
+}
+
+void Memory::ShowPageFile() {
+	char c;
+	std::stringstream ss;
+	for (auto pp : PageFile) {
+		std::cout << "\nPID: " << pp.first;
+		for (int i = 0; i < PageFile.at(pp.first).size(); i++)
+		{
+			ss.width(8);
+			ss << std::left;
+			ss << "\n  Page" << i;
+			std::cout << ss.str() << ":\t";
+			ss.str(std::string());
+			for (int j = 0; j < 16; j++)
+			{
+				c = pp.second.at(i).data.at(j);
+				if (c == '\0') std::cout << '_';
+				else if (c == '\n') cout << '\\';
+				else std::cout << c;
+			}
+		}
+	}
+	std::cout << "\n" << "\n";
+}
+
+void Memory::ShowQueue() {
+	std::queue<int> q = memory.FIFO;
+	std::vector<int> t;
+	while (!q.empty()) {
+		t.push_back(q.front());
+		q.pop();
+	}
+	std::reverse(t.begin(), t.end());
+	std::cout << "|-[";
+	for (auto i : t) {
+		std::cout << " " << i;
+	}
+	std::cout << " ]->\n\n";
 }

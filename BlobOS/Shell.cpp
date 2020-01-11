@@ -6,10 +6,19 @@
 #include<algorithm>
 #include"Help.h"
 #include"File.h"
+#include<windows.h>
 
 extern FileManager FM;
 extern Memory memory;
 extern ProcTree PTree;
+extern Interpreter interpreter;
+
+inline void set_color(int col) {
+
+	HANDLE color = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(color, col);
+}
+
 
 Shell::Shell() {
 	status = true;
@@ -20,25 +29,36 @@ Shell::Shell() {
 }
 
 void Shell::boot() {
+	logo();
+	char logo;
+	logo = _getch();
+	while (logo != 13) {
+		logo = _getch();
+	}
+	system("color 8");
+	std::cout<<std::endl;
+	std::cout << std::endl;
 	loop();
 }
 
 void Shell::read_line() {
+	set_color(lightGreen);
 	std::cout << "$ ";
+	set_color(lightAqua);
 	getline(std::cin, line);
 	std::transform(line.begin(), line.end(), line.begin(), ::tolower);
+	if (line.size()>0) {
+		while ((line.at(line.size() - 1) == ' '))	line.pop_back();
+	}
 	parse();
 }
 
 void Shell::parse() {
 
 	line = line + ' ';
-
 	std::string temp;
 	for (int i = 0; i < line.size(); i++) {
-		if (line[i] != ' ') {
-			temp += line[i];
-		}
+		if (line[i] != ' ') temp += line[i];
 		else {
 			parsed.push_back(temp);
 			temp.clear();
@@ -53,6 +73,7 @@ void Shell::loop() {
 			execute();
 		}
 		catch (std::string & e) {
+			set_color(gray);
 			std::cout << e << std::endl;
 			std::cout << "Try \'" << parsed[0] << " --help\' for more information." << std::endl;
 		}
@@ -63,21 +84,58 @@ void Shell::loop() {
 	} while (status);
 }
 
+void Shell::logo() {
+
+	set_color(5);
+	printf(R"EOF(                                                                                                                                                                                                              
+                                 ```...........``                                                                       
+                             `..-------------------..`                                                                  
+                         ``.---------------------------.``                .ooo.  -oy.         -o     .ooo.  +:/:        
+                       `.---------------------------------.`              `m  -o   m-    .-.   d     s   y  m        
+                    `.---------------------------------------.`            ooooo   m-   s  'o  doo\  d   m  oso+'       
+                  `.-------------------------------------------.`          o  -o   m-   d. .h  h  m: h   d     ss       
+                 .-----------------------------------------------.         +os+.   :oo. .ooo. .soo:  .ooo.  ooo+`       
+               `---------------------------------------------------`                                                    
+              .-----------------------------------------------------.                                                   
+            `--------------------------------------------------------.`                                                 
+           `-------------/o+---------------------------+o/-------------`                                                
+          `-------------ys:+h:-----------------------:h+:ss-------------`                                               
+         `-------------/h---oo-----------------------oo---h:-------------`                                              
+         .---------------------------------------------------------------.                                              
+        `-----------------------------------------------------------------`                                             
+        --------------------------:-------------:-------------------------.                                             
+       `---------------::::::::::::-------------::::::::::::---------------`                                            
+   `````---------------:::///:::::::-----------:::::::///:::---------------`````                                        
+  ::::::----------------:::://////::::-------:::://////::::----------------:::::-                                       
+ `://///-----------------::::::://////::::::://///::::::::-----------------/////:`                                      
+ .:::///:-------------------:::::::::::::::::::::::::::-------------------:///:::.                                      
+  `-::::..---------------------:::::::::::::::::::::---------------------..::::-`                                       
+    ```   .-------------------------:::::::::::-------------------------.   ```                                         
+            .---------------------------------------------------------.                                                 
+              `.---------------------------------------------------.`                                                   
+                 ``.-------------------------------------------.``                                                      
+                       ```....-----------------------....```                
+                                            
+Welcome to BlobOS. Press ENTER to start shell
+)EOF");
+}
+
 void Shell::not_recognized() {
+	set_color(gray);
 	std::cout << parsed[0] << ": command not found" << std::endl;
 }
 
 void Shell::help() {
+	set_color(white);
 	printf(R"EOF(
-
 show 
 	-pcb [PROC NAME] [FILENAME] [PARENT PID]  display information about the process with this PID
-	-pcblist	display pcb lists: READYPCB and WAITINGPCB
+	-pagetable [PROC PID]	display the contents of page table
+	-frame [NO FRAME]	display the content of frame
+	-pages [PROC PID]	display the content of pages
 	-tree		print the tree of processes
 	-ram		display the contents of RAM
-	-pagetable	display the contents of page table
 	-queue		display the contents of FIFO queue
-	-frames		display the content of frames
 	-pagefile	display the contents of page file
 
 cp [PROC NAME] [FILENAME] [PARENT PID] 
@@ -98,8 +156,9 @@ cat [FILENAME]... - concatenate FILE(s) to standard output
 fileinfo [OPTION] [FILENAME] - list information about FILE
 
 go 
+ENTER
 
-.... --help	display this help and exit
+[COMMAND] --help	display help for this command
 
 )EOF");
 }
@@ -135,17 +194,16 @@ void Shell::cp() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::cp();
 	}
-	else if (parsed.size() == 2||parsed.size()==1) {
+	else if (parsed.size() == 2||parsed.size()==1 || parsed.size()==3) {
 		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
 	}
-	else if (parsed.size() == 3) {
-		//std::cout << "Czekamy na Eryka -cp()" << std::endl;
+	else if (parsed.size() == 4) {
 		// To do dadania 3 parametr (nazwa procesu, nazwa pliku, parent_pid)
-		PTree.create_process_file(parsed[1], parsed[2], 1);
+		PTree.create_process_file(parsed[1], parsed[2], std::stoi(parsed[3]));
 	}
 	else {
-		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[3] + "\'";
+		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[4] + "\'";
 		throw exc;
 	}
 }
@@ -168,31 +226,25 @@ void Shell::dp() {
 }
 
 void Shell::show() {
-	 if (parsed.size() == 1) {
-			std::string exc = parsed[0] + ": " + "missing operand";
-			throw exc;
+	if (parsed.size() == 1) {
+		std::string exc = parsed[0] + ": " + "missing operand";
+		throw exc;
 	}
 	else if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::show();
 	}
-	else if (parsed.size() == 2) {
-		if (parsed[1] == "-pcb") showpcb();
-		else if (parsed[1] == "-pcblist") showpcblist();
-		else if (parsed[1] == "-tree") showtree();
-		else if (parsed[1] == "-ram") showram();
-		else if (parsed[1] == "-pagetable") showpagetable();
-		else if (parsed[1] == "-queue") showqueue();
-		else if (parsed[1] == "-frames") showframes();
-		else if (parsed[1] == "-pagefile") showpagefile();
-
-		else {
+	else if (parsed[1] == "-pcb") showpcb();
+	else if (parsed[1] == "-pcblist") showpcblist();
+	else if (parsed[1] == "-tree") showtree();
+	else if (parsed[1] == "-ram") showram();
+	else if (parsed[1] == "-queue") showqueue();
+	else if (parsed[1] == "-pagefile") showpagefile();
+	else if (parsed[1] == "-pages") showpages();
+	else if (parsed[1] == "-pagetable") showpagetable(); //OK
+	else if (parsed[1] == "-frame") showframe(); //OK
+	else {
 			std::string exc = "error: unsupported option";
 			throw exc;
-		}
-	}
-	else {
-		std::string exc = parsed[0] + " " + parsed[1]+": " + "extra operand \'" + parsed[2] + "\'";
-		throw exc;
 	}
 }
 
@@ -216,37 +268,83 @@ void Shell::showroot() {
 }
 
 void Shell::showtree() {
+	
 
-
+	PTree.display_tree();
 }
 
 
 void Shell::showpagetable() {
 
-
+	if ((parsed.size() == 3)) {
+		try {
+			int znak = std::stoi(parsed[2]);
+			memory.ShowPageTable(znak);
+		}
+		catch(const std::invalid_argument& a){
+			std::cout << "Wrong PID"<<std::endl;
+		}
+	}
+	else if (parsed.size() == 2) {
+		std::string exc = parsed[0] + " "+ parsed[1]+": " + "missing operand";
+		throw exc;
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::showqueue() {
-
+	memory.ShowQueue();
 
 }
 
-void Shell::showframes() {
-
-
+void Shell::showframe() {
+	if ((parsed.size() == 3)) {
+		memory.show_frame(std::stoi(parsed[2]));
+	}
+	else if (parsed.size() == 2) {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "missing operand";
+		throw exc;
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::showpagefile() {
-	memory.ShowPages(2);
+	memory.ShowPageFile();
 }
 
+void Shell:: showpages() {
+
+	if ((parsed.size() == 3)) {
+		try {
+			int znak = std::stoi(parsed[2]);
+			memory.ShowPages(znak);
+		}
+		catch (const std::invalid_argument & a) {
+			std::cout << "Could not convert arg to PID" << std::endl;
+		}
+	}
+	else if (parsed.size() == 2) {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "missing operand";
+		throw exc;
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
+}
 
 void Shell::touch() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::touch();
 	}
 	else if (parsed.size() == 2) {
-		std::cout << "touch -tworzenie pliku" << std::endl;
+		//std::cout << "touch -tworzenie pliku" << std::endl;
 		FM.create_file(parsed[1]);
 	}
 	else if (parsed.size() == 1) {
@@ -344,10 +442,10 @@ void Shell::go() {
 		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
 		throw temp;
 	}
+	interpreter.execute_line();
 }
 void Shell::editor(std::string filename){
-
-	//std::string poczatkowy = { "To jest nowy tekst." };
+	
 	std::string poczatkowy = FM.show_file(parsed[1]);
 		std::vector<char>tekst;
 		system("cls");

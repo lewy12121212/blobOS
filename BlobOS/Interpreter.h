@@ -17,6 +17,7 @@ private:
 	std::string instruction;
 	array<string, 4> exec_instruction;
 	
+	string get_instruction(unsigned int& instruction_counter, const shared_ptr<PCB>& running_proc);
 	void take_from_proc(const shared_ptr<PCB>& running_proc);
 	void update_proc(const shared_ptr<PCB>& running_proc);
 	array<string, 4> instruction_separate(const std::string & instruction);
@@ -26,7 +27,7 @@ private:
 
 public:
 
-	int execute_line(const std::string& name_proc);
+	int execute_line();
 
 		
 };

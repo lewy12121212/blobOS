@@ -11,7 +11,24 @@ extern FileManager FM;
 extern ProcTree PTree;
 extern Memory memory;
 
-Interpreter interpeter;
+Interpreter interpreter;
+
+string Interpreter::get_instruction(unsigned int& instruction_counter, const shared_ptr<PCB>& running_proc)
+{
+
+	
+	string instruction;
+	char sign; 
+
+	while (memory.get(instruction_counter, running_proc->pid) != ';') {
+		sign = memory.get(instruction_counter, running_proc->pid);
+		instruction.push_back(sign);
+		instruction_counter++;
+	}
+
+
+	return instruction;
+}
 
 void Interpreter::take_from_proc(const shared_ptr<PCB>& running_proc)
 {
@@ -73,8 +90,11 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	exec_instruction = instruction_separate(instruction);
 	int i = 0;
 	int adres = 0;
+	int from_memory = 0;
 
-	char val;
+
+	vector<char>value; 
+	char val = '0';
 
 	int *rej1=0;
 	int *rej2=0;
@@ -85,6 +105,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	string command;
 	string file_name;
 	string text;
+	string tmp;
 
 	command = exec_instruction[0];
 
@@ -111,6 +132,16 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 		}
 		else {
+			tmp = exec_instruction[1];
+
+			auto it = tmp.begin();
+			while (it != tmp.end()) {
+				value.push_back(*it);
+				it++;
+			}
+
+			value.push_back(';');
+
 			//val = exec_instruction[1].c_str;
 			i = stoi(exec_instruction[1]);
 			*rej1 = i;
@@ -130,17 +161,26 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 			adres = stoi(exec_instruction[2]);
 
 		}
-		else if (exec_instruction[1] == "(") {
+		else if (exec_instruction[2] == "(") {
 
-			exec_instruction[1].pop_back();
-			exec_instruction[1].erase(exec_instruction[1].begin());
+			exec_instruction[2].pop_back();
+			exec_instruction[2].erase(exec_instruction[2].begin());
 			//bal
-			text = exec_instruction[1];
+			text = exec_instruction[2];
 
 		}
 		else {
 			//val = exec_instruction[2].c_str;
 			//blaa
+
+			tmp = exec_instruction[2];
+
+			auto it = tmp.begin();
+			while (it != tmp.end()) {
+				value.push_back(*it);
+				it++;
+			}
+			value.push_back(';');
 			i = stoi(exec_instruction[2]);
 			*rej2 = i;
 		}
@@ -161,19 +201,34 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "DE") { *rej1--; }
 	else if (command == "MV") { *rej1 = *rej2; }
 	else if (command == "WR") {
-		//tutaj pisanko do pamiêci
-		memory.write_to_ram(adres, &val);
+
+		auto it = value.begin();
+		while (it != value.end()) {
+			memory.set(adres, *it, running_proc->pid);
+			it++;
+		}
 	}
 	else if (command == "GT") {
-		//pobieranko z pamiêci
-		memory.get_frame(adres);
+		
+		tmp.clear();
+		while (true) {
+			val = memory.get(adres, running_proc->pid);
+			if (val == ';') false;
+			else tmp.push_back(val);
+		}
+
+		from_memory = stoi(tmp);
+
+	}
+	else if (command == "LP") {
+		C = instruction_counter++;
 	}
 	else if (command == "JP") {
 		instruction_counter = adres;
 	}
 	else if (command == "JZ") {
 		if (counter == 0)
-			instruction_counter = adres;
+			instruction_counter = C;
 	}
 	else if (command == "JN") {
 		if (counter != 0)
@@ -210,27 +265,30 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	}
 	else if (command == "KP") {
 		//a tu go zabic 
-		running_proc->kill();
+		//running_proc->kill();
+		PTree.kill_pid(running_proc->pid);
 		//blaa
 	}
 	else if (command == "HT") {
-
-		running_proc->kill();
+		//
+		//running_proc->kill();
+		PTree.kill_pid(running_proc->pid);
 		return -1;
 	}
 	else if (command == "NN") {
 
 	}
 
-
+	
 
 	return 1;
 }
 
-int Interpreter::execute_line(const std::string& name_proc) //czy na pewno nazwa?? 
+int Interpreter::execute_line() //czy na pewno nazwa?? 
 {
 	shared_ptr<PCB> running_proc = planist.ReadyPCB.front();
 	take_from_proc(running_proc);
+	instruction = get_instruction(instruction_counter, running_proc);
 	execute_instruction(instruction, running_proc);
 	update_proc(running_proc);
 

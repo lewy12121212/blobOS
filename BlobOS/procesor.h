@@ -8,7 +8,7 @@ using namespace std;
 
 class Planist{
     private:
-    list<shared_ptr<PCB>> WaitPCB;       // lista procesow oczekujacych
+         
     //proces_state state;     //stan procesu
     //array<int, 5> register_copy{0, 0, 0, 0, 0};     // kopia rejestru
     void sort_list();
@@ -16,7 +16,9 @@ class Planist{
 
     public:
     list<shared_ptr<PCB>> ReadyPCB;     // lista procesow gotowych do wykonania
-    
+	list<shared_ptr<PCB>> WaitPCB;		// lista procesow oczekujacych
+
+
     Planist() = default;
     ~Planist() = default;
 
