@@ -140,7 +140,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		}
 		else {
 			//val = exec_instruction[2].c_str;
-			//blaa
+			//bla
 			i = stoi(exec_instruction[2]);
 			*rej2 = i;
 		}
