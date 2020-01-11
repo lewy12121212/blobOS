@@ -57,7 +57,7 @@ int Memory::get_data(int nr, int size, int PID)
 	return data;
 }
 
-void Memory::set(int address,int val, int PID){
+void Memory::set(int address,char val, int PID){
 	PageHandler(address, PID);
 	RAM[address] = val;
 }

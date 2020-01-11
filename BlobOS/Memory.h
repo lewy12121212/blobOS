@@ -58,7 +58,7 @@ public:
 	int get_data(int nr, int size, int PID);
 
 	/*Ustawianie zawartości komórki*/
-	void set(int address, int val, int PID);
+	void set(int address, char val, int PID);
 
 	/*Pobieranie zawartości komórki*/
 	char get(int address, int PID);
