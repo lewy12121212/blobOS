@@ -12,7 +12,7 @@ struct inode;
 struct  disc_area
 {
 	bool free;
-	vector<char> block;
+	array<char, 32> block;
 
 	disc_area() {
 		free = 0;
@@ -27,12 +27,10 @@ class FileManager {
 	void create_file(string name);
 	int free_block();
 	int find_file(string name);
-	void show_disc();
-	void clean_block(string name);
 	void save_data_to_file(string name, string text);
 	void edit_file(string name, string text);
 	string show_file(string name);
 	void add_to_file();
-	void delete_file(string name);
+	void delete_file();
 };
 
