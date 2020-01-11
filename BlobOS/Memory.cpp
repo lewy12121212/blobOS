@@ -215,7 +215,7 @@ void Memory::LoadProgram(std::string file_name, int PID)
 	std::string code = "";
 	char ch;
 	while (file >> std::noskipws >> ch) {
-		code += ch;
+		if(ch != '\n') code += ch;
 	}
 	file.close();
 

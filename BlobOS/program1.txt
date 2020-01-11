@@ -1,11 +1,11 @@
-MV A 0; 
-MV B 0; 
-WR [199] 0; 
+MV A 0;
+MV B 0;
+WR [199] 0;
 WR [200] 1;
 MV D 7;
-LP; 
-AD A B; 
-AD A [199]; 
+LP;
+AD A B;
+AD A [199];
 AD A [200];
 WR [201] A;
 MV A B;
@@ -15,5 +15,3 @@ WR [200] [201];
 DE D;
 JN LP;
 HT;
-
-
