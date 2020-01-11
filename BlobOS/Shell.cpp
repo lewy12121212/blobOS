@@ -248,7 +248,15 @@ void Shell::show() {
 }
 
 void Shell::showpcblist() {
-	planist.display_PCB_list();
+
+	if (parsed.size() == 2) {
+		set_color(white);
+		planist.display_PCB_list();
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::showpcb() {
@@ -258,7 +266,14 @@ void Shell::showpcb() {
 
 void Shell::showram() {
 	
-	memory.show_ram();
+	if (parsed.size() == 2) {
+		set_color(white);
+		memory.show_ram();
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::showroot() {
@@ -267,9 +282,14 @@ void Shell::showroot() {
 }
 
 void Shell::showtree() {
-	
 
-	PTree.display_tree();
+	if (parsed.size() == 2) {
+		PTree.display_tree();
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
 }
 
 
@@ -281,7 +301,7 @@ void Shell::showpagetable() {
 			//memory.ShowPages(znak);
 		}
 		catch(const std::invalid_argument& a){
-			std::cout << "Wrong PID"<<std::endl;
+			std::cout << "Could not convert arg to PID"<<std::endl;
 		}
 	}
 	else if (parsed.size() == 2) {
@@ -295,13 +315,26 @@ void Shell::showpagetable() {
 }
 
 void Shell::showqueue() {
-	memory.ShowQueue();
-
+	if (parsed.size() == 2) {
+		set_color(white);
+		memory.ShowQueue();
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::showframe() {
 	if ((parsed.size() == 3)) {
-		memory.show_frame(std::stoi(parsed[2]));
+		try {
+			int znak = std::stoi(parsed[2]);
+			set_color(white);
+			memory.show_frame(std::stoi(parsed[2]));
+		}
+		catch (const std::invalid_argument & a) {
+			std::cout << "Could not convert arg to PID" << std::endl;
+		}	
 	}
 	else if (parsed.size() == 2) {
 		std::string exc = parsed[0] + " " + parsed[1] + ": " + "missing operand";
@@ -314,7 +347,14 @@ void Shell::showframe() {
 }
 
 void Shell::showpagefile() {
-	memory.ShowPageFile();
+	if (parsed.size() == 2) {
+		set_color(white);
+		memory.ShowPageFile();
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[2] + "\'";
+		throw exc;
+	}
 }
 
 void Shell:: showpages() {
@@ -322,6 +362,7 @@ void Shell:: showpages() {
 	if ((parsed.size() == 3)) {
 		try {
 			int znak = std::stoi(parsed[2]);
+			set_color(white);
 			memory.ShowPages(znak);
 		}
 		catch (const std::invalid_argument & a) {
