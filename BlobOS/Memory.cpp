@@ -1,6 +1,5 @@
 ﻿#include "Memory.h"
 #include "process.h"
-#include <fstream>
 
 Memory memory;
 extern ProcTree PTree;
@@ -15,7 +14,6 @@ Memory::Memory()
 
 void Memory::insert_to_ram(int nr, int data, int PID)
 {
-	PageHandler(nr, PID);
 	int n = data;
 	int size = 0;
 	while (n != 0) {
@@ -24,8 +22,10 @@ void Memory::insert_to_ram(int nr, int data, int PID)
 	}
 	char str[16];
 	_itoa_s(data, str, 10);
-	for (int i = 0; i < size; i++)
+	for (int i = 0; i < size; i++) {
+		PageHandler(nr+i, PID);
 		RAM[nr + i] = str[i];
+	}
 }
 
 std::array<char, 16> Memory::get_frame(int nr)
@@ -57,7 +57,7 @@ int Memory::get_data(int nr, int size, int PID)
 	return data;
 }
 
-void Memory::set(int address,int val, int PID){
+void Memory::set(int address,char val, int PID){
 	PageHandler(address, PID);
 	RAM[address] = val;
 }
@@ -102,6 +102,15 @@ void Memory::show_ram()
 }
 
 /*------------Virtual-------------*/
+
+// Funckja do wypisywania tabelki
+template<typename T> void print(T t, const int& width, bool l)
+{
+	if (l) cout << left << setw(width) << setfill(' ') << t;
+	else cout << right << setw(width) << setfill(' ') << t;
+}
+
+// Pamięć wirtualna
 
 PageInfo::PageInfo()
 {
@@ -206,7 +215,7 @@ void Memory::LoadProgram(std::string file_name, int PID)
 	std::string code = "";
 	char ch;
 	while (file >> std::noskipws >> ch) {
-		code += ch;
+		if(ch != '\n') code += ch;
 	}
 	file.close();
 
@@ -253,38 +262,79 @@ void Memory::CreatePageTable(int PID)
 	PTree.init_proc->page_table = v;
 }
 
-void Page::Print()
-{
-	for (char c : this->data)
-	{
-		if (c != '\0') {
-			if (c != '\n') std::cout << "'" << c << "' ";
-			else std::cout << "'" << '\\' << "'";
-		}
-		else
-			std::cout << "[ ] ";
+void Memory::ShowPageTable(int PID) {
+	//shared_ptr<PCB> process = PTree.find_pid(PID);
+	shared_ptr<PCB> process;
+
+	if (PID == 0) {
+		process = PTree.init_proc;
+	}else process = PTree.find_pid(PID);
+
+	const int header_width = 15;
+	const int field_width = 6;
+
+	print("Page", header_width, true);
+	for (int i = 0; i < process->page_table.size(); i++) {
+		print(i, field_width, false);
 	}
-	std::cout << "\n";
+	std::cout << '\n';
+	print("Frame", header_width, true);
+	for (int i = 0; i < process->page_table.size(); i++) {
+		print(process->page_table.at(i).frame, field_width, false);
+	}
+	std::cout << '\n';
+	print("Present bit", header_width, true);
+	for (int i = 0; i < process->page_table.size(); i++) {
+		print(process->page_table.at(i).bit, field_width, false);
+	}
+	std::cout << '\n';
 }
 
 void Memory::ShowPages(int PID)
 {
-	std::cout << "PID: " << PID << "\n";
-	for (Page p : PageFile.at(PID))
+	char c;
+	std::stringstream ss;
+	std::cout << "\nPID: " << PID;
+	for (int i = 0; i < PageFile.at(PID).size(); i++)
 	{
-		p.Print();
+		ss.width(8);
+		ss << std::left;
+		ss << "\n  Page" << i;
+		std::cout << ss.str() << ":\t";
+		ss.str(std::string());
+		for (int j = 0; j < 16; j++)
+		{
+			c = PageFile.at(PID).at(i).data.at(j);
+			if (c == '\0') std::cout << '_';
+			else if (c == '\n') std::cout << '\\';
+			else std::cout << c;
+		}
 	}
+	std::cout << "\n" << "\n";
 }
 
 void Memory::ShowPageFile() {
-	for (auto it : PageFile) {
-		std::cout << "PID: " << it.first << "\n";
-		for (Page p : it.second)
+	char c;
+	std::stringstream ss;
+	for (auto pp : PageFile) {
+		std::cout << "\nPID: " << pp.first;
+		for (int i = 0; i < PageFile.at(pp.first).size(); i++)
 		{
-			p.Print();
+			ss.width(8);
+			ss << std::left;
+			ss << "\n  Page" << i;
+			std::cout << ss.str() << ":\t";
+			ss.str(std::string());
+			for (int j = 0; j < 16; j++)
+			{
+				c = pp.second.at(i).data.at(j);
+				if (c == '\0') std::cout << '_';
+				else if (c == '\n') cout << '\\';
+				else std::cout << c;
+			}
 		}
 	}
-	std::cout << "\n";
+	std::cout << "\n" << "\n";
 }
 
 void Memory::ShowQueue() {

@@ -5,9 +5,13 @@
 #include <queue>
 #include <map>
 
+#include <fstream>
+#include <iomanip>
 #include <iostream>
 #include <memory>
 #include <algorithm>
+#include <sstream>
+#include <string>
 
 /*Struktura z informacją o tym, czy dana strona znajduje się w RAM i jaką ramkę zajmuje. Wykorzystywana do tablicy stronic w PCB.*/
 class PageInfo {
@@ -23,7 +27,6 @@ public:
 	std::array<char, 16> data;
 	Page();
 	Page(std::string s);
-	void Print();
 };
 
 class Memory{
@@ -55,7 +58,7 @@ public:
 	int get_data(int nr, int size, int PID);
 
 	/*Ustawianie zawartości komórki*/
-	void set(int address, int val, int PID);
+	void set(int address, char val, int PID);
 
 	/*Pobieranie zawartości komórki*/
 	char get(int address, int PID);
@@ -88,6 +91,9 @@ public:
 	Używana przy tworzeniu nowego procesu.
 	pid  - ID procesu*/
 	void CreatePageTable(int PID);
+
+	/*Wyświetla tablicę stron danego procesu.*/
+	void ShowPageTable(int PID);
 
 	/*Wyświetla strony danego procesu.*/
 	void ShowPages(int PID);

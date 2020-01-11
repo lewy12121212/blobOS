@@ -234,7 +234,7 @@ void Shell::show() {
 	}
 	else if (parsed[1] == "-pcb") showpcb();
 	else if (parsed[1] == "-pcblist") showpcblist();
-	else if (parsed[1] == "-tree") showtree(); // Chyba jak jest tree to nie musi być pcblist bo to na to samo wychodzi
+	else if (parsed[1] == "-tree") showtree();
 	else if (parsed[1] == "-ram") showram();
 	else if (parsed[1] == "-queue") showqueue();
 	else if (parsed[1] == "-pagefile") showpagefile();
@@ -297,8 +297,8 @@ void Shell::showpagetable() {
 
 	if ((parsed.size() == 3)) {
 		try {
-			//int znak = std::stoi(parsed[2]);
-			//memory.ShowPages(znak);
+			int znak = std::stoi(parsed[2]);
+			memory.ShowPageTable(znak);
 		}
 		catch(const std::invalid_argument& a){
 			std::cout << "Could not convert arg to PID"<<std::endl;

@@ -13,6 +13,24 @@ extern Memory memory;
 
 Interpreter interpeter;
 
+string Interpreter::get_instruction(unsigned int& instruction_counter, const shared_ptr<PCB>& running_proc)
+{
+
+	
+	string instruction;
+	char sign; 
+
+	while (memory.RAM[instruction_counter] != ';') {
+		sign = memory.get(instruction_counter, running_proc->pid);
+		instruction.push_back(sign);
+		instruction_counter++;
+	}
+
+	instruction_counter++;
+
+	return instruction;
+}
+
 void Interpreter::take_from_proc(const shared_ptr<PCB>& running_proc)
 {
 	instruction_counter = running_proc->register_copy[4];
@@ -166,16 +184,16 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 			//ale poza tym to raczej nie jest poprawne, bo nie wiem, czym jest val - Bartek Czarnecki
 			// EDIT 2 Doda³em pid ¿eby pasowa³o do definicji funkcji z "dzia³aj¹cym"
 			// algorytmem wymiany stron - Bartek Ciesielczyk
-		memory.insert_to_ram(adres, (int)val, running_proc->pid);
+		memory.set(adres, (int)val, running_proc->pid);
 	}
 	else if (command == "GT") {
 		//pobieranko z pamiêci
 			//to tez zmienilem, bo dodalem nowa funkcje
 			// EDIT 2 to te¿ zmieni³em bo zmieni³em funkcjê pierwszego Bartka
-		memory.get_data(adres, 2, running_proc->pid);
+		memory.get(adres, running_proc->pid);
 	}
 	else if (command == "LP") {
-		C = instruction_counter++;
+		C = instruction_counter + 2;
 	}
 	else if (command == "JP") {
 		instruction_counter = adres;
@@ -242,6 +260,7 @@ int Interpreter::execute_line(const std::string& name_proc) //czy na pewno nazwa
 {
 	shared_ptr<PCB> running_proc = planist.ReadyPCB.front();
 	take_from_proc(running_proc);
+	instruction = get_instruction(instruction_counter, running_proc);
 	execute_instruction(instruction, running_proc);
 	update_proc(running_proc);
 
