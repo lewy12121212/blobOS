@@ -98,7 +98,6 @@ void FileManager::clean_block(string name) {
 
 				int k = 0, len = cataloge[pom].second.number[2];
 				int ilosc = disc[len].block.size();
-				cout << "ILOSC BLOKOW  " << ilosc << endl;
 				while (k < ilosc) {
 					int help = int(disc[cataloge[pom].second.number[2]].block[k]) - 48;
 					disc[help].block.clear();
@@ -150,7 +149,7 @@ void FileManager::save_data_to_file(string name, string text) {
 		}
 
 		if (length > 32 && length <= 64) {
-			cout << "B";
+			
 			int nr1 = free_block();
 			disc[nr1].free = 1;
 			cataloge[pom].second.number.push_back(nr1);
@@ -200,12 +199,16 @@ void FileManager::save_data_to_file(string name, string text) {
 
 				while (len > 32) {
 					nr1 = free_block();
-
-					//cout << "BLOK " << nr1 << " ZOSTAJE DODANY DO INDEX";
-					string a = to_string(nr1);
-					disc[index].block.push_back(a[0]);
-					//disc[cataloge[pom].second.number[2]].block.push_back(a[0]);
 					disc[nr1].free = 1;
+					
+					string a = to_string(nr1);
+					if (nr1 > 9)a[0] += nr1-1;
+					if (nr1 > 19)a[0] += 10*nr1-1;
+					if (nr1 > 29)a[0] += 20*nr1-1;
+					disc[index].block.push_back(a[0]);
+				
+					
+				
 					while (j < 32) {
 						int help = int(disc[index].block[k]) - 48;
 						disc[help].block.push_back(text[i]);
@@ -220,14 +223,17 @@ void FileManager::save_data_to_file(string name, string text) {
 				}
 				if (len < 32) {
 					nr1 = free_block();
-					string a = to_string(nr1);
-
-					disc[index].block.push_back(a[0]);
 					disc[nr1].free = 1;
+
+					string a = to_string(nr1);
+					if (nr1 > 9)a[0] += nr1-1;
+					if (nr1 > 19)a[0] += 10 * nr1-1;
+					if (nr1 > 29)a[0] += 20 * nr1-1;
+					disc[index].block.push_back(a[0]);
+				
 					for (j = 0; j < len; j++) {
 
 						int help = int(disc[index].block[k]) - 48;
-						//cout << "TAKI OTO " << help << " ZAWIERA DANE";
 						disc[help].block.push_back(text[i]);
 
 						i++;
@@ -400,68 +406,8 @@ void FileManager::add_to_file() {
 
 //Jeszcze nie usuwa, bêdzie mieæ nazwê pliku jako argument
 void FileManager::delete_file(string name) {
-	int pom = find_file(name);
-
-	if (pom != -1) {
-
-		unsigned int length = cataloge[pom].second.size_int_byte;
-
-		if (length <= 32) {
-			array<char, 32> clear_tab;
-			//disc[cataloge[pom].second.number[0]].block.swap(clear_tab);
-			disc[cataloge[pom].second.number[0]].free = 0;
-			cataloge.erase(cataloge.begin() + pom);
-
-		}
-
-		if (length > 32 && length <= 64) {
-			array<char, 32> clear_tab;
-			//disc[cataloge[pom].second.number[0]].block.swap(clear_tab);
-		//	disc[cataloge[pom].second.number[1]].block = clear_tab;
-			cataloge.erase(cataloge.begin() + pom);
-
-		}
-
-		if (length > 64) {
-			/*
-
-			int index = free_block();
-			disc[index].free = 1;
-			cataloge[pom].second.number.push_back(index);
-
-			cataloge[pom].second.size_int_byte = length;
-			int k = 0, len = length - 64;
-
-			while (i < length) {
-
-				nr1 = free_block();
-				disc[nr1].free = 1;
-				disc[cataloge[pom].second.number[2]].block[k] = nr1;
-
-				if (len >= 32) {
-
-					for (j = 0; j < 32; j++) {
-						//disc[nr1].block[j] = text[i];
-
-						i++;
-
-					}
-					len -= 32;
-				}
-				if (len < 32) {
-					for (j = 0; j < len; j++) {
-						//disc[nr1].block[j] = text[i];
-
-						i++;
-
-					}
-				}
-				k++;
-			}*/
-		}
-
-
-	}
+	clean_block(name);
+	
 }
 
 
