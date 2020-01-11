@@ -4,6 +4,7 @@
 #include "procesor.h"
 #include "Memory.h"
 #include "process.h"
+#include "Interpreter.h"
 #include<conio.h>
 
 typedef enum color {

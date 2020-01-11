@@ -27,7 +27,7 @@ private:
 
 public:
 
-	int execute_line(const std::string& name_proc);
+	int execute_line();
 
 		
 };

@@ -11,7 +11,7 @@ extern FileManager FM;
 extern ProcTree PTree;
 extern Memory memory;
 
-Interpreter interpeter;
+Interpreter interpreter;
 
 string Interpreter::get_instruction(unsigned int& instruction_counter, const shared_ptr<PCB>& running_proc)
 {
@@ -20,13 +20,12 @@ string Interpreter::get_instruction(unsigned int& instruction_counter, const sha
 	string instruction;
 	char sign; 
 
-	while (memory.RAM[instruction_counter] != ';') {
+	while (memory.get(instruction_counter, running_proc->pid) != ';') {
 		sign = memory.get(instruction_counter, running_proc->pid);
 		instruction.push_back(sign);
 		instruction_counter++;
 	}
 
-	instruction_counter++;
 
 	return instruction;
 }
@@ -91,7 +90,10 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	exec_instruction = instruction_separate(instruction);
 	int i = 0;
 	int adres = 0;
+	int from_memory = 0;
 
+
+	vector<char>value; 
 	char val = '0';
 
 	int *rej1=0;
@@ -103,6 +105,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	string command;
 	string file_name;
 	string text;
+	string tmp;
 
 	command = exec_instruction[0];
 
@@ -129,6 +132,16 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 		}
 		else {
+			tmp = exec_instruction[1];
+
+			auto it = tmp.begin();
+			while (it != tmp.end()) {
+				value.push_back(*it);
+				it++;
+			}
+
+			value.push_back(';');
+
 			//val = exec_instruction[1].c_str;
 			i = stoi(exec_instruction[1]);
 			*rej1 = i;
@@ -148,17 +161,26 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 			adres = stoi(exec_instruction[2]);
 
 		}
-		else if (exec_instruction[1] == "(") {
+		else if (exec_instruction[2] == "(") {
 
-			exec_instruction[1].pop_back();
-			exec_instruction[1].erase(exec_instruction[1].begin());
+			exec_instruction[2].pop_back();
+			exec_instruction[2].erase(exec_instruction[2].begin());
 			//bal
-			text = exec_instruction[1];
+			text = exec_instruction[2];
 
 		}
 		else {
 			//val = exec_instruction[2].c_str;
 			//blaa
+
+			tmp = exec_instruction[2];
+
+			auto it = tmp.begin();
+			while (it != tmp.end()) {
+				value.push_back(*it);
+				it++;
+			}
+			value.push_back(';');
 			i = stoi(exec_instruction[2]);
 			*rej2 = i;
 		}
@@ -179,21 +201,27 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "DE") { *rej1--; }
 	else if (command == "MV") { *rej1 = *rej2; }
 	else if (command == "WR") {
-		//tutaj pisanko do pamiêci
-			//edytowalem to wywolanie, by sie kompilowalo po zmianach u mnie,
-			//ale poza tym to raczej nie jest poprawne, bo nie wiem, czym jest val - Bartek Czarnecki
-			// EDIT 2 Doda³em pid ¿eby pasowa³o do definicji funkcji z "dzia³aj¹cym"
-			// algorytmem wymiany stron - Bartek Ciesielczyk
-		memory.set(adres, (int)val, running_proc->pid);
+
+		auto it = value.begin();
+		while (it != value.end()) {
+			memory.set(adres, *it, running_proc->pid);
+			it++;
+		}
 	}
 	else if (command == "GT") {
-		//pobieranko z pamiêci
-			//to tez zmienilem, bo dodalem nowa funkcje
-			// EDIT 2 to te¿ zmieni³em bo zmieni³em funkcjê pierwszego Bartka
-		memory.get(adres, running_proc->pid);
+		
+		tmp.clear();
+		while (true) {
+			val = memory.get(adres, running_proc->pid);
+			if (val == ';') false;
+			else tmp.push_back(val);
+		}
+
+		from_memory = stoi(tmp);
+
 	}
 	else if (command == "LP") {
-		C = instruction_counter + 2;
+		C = instruction_counter++;
 	}
 	else if (command == "JP") {
 		instruction_counter = adres;
@@ -251,12 +279,12 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 	}
 
-	instruction_counter++;
+	
 
 	return 1;
 }
 
-int Interpreter::execute_line(const std::string& name_proc) //czy na pewno nazwa?? 
+int Interpreter::execute_line() //czy na pewno nazwa?? 
 {
 	shared_ptr<PCB> running_proc = planist.ReadyPCB.front();
 	take_from_proc(running_proc);
