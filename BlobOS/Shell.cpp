@@ -217,7 +217,10 @@ void Shell::dp() {
 		Help::dp();
 	}
 	else if (parsed.size() == 2) {
-		std::cout << "Czekamy na Eryka -kill" << std::endl;
+
+		// warunek którego nie ogarniam ~ Eryk
+		PTree.kill_pid(std::stoi(parsed[1])); // dla pid
+		//PTree.kill_name(parsed[1]);  // dla name 
 	}
 	else {
 		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
@@ -254,6 +257,10 @@ void Shell::showpcblist() {
 
 void Shell::showpcb() {
 
+	/*
+	shared_ptr<PCB> pcb_show = PTree.find_name(PTree.init_proc, name);
+	pcb_show->show_info();
+	*/
 	std::cout << "showpcblist" << std::endl;
 }
 

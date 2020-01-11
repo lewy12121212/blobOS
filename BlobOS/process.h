@@ -35,6 +35,7 @@ public:
     vector<shared_ptr<PCB>> children_vector;    // wektor dzieci
     vector<PageInfo> page_table;                // coś tam co Bartek chce i mi truł że mo być - to jest. :D
     int executionTimeLeft = 0;                  // ilość cykli do końca 
+	bool bool_kill = 0;							// zmiena pomocnicza do kill pid
 
     PCB()
     { // konstruktor INIT
@@ -53,15 +54,16 @@ public:
         this->state = ready;
     }
 
-    shared_ptr<PCB> get_kid_pid(int &find_pid);                             // przeszukiwanie dzieci po pid
-	shared_ptr<PCB> get_kid_name(string &find_name);                             // przeszukiwanie dzieci po pid
+    shared_ptr<PCB> get_kid_pid(int &find_pid);                         // przeszukiwanie dzieci po pid
+	shared_ptr<PCB> get_kid_name(string &find_name);                    // przeszukiwanie dzieci po pid
     void copy_register(array<int, 5> &cpu_register);					//kopiowanie zawartości rejestru do PCB
     void restore_register(array<int, 5> &cpu_register);					// przywracanie zawartości rejestru
     void change_state(process_state &new_state);						// zmiana stanu procesu
 	bool null_vector_child();											// sparwdza czy są dzieci 
     //void kill();														//zabicie procesu
 	void kill_kid(int &kill_pid);										// usunięcie dziecka z vektora dzieci
-	void show_vector_child();  // wypisanie potomków
+	//void show_vector_child();  // wypisanie potomków
+	void show_info(); // wyświetlenie informacji o procesie 
 };
 
 //void create_process_size(string &name, int &size, int &parent_pid);
@@ -79,11 +81,18 @@ public:
     }
 
     void create_process_file(string &name, string &file_name, int parent_pid); // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
-    shared_ptr<PCB> find_pid(int &pid_proc); // przeszukiwanie drzewa po pid
-	shared_ptr<PCB> find_name(string &name); // przeszukiwanie drzewa po name 
+    shared_ptr<PCB> find_pid(shared_ptr<PCB> pcb_child, int &pid_proc); // przeszukiwanie drzewa po pid
+	shared_ptr<PCB> find_name(shared_ptr<PCB> pcb_child, string &name); // przeszukiwanie drzewa po name 
 
-    void kill_pid(int &pid); // zabicie procesu po PID
-    void kill_name(string &name); // zabicie procesu po nazwie
+	//shared_ptr<PCB> find_pid_child_vect(shared_ptr<PCB> pcb_child, int pid_proc); // szukanie dzieci po pid 
+	//shared_ptr<PCB> find_name_child_vect(shared_ptr<PCB> pcb_child, string &name); // szukanie dzieci po name
+
+
+
+	void show_vector_child(shared_ptr<PCB> proc_show);
+
+    void kill_pid(int pid); // zabicie procesu po PID
+    void kill_name(string name); // zabicie procesu po nazwie
 
     void display_tree(); // wyświetlenie całego drzewa procesów
 

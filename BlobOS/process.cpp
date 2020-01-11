@@ -14,6 +14,35 @@ ProcTree PTree(make_shared<PCB>());
 
 using namespace std;
 
+shared_ptr<PCB> PCB_return; // zmienna pomocnicza dla find_pid
+bool find_bool = 0; // zmienna pomocnicza dla find_pid 
+shared_ptr<PCB> PCB_name_return; // zmienna pomocnicza dla find_name
+bool find_bool_name = 0; // zmienna pomocnicza dla find_name 
+
+void PCB::show_info() {
+
+	cout << "NAME: " << this->name << endl;
+	cout << "PID: "<< this->pid<< endl;
+	cout << "Parent: " << this->parent_pid << endl;
+	cout << "State: "; 
+	switch (this->state) {
+	case 0:
+		cout << "ready" << endl;
+		break;
+	case 1:
+		cout << "run" << endl;
+		break;
+	case 2:
+		cout << "wait" << endl;
+		break;
+	case 3:
+		cout << "terminated" << endl;
+		break;
+	}
+	//cout << "bool kill" << this->bool_kill << endl;
+
+}
+
 void PCB::copy_register(array<int, 5> &cpu_register) //kopiowanie zawartości rejestru do PCB
 { 
     for (int i = 0; i < 5; i++)
@@ -94,55 +123,134 @@ shared_ptr<PCB> PCB::get_kid_name(string &find_name)
 
 void PCB::kill_kid(int &kid_pid) {
 	
+	cout << "the process has been deleted !" << endl;
 	for (int i = 0; i < this->children_vector.size(); i++) {
 		if (children_vector[i]->pid == kid_pid) {
+			//cout << children_vector[i]->name << " - " << children_vector[i]->pid << endl;
 			this->children_vector.erase(this->children_vector.begin() + i); // usunięcie procesu 
 			
 		}
 	}
-
+	
 	// przesunięcie pozostałych
 }
 
 void ProcTree::create_process_file(string &name, string &file_name, int parent_pid)  // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
 {
-        cout << parent_pid << " " << this->init_proc->pid << "\n";
-    if(parent_pid == this->init_proc->pid){
-        shared_ptr<PCB> proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
-        this->init_proc->children_vector.push_back(proc); // dodanie procesu jako dziecka procesu INIT
-        memory.LoadProgram(file_name, proc->pid); // Załaduj kod programu do pamięci wirtualnej
-    } else {
-        shared_ptr<PCB> parent = this->init_proc->get_kid_pid(parent_pid);
+	
+	PCB_return = nullptr;
+	find_bool = 0;
+	shared_ptr<PCB> proc = ProcTree::find_name(this->init_proc, name);
+	if (proc == nullptr) {
 
-        if(parent == nullptr){
-            cout<<"Brak takiego rodzica "<<endl; 
-        } else {
-            shared_ptr<PCB> proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
-            parent->children_vector.push_back(proc); // dodanie procesu jako dziecka odnalezionego procesu rodzica
-            memory.LoadProgram(file_name, proc->pid); // Załaduj kod programu do pamięci wirtualnej
-        }
-    }
+		//cout << parent_pid << " " << this->init_proc->pid << "\n";
+		if (parent_pid == this->init_proc->pid) {
+			shared_ptr<PCB> proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
+			this->init_proc->children_vector.push_back(proc); // dodanie procesu jako dziecka procesu INIT
+			memory.LoadProgram(file_name, proc->pid); // Załaduj kod programu do pamięci wirtualnej
+			cout << "process created" << endl;
+			proc->show_info();
+		}
+		else {
+			PCB_return = nullptr;
+			find_bool = 0;
+			shared_ptr<PCB> parent = ProcTree::find_pid(this->init_proc, parent_pid);
+			//this->init_proc->get_kid_pid(parent_pid);
+			if (find_bool == 1) {
+				parent = PCB_return;
+			}
+
+			if (parent == nullptr) {
+				cout << "No parent ! " << endl;
+			}
+			else {
+				shared_ptr<PCB> proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
+				parent->children_vector.push_back(proc); // dodanie procesu jako dziecka odnalezionego procesu rodzica
+				memory.LoadProgram(file_name, proc->pid); // Załaduj kod programu do pamięci wirtualnej
+				cout << "process created" << endl;
+				proc->show_info();
+			}
+		}
+
+	}
+	else {
+		cout << "Process already exists !" << endl;
+	}
+
+	
 
 
 }
 
-shared_ptr<PCB> ProcTree::find_pid(int &pid_proc){
+shared_ptr<PCB> ProcTree::find_pid(shared_ptr<PCB> pcb_child, int &pid_proc)
+{
+	//cout << this->init_proc->name << " - " << this->init_proc->pid << endl;
+	//PCB_return = nullptr;
 
-    shared_ptr<PCB> PCB_return = nullptr;
+	
+	if (this->init_proc->pid == pid_proc) {
+		return this->init_proc;
+	}
+	else {
+		for (int i = 0; i < pcb_child->children_vector.size(); i++) {
 
-    for(int i=0; i<init_proc->children_vector.size(); i++){ // przeszukujemy wektor dzieci w celu znalezienia szukanego PID
-        if(init_proc->children_vector[i]->pid == pid_proc){
-            return init_proc->children_vector[i];  // zwracamy wskaźnik na PCB o znalezionym PID
-        }
-    }
+			//cout<< pcb_child->children_vector[i]->name << " pid = "<< pcb_child->children_vector[i]->pid << endl;
 
-    for(int i=0; i<init_proc->children_vector.size(); i++){ // jeśli nie znajdziemy szukanego PID dla każdego z dzieci wywołujemy funkcję get_kid 
-        PCB_return = init_proc->children_vector[i]->get_kid_pid(pid_proc); // rekurencja
-    }
+			if (pcb_child->children_vector[i]->pid == pid_proc) {
 
-    return PCB_return;
+				cout << "find pid = " << pcb_child->children_vector[i]->pid << endl;
+				PCB_return =  pcb_child->children_vector[i];
+				find_bool = 1;
+				return PCB_return;
+			}
+			else {
+				//
+				//cout << "rekurencja " << endl;
+				PCB_return = ProcTree::find_pid(pcb_child->children_vector[i], pid_proc);
+			}
+		}
+		return PCB_return;
+	}
+
+	
 }
 
+
+shared_ptr<PCB> ProcTree::find_name(shared_ptr<PCB> pcb_child, string &name)
+{
+	//cout << this->init_proc->name << " - " << this->init_proc->pid << endl;
+	//PCB_return = nullptr;
+
+
+	if (this->init_proc->name == name) {
+		return this->init_proc;
+	}
+	else {
+		for (int i = 0; i < pcb_child->children_vector.size(); i++) {
+
+			//cout<< pcb_child->children_vector[i]->name << " pid = "<< pcb_child->children_vector[i]->pid << endl;
+
+			if (pcb_child->children_vector[i]->name == name) {
+
+				cout << "find name = " << pcb_child->children_vector[i]->name << endl;
+				PCB_return = pcb_child->children_vector[i];
+				find_bool = 1;
+				return PCB_return;
+			}
+			else {
+				//
+				//cout << "rekurencja " << endl;
+				PCB_return = ProcTree::find_name(pcb_child->children_vector[i], name);
+			}
+		}
+		return PCB_return;
+	}
+
+
+}
+
+
+/*
 shared_ptr<PCB> ProcTree::find_name(string &name) {
 
 	shared_ptr<PCB> PCB_return = nullptr;
@@ -159,27 +267,86 @@ shared_ptr<PCB> ProcTree::find_name(string &name) {
 
 	return PCB_return;
 
-}
+}*/
 
-void ProcTree::kill_pid(int &pid) { // zabicie procesu po PID
+void ProcTree::kill_pid(int pid) { // zabicie procesu po PID
 
-	shared_ptr<PCB> PCB_proc_kill = ProcTree::find_pid(pid); 
-	shared_ptr<PCB> PCB_parent = ProcTree::find_pid(PCB_proc_kill->parent_pid);
+	shared_ptr<PCB> PCB_proc_kill = ProcTree::find_pid(this->init_proc, pid); 
+	shared_ptr<PCB> PCB_parent = ProcTree::find_pid(this->init_proc, PCB_proc_kill->parent_pid);
 	bool vector_child = 0;
 	process_state PCB_new_state;
 
 	if (PCB_proc_kill == nullptr) {
 		// niedobrze
-		cout << "Brak procesu o podanym PID" << endl;
+		cout << "There are no processes with the PID provided" << endl;
+	}
+	else if (pid == 0) {
+		cout << "unable to delete INIT process!" << endl;
 	}
 	else {
 		vector_child = PCB_proc_kill->null_vector_child();
-		if (vector_child == 1) {
+		if (vector_child == true) {
 			// kill proces
 			PCB_new_state = terminated;
 			PCB_proc_kill->change_state(PCB_new_state);  // zmiana stanu na terminated 
+			//przesłanie informacji do rodzica o zakończeniu się
+
+			
+			// wyświetlenie informacji o zakończonym procesie i jego statusie
+			PCB_proc_kill->show_info();
 			// usuwanie z drzewa
 			PCB_parent->kill_kid(pid);
+
+
+			//usuwanie z kolejek - czeka na zmiany w planiście
+//Planist::remove_pcb_from_ready(pid); 
+//Planist::remove_pcb_from_wait(pid); 
+
+			if (PCB_parent->bool_kill == true) {
+				cout << "parent kill " << endl;
+				ProcTree::kill_pid(PCB_parent->pid);
+			}
+
+		}
+		else {
+			cout << "Process has children " << endl;
+			PCB_new_state = wait;
+			// planista - czeka na funkcję 
+			// Planist::manage(); 
+			PCB_proc_kill->change_state(PCB_new_state);
+			PCB_proc_kill->bool_kill = 1;
+			PCB_proc_kill->show_info();
+
+		}
+
+	}
+
+}
+
+void ProcTree::kill_name(string name) { // zabicie procesu po name
+
+	shared_ptr<PCB> PCB_proc_kill = ProcTree::find_name(this->init_proc, name);
+	shared_ptr<PCB> PCB_parent = ProcTree::find_pid(this->init_proc, PCB_proc_kill->parent_pid);
+	bool vector_child = 0;
+	process_state PCB_new_state;
+
+	if (PCB_proc_kill == nullptr) {
+		// niedobrze
+		cout << "There are no processes with the NAME provided" << endl;
+	}
+	else if (PCB_parent->pid == 0) {
+		cout << "unable to delete INIT process!" << endl;
+	}
+	else {
+		vector_child = PCB_proc_kill->null_vector_child();
+		if (vector_child == true) {
+			// kill proces
+			PCB_new_state = terminated;
+			PCB_proc_kill->change_state(PCB_new_state);  // zmiana stanu na terminated 
+
+			PCB_proc_kill->show_info();
+			// usuwanie z drzewa
+			PCB_parent->kill_kid(PCB_proc_kill->pid);
 
 			//usuwanie z kolejek - czeka na zmiany w planiście
 //Planist::remove_pcb_from_ready(pid); 
@@ -187,77 +354,36 @@ void ProcTree::kill_pid(int &pid) { // zabicie procesu po PID
 
 		}
 		else {
-			cout << "Podany proces oczekuje na zakończenie procesów potomnych" << endl;
+			cout << "Process has children " << endl;
 			PCB_new_state = wait;
 			// planista - czeka na funkcję 
 			// Planist::manage(); 
-
 			PCB_proc_kill->change_state(PCB_new_state);
+			PCB_proc_kill->show_info();
 
 		}
 
 	}
 
 }
+
+void ProcTree::show_vector_child(shared_ptr<PCB> proc_show) {
+
+	for (int i = 0; i < proc_show->children_vector.size(); i++) {
 	
-void ProcTree::kill_name(string &name) {
-
-	shared_ptr<PCB> PCB_proc_kill = ProcTree::find_name(name);
-	int pid = PCB_proc_kill->pid;
-	shared_ptr<PCB> PCB_parent = ProcTree::find_pid(PCB_proc_kill->parent_pid);
-	bool vector_child = 0;
-	process_state PCB_new_state;
-
-	if (PCB_proc_kill == nullptr) {
-		// niedobrze
-		cout << "Brak procesu o podanym PID" << endl;
-	}
-	else {
-		vector_child = PCB_proc_kill->null_vector_child();
-		if (vector_child == 1) {
-			// kill proces
-			PCB_new_state = terminated;
-			PCB_proc_kill->change_state(PCB_new_state);  // zmiana stanu na terminated 
-			// usuwanie z drzewa
-			PCB_parent->kill_kid(pid);
-
-			//usuwanie z kolejek - czeka na zmiany w planiście
-//Planist::remove_pcb_from_ready(pid); 
-//Planist::remove_pcb_from_wait(pid); 
-
-		}
-		else {
-			cout << "Podany proces oczekuje na zakończenie procesów potomnych" << endl;
-			PCB_new_state = wait;
-			// planista - czeka na funkcję 
-			// Planist::manage(); 
-
-			PCB_proc_kill->change_state(PCB_new_state);
-
-		}
+		ProcTree::show_vector_child(proc_show->children_vector[i]);
+		cout << proc_show->children_vector[i]->name << " - "<< proc_show->children_vector[i]->pid << " parent - " << proc_show->children_vector[i]->parent_pid << endl;
 
 	}
 
-}
 
-void PCB::show_vector_child() {
-
-	/*
-
-	for (int i = 0; i < this->children_vector.size(); i++) {
-		cout << this->children_vector[i]->name << " - " << this->children_vector[i]->pid << endl;
-	}
-
-	*/
 }
 
 void ProcTree::display_tree()
 {
-		
-//	cout << this->init_proc->name << " - "<< this->init_proc->pid << endl;
+	cout << this->init_proc->name << " - "<< this->init_proc->pid << endl;
 
-	
-
+	ProcTree::show_vector_child(this->init_proc);
 
     // sposób wyświetlania drzewa do ugadania z Anią :) 
 }
