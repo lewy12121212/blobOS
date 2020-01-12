@@ -75,12 +75,12 @@ public:
 
     shared_ptr<PCB> init_proc;
 
-    ProcTree(shared_ptr<PCB> init_proc){
-        this->init_proc = init_proc;
-        memory.SetupInitProcess();
-    }
+    ProcTree() {};
 
-    void create_process_file(string &name, string &file_name, int parent_pid); // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
+    //BARTEK: żeby go działało przy starcie systemu
+    void init(shared_ptr<PCB> init_proc);
+
+    int create_process_file(string &name, string &file_name, int parent_pid); // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
     shared_ptr<PCB> find_pid(shared_ptr<PCB> pcb_child, int &pid_proc); // przeszukiwanie drzewa po pid
 	shared_ptr<PCB> find_name(shared_ptr<PCB> pcb_child, string &name); // przeszukiwanie drzewa po name 
 

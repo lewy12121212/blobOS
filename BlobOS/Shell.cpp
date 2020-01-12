@@ -11,6 +11,7 @@
 extern FileManager FM;
 extern Memory memory;
 extern ProcTree PTree;
+extern Planist planist;
 extern Interpreter interpreter;
 
 inline void set_color(int col) {
@@ -26,6 +27,8 @@ Shell::Shell() {
 	this->parsed.clear();
 
 	//Co� potem do proces�w
+	PTree.init(make_shared<PCB>(PCB()));
+	planist.add_process(PTree.init_proc);
 }
 
 void Shell::boot() {
@@ -200,7 +203,10 @@ void Shell::cp() {
 	}
 	else if (parsed.size() == 4) {
 		// To do dadania 3 parametr (nazwa procesu, nazwa pliku, parent_pid)
-		PTree.create_process_file(parsed[1], parsed[2], std::stoi(parsed[3]));
+		int pid = PTree.create_process_file(parsed[1], parsed[2], std::stoi(parsed[3]));
+		if (pid != -1) {
+			planist.add_process(PTree.find_pid(PTree.init_proc, pid));	
+		}
 	}
 	else {
 		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[4] + "\'";
@@ -443,7 +449,8 @@ void Shell::fileinfo() {
 
 void Shell::go() {
 	if (parsed.size() == 1) {
-		std::cout << "go go go" << std::endl;
+		//std::cout << "go go go" << std::endl;
+		interpreter.execute_line();
 	}
 	else if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::go();
@@ -452,7 +459,6 @@ void Shell::go() {
 		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
 		throw temp;
 	}
-	interpreter.execute_line();
 }
 void Shell::editor(std::string filename){
 	//Do testowania plików

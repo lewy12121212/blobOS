@@ -22,6 +22,9 @@ class Planist{
     Planist() = default;
     ~Planist() = default;
 
+    //BARTEK: ¿eby go dzia³a³o przy starcie systemu
+    void init();
+
     void add_process(const shared_ptr<PCB>& process);
     void remove_process(const shared_ptr<PCB>& process);
 

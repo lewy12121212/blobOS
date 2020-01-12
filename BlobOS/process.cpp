@@ -10,7 +10,7 @@
 
 extern Memory memory;
 
-ProcTree PTree(make_shared<PCB>());
+ProcTree PTree;
 
 using namespace std;
 
@@ -135,7 +135,12 @@ void PCB::kill_kid(int &kid_pid) {
 	// przesunięcie pozostałych
 }
 
-void ProcTree::create_process_file(string &name, string &file_name, int parent_pid)  // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
+void ProcTree::init(shared_ptr<PCB> init_proc) {
+	this->init_proc = init_proc;
+	memory.SetupInitProcess();
+}
+
+int ProcTree::create_process_file(string &name, string &file_name, int parent_pid)  // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
 {
 	
 	PCB_return = nullptr;
@@ -145,7 +150,7 @@ void ProcTree::create_process_file(string &name, string &file_name, int parent_p
 
 		//cout << parent_pid << " " << this->init_proc->pid << "\n";
 		if (parent_pid == this->init_proc->pid) {
-			shared_ptr<PCB> proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
+			proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
 			this->init_proc->children_vector.push_back(proc); // dodanie procesu jako dziecka procesu INIT
 			memory.LoadProgram(file_name, proc->pid); // Załaduj kod programu do pamięci wirtualnej
 			cout << "process created" << endl;
@@ -164,22 +169,19 @@ void ProcTree::create_process_file(string &name, string &file_name, int parent_p
 				cout << "No parent ! " << endl;
 			}
 			else {
-				shared_ptr<PCB> proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
+				proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
 				parent->children_vector.push_back(proc); // dodanie procesu jako dziecka odnalezionego procesu rodzica
 				memory.LoadProgram(file_name, proc->pid); // Załaduj kod programu do pamięci wirtualnej
 				cout << "process created" << endl;
 				proc->show_info();
 			}
 		}
-
+		return proc->pid;
 	}
 	else {
 		cout << "Process already exists !" << endl;
+		return -1;
 	}
-
-	
-
-
 }
 
 shared_ptr<PCB> ProcTree::find_pid(shared_ptr<PCB> pcb_child, int &pid_proc)
