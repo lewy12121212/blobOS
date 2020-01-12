@@ -289,6 +289,8 @@ int Interpreter::execute_line() //czy na pewno nazwa??
 	shared_ptr<PCB> running_proc = planist.ReadyPCB.front();
 	take_from_proc(running_proc);
 	instruction = get_instruction(instruction_counter, running_proc);
+	cout << instruction << "\n";
+	this->display_registers();
 	execute_instruction(instruction, running_proc);
 	update_proc(running_proc);
 

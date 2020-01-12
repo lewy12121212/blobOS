@@ -145,7 +145,7 @@ void Memory::PageHandler(int address, int PID) {
 	// Stałe pomocnicze
 	const int page = address / 16;
 	const int offset = address % 16;
-	shared_ptr<PCB> process = PTree.find_pid(PID);
+	shared_ptr<PCB> process = PTree.find_pid(PTree.init_proc, PID);
 
 	// Jeśli strona nie jest w RAM, załadują ją do RAM
 	if(!process->page_table.at(page).bit){
@@ -182,7 +182,7 @@ void Memory::PageHandler(int address, int PID) {
 			int page_to_update = Frames.at(victim).second;
 
 			// Do kogo należy stronnica z ramki victim
-			shared_ptr<PCB> process_to_update = PTree.find_pid(Frames.at(victim).first);
+			shared_ptr<PCB> process_to_update = PTree.find_pid(PTree.init_proc, Frames.at(victim).first);
 
 			// Przepisz zmiany z RAM do pliku wymiany
 			for (int i = 0; i < 16; i++) {
@@ -268,7 +268,7 @@ void Memory::ShowPageTable(int PID) {
 
 	if (PID == 0) {
 		process = PTree.init_proc;
-	}else process = PTree.find_pid(PID);
+	}else process = PTree.find_pid(PTree.init_proc, PID);
 
 	const int header_width = 15;
 	const int field_width = 6;

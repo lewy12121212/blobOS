@@ -8,6 +8,11 @@
 using namespace std;
 
 Planist planist;
+extern ProcTree PTree;
+
+void Planist::init() {
+    this->add_process(PTree.init_proc);
+}
 
 void Planist::check(){
     // ReadyPCB

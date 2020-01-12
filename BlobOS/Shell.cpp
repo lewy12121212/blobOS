@@ -11,6 +11,7 @@
 extern FileManager FM;
 extern Memory memory;
 extern ProcTree PTree;
+extern Planist planist;
 extern Interpreter interpreter;
 
 inline void set_color(int col) {
@@ -26,6 +27,8 @@ Shell::Shell() {
 	this->parsed.clear();
 
 	//Co� potem do proces�w
+	PTree.init(make_shared<PCB>(PCB()));
+	planist.add_process(PTree.init_proc);
 }
 
 void Shell::boot() {
@@ -200,7 +203,10 @@ void Shell::cp() {
 	}
 	else if (parsed.size() == 4) {
 		// To do dadania 3 parametr (nazwa procesu, nazwa pliku, parent_pid)
-		PTree.create_process_file(parsed[1], parsed[2], std::stoi(parsed[3]));
+		int pid = PTree.create_process_file(parsed[1], parsed[2], std::stoi(parsed[3]));
+		if (pid != -1) {
+			planist.add_process(PTree.find_pid(PTree.init_proc, pid));	
+		}
 	}
 	else {
 		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[4] + "\'";
@@ -217,7 +223,10 @@ void Shell::dp() {
 		Help::dp();
 	}
 	else if (parsed.size() == 2) {
-		std::cout << "Czekamy na Eryka -kill" << std::endl;
+
+		// warunek którego nie ogarniam ~ Eryk
+		PTree.kill_pid(std::stoi(parsed[1])); // dla pid
+		//PTree.kill_name(parsed[1]);  // dla name 
 	}
 	else {
 		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
@@ -262,6 +271,10 @@ void Shell::showpcblist() {
 
 void Shell::showpcb() {
 
+	/*
+	shared_ptr<PCB> pcb_show = PTree.find_name(PTree.init_proc, name);
+	pcb_show->show_info();
+	*/
 	std::cout << "showpcblist" << std::endl;
 }
 
@@ -402,7 +415,10 @@ void Shell::rm() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::rm();
 	}
-	else if (parsed.size() == 2) std::cout << "rm -usuwanie pliku" << std::endl;
+	else if (parsed.size() == 2) {
+		std::cout << "rm -usuwanie pliku" << std::endl;
+		FM.delete_file(parsed[1]);
+	}
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
@@ -486,57 +502,64 @@ void Shell::go() {
 	}
 }
 void Shell::editor(std::string filename){
-	
+	//Do testowania plików
+	FM.show_disc();
+
 	std::string poczatkowy = FM.show_file(parsed[1]);
-		std::vector<char>tekst;
-		system("cls");
-		std::copy(poczatkowy.begin(), poczatkowy.end(), std::back_inserter(tekst));
-		std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
-		std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
-		for (auto i:poczatkowy) {
-			std::cout << i;
-		}
-		unsigned char znak;
+	std::vector<char>tekst;
+	system("cls");
+	std::copy(poczatkowy.begin(), poczatkowy.end(), std::back_inserter(tekst));
+	std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
+	std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+	for (auto i:poczatkowy) {
+		std::cout << i;
+	}
+	unsigned char znak;
 		
-		do{
-			znak = _getch();
-		
-			if((znak !=19) && (znak!=17)) {
-				if (znak == 8) {
-					if (tekst.size() > 0) {
-						system("cls");
-						tekst.pop_back();
-						std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
-						std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
-						for (auto i : tekst) {
-							std::cout << i;
-						}
-					}
-				}
-				else if (znak == 13) {
-					tekst.push_back('\n');
-					std::cout << std::endl;
-				}
-				else {
-					tekst.push_back(znak);
+	do{
+		znak = _getch();
+	
+		if((znak !=19) && (znak!=17)) {
+			if (znak == 8) {
+				if (tekst.size() > 0) {
 					system("cls");
+					tekst.pop_back();
 					std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
 					std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+					//Do testowania plików
+					FM.show_disc();
 					for (auto i : tekst) {
 						std::cout << i;
 					}
+					
 				}
 			}
-		} while ((znak !=19) && (znak!=17)); //17 ^Q  19 ^S 
+			else if (znak == 13) {
+				tekst.push_back('\n');
+				std::cout << std::endl;
+			}
+			else {
+				tekst.push_back(znak);
+				system("cls");
+				std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
+				std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
+				//Do testowania plików
+				FM.show_disc();
+				for (auto i : tekst) {
+					std::cout << i;
+				}
+			}
+		}
+	} while ((znak !=19) && (znak!=17)); //17 ^Q  19 ^S 
 
 		//Tu chyba na razie brakuje opcji zapis/bez zapisu więc po prostu poczotkowy to tekst zapisany w pliku
 		//który potem jest zmieniany edytorem, poczotkowy jest nadpisywany i przesyłany do zapisu
 		
-		//Na razie mam pliki do 32 bajtów, jakby ktoś chciał testować
+		
 
-		poczatkowy.clear();
-		for (int i = 0; i < tekst.size();i++) {
-			poczatkowy.push_back(tekst[i]);
-		}
-		FM.edit_file(parsed[1],poczatkowy);
+	poczatkowy.clear();
+	for (int i = 0; i < tekst.size();i++) {
+		poczatkowy.push_back(tekst[i]);
+	}
+	FM.edit_file(parsed[1],poczatkowy);
 }
