@@ -86,7 +86,7 @@ void Shell::loop() {
 
 void Shell::logo() {
 
-	set_color(5);
+	set_color(purple);
 	printf(R"EOF(                                                                                                                                                                                                              
                                  ```...........``                                                                       
                              `..-------------------..`                                                                  
@@ -475,6 +475,7 @@ void Shell::fileinfo() {
 void Shell::go() {
 	if (parsed.size() == 1) {
 		std::cout << "go go go" << std::endl;
+		//interpreter.execute_line();
 	}
 	else if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::go();
@@ -483,7 +484,6 @@ void Shell::go() {
 		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
 		throw temp;
 	}
-	interpreter.execute_line();
 }
 void Shell::editor(std::string filename){
 	

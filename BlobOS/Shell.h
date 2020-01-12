@@ -8,6 +8,7 @@
 #include<conio.h>
 
 typedef enum color {
+	purple = 5,
 	white = 7,
 	gray = 8,
 	lightGreen = 10,
