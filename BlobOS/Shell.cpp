@@ -205,7 +205,7 @@ void Shell::cp() {
 		// To do dadania 3 parametr (nazwa procesu, nazwa pliku, parent_pid)
 		int pid = PTree.create_process_file(parsed[1], parsed[2], std::stoi(parsed[3]));
 		if (pid != -1) {
-			planist.add_process(PTree.find_pid(PTree.init_proc, pid));	
+			//planist.add_process(PTree.find_pid(PTree.init_proc, pid));	
 		}
 	}
 	else {
@@ -491,7 +491,7 @@ void Shell::fileinfo() {
 void Shell::go() {
 	if (parsed.size() == 1) {
 		std::cout << "go go go" << std::endl;
-		//interpreter.execute_line();
+		interpreter.execute_line();
 	}
 	else if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::go();

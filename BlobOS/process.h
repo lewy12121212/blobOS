@@ -43,6 +43,8 @@ public:
         this->pid = 0;							// poprawione na 0 :) 
         this->parent_pid = 0;
         this->state = ready;
+		this->time_run = 0;
+		this->executionTimeLeft = 0;
     }
 
     PCB(string &name, int &parent_pid)
@@ -51,7 +53,9 @@ public:
         this->pid = pid_pcb;
         pid_pcb++;
         this->parent_pid = parent_pid;
-        this->state = ready;
+   		this->state = ready;
+		this->time_run = 0;
+		this->executionTimeLeft = 0;
     }
 
     shared_ptr<PCB> get_kid_pid(int &find_pid);                         // przeszukiwanie dzieci po pid
@@ -81,7 +85,7 @@ public:
     void init(shared_ptr<PCB> init_proc);
 
     int create_process_file(string &name, string &file_name, int parent_pid); // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
-    shared_ptr<PCB> find_pid(shared_ptr<PCB> pcb_child, int &pid_proc); // przeszukiwanie drzewa po pid
+    shared_ptr<PCB> find_pid(shared_ptr<PCB> pcb_child, int pid_proc); // przeszukiwanie drzewa po pid
 	shared_ptr<PCB> find_name(shared_ptr<PCB> pcb_child, string &name); // przeszukiwanie drzewa po name 
 
 	//shared_ptr<PCB> find_pid_child_vect(shared_ptr<PCB> pcb_child, int pid_proc); // szukanie dzieci po pid 

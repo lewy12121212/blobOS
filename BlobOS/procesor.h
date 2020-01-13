@@ -2,6 +2,7 @@
 
 #include "process.h"
 #include <list>
+#include <vector>
 #include <memory>
 
 using namespace std;
@@ -11,25 +12,37 @@ class Planist{
          
     //proces_state state;     //stan procesu
     //array<int, 5> register_copy{0, 0, 0, 0, 0};     // kopia rejestru
-    void sort_list();
+
     //static bool compare_PCB(const shared_ptr<PCB>& first, const shared_ptr<PCB>& second);
 
     public:
-    list<shared_ptr<PCB>> ReadyPCB;     // lista procesow gotowych do wykonania
-	list<shared_ptr<PCB>> WaitPCB;		// lista procesow oczekujacych
+    vector<shared_ptr<PCB>> ReadyPCB;     // lista procesow gotowych do wykonania
+	vector<shared_ptr<PCB>> WaitPCB;		// lista procesow oczekujacych
+	int time;							// czas do podzia³u
+	int time_sum;						// suma przydzielonego czasu - jeœli 0 - odpalamy menager 
+	int time_per_one;					// kwant czasu
+	int amount_process;					// liczba procesów w kolejce ready
+	
 
-
-    Planist() = default;
+	Planist() {
+		this->time = 10;
+		this->time_per_one = 0;
+		this->time_sum = 0;
+		this->amount_process = 0;
+	}
     ~Planist() = default;
 
     //BARTEK: ¿eby go dzia³a³o przy starcie systemu
     void init();
 
-    void add_process(const shared_ptr<PCB>& process);
-    void remove_process(const shared_ptr<PCB>& process);
+    void add_process(const shared_ptr<PCB>& process); // dodanie procesu do kolejek
+    void remove_process(const shared_ptr<PCB>& process); // usuniêcie procesu z kolejek
+	void manager(); // przydzielenie kwantu czasu 
+	void first_to_end(); // przeniesenie pierszego na ostatni
+	void sort_list(); // ustawienie pierwszego na run
 
-    void check();
-    void display_PCB_list();
+    void check(); // sprawdzenie stanów procesu i posortowanie w kolejkach
+    void display_PCB_list(); // wyœwietlenie stanu obu kolejek
 };
 
 extern Planist planist;
