@@ -68,27 +68,3 @@ public :
 	Shell();
 	~Shell() = default;
 };
-
-
-
-/*
-show
-	-pcb
-	-pcblist
-	-tree
-	-ram
-	-pagetable
-	-queue
-	-frames
-	-pagefile
-
-	cp [PROC NAME] [FILENAME] [PARENT PID] -tworzenie procesu
-	dp [PROC NAME] -usuwanie procesu
-	touch [FILENAME] -tworzenie nowego pliku
-	rm [FILENAME] -
-
-
-
-
-
-*/
