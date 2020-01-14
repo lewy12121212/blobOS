@@ -16,7 +16,11 @@ struct inode
 
 };
 
-
+//Zamykaie i otwieranie pliku
+//Zamki
+//Edytor? Zaspis i jego brak
+//Popytaæ siê ludzi co jeszcze
+//Dodaæ napisy po angielsku
 
 FileManager FM;
 
@@ -134,9 +138,9 @@ void FileManager::show_disc() {
 void FileManager::save_data_to_file(string name, string text) {
 	//Wyszukuje plik
 	int pom = find_file(name);
-
+	bool save = 0;
 	if (pom != -1) {
-
+		string kopia = show_file(name);
 		unsigned int length = text.size();
 		//Wyczyœæ dane pliku
 		clean_file_data(name);
@@ -154,24 +158,29 @@ void FileManager::save_data_to_file(string name, string text) {
 
 				disc[nr].free = 1;
 			}
+			else {
+				clean_file_data(name);
+				save = 1;
+			}
+
 			//brak bloku
 		}
 
 		if (length > 32 && length <= 64) {
-			
+
 			int nr1 = free_block();
 			if (nr1 != -1) {
 				disc[nr1].free = 1;
-				cataloge[pom].second.number.push_back(nr1);
-				int i = 0;
-				//zapis danych
-				for (i; i < 32; i++) {
-					disc[cataloge[pom].second.number[0]].block.push_back(text[i]);
-				}
-
 				int nr2 = free_block();
 				if (nr2 != -1) {
 					disc[nr2].free = 1;
+					cataloge[pom].second.number.push_back(nr1);
+					int i = 0;
+					//zapis danych
+					for (i; i < 32; i++) {
+						disc[cataloge[pom].second.number[0]].block.push_back(text[i]);
+					}
+
 					cataloge[pom].second.number.push_back(nr2);
 
 					for (i; i < length; i++) {
@@ -180,6 +189,10 @@ void FileManager::save_data_to_file(string name, string text) {
 					}
 
 					cataloge[pom].second.size_int_byte = length;
+				}
+				else {
+					clean_file_data(name);
+					save = 1;
 				}
 				//brak bloku 2
 			}
@@ -191,14 +204,17 @@ void FileManager::save_data_to_file(string name, string text) {
 			int nr1 = free_block();
 			if (nr1 != -1) {
 				disc[nr1].free = 1;
-				cataloge[pom].second.number.push_back(nr1);
-				//zapis danych
-				for (i; i < 32; i++) {
-					disc[cataloge[pom].second.number[0]].block.push_back(text[i]);
-				}
 				int nr2 = free_block();
 				if (nr2 != -1) {
+
 					disc[nr2].free = 1;
+					cataloge[pom].second.number.push_back(nr1);
+					//zapis danych
+					for (i; i < 32; i++) {
+						disc[cataloge[pom].second.number[0]].block.push_back(text[i]);
+					}
+
+
 					cataloge[pom].second.number.push_back(nr2);
 					//zapis danych
 					for (i; i < 64; i++) {
@@ -206,73 +222,97 @@ void FileManager::save_data_to_file(string name, string text) {
 					}
 
 
-				}
-				//brak bloku 2
-			}
-			//brak bloku 1
-			int index = free_block();
-			if (index != -1) {
-				//blok indeksowy
-				disc[index].free = 1;
-				cataloge[pom].second.number.push_back(index);
+					int index = free_block();
+					if (index != -1) {
+						//blok indeksowy
+						disc[index].free = 1;
+						cataloge[pom].second.number.push_back(index);
 
-				cataloge[pom].second.size_int_byte = length;
-				int k = 0, len = length - 64;
-				int j = 0;
-				while (i < length) {
+						cataloge[pom].second.size_int_byte = length;
+						int k = 0, len = length - 64;
+						int j = 0, dl = 0;
 
+						while (i < length) {
+							if (len > 32)dl = 32;
+							else dl = len;
 
-					while (len > 32) {
-						//Zapis do kolejnych bloków po 32 bajty
-						nr1 = free_block();
-						if (nr1 != -1) {
-							disc[nr1].free = 1;
+							/*while (len > 32) {
+								//Zapis do kolejnych bloków po 32 bajty
+								nr1 = free_block();
+								if (nr1 != -1) {
+									disc[nr1].free = 1;
 
-							string a = to_string(nr1);
-							if (nr1 > 9)a[0] += nr1 - 1;
-							if (nr1 > 19)a[0] -= 1;
-							if (nr1 > 29)a[0] -= 1;
-							disc[index].block.push_back(a[0]);
+									string a = to_string(nr1);
+									if (nr1 > 9)a[0] += nr1 - 1;
+									if (nr1 > 19)a[0] -= 1;
+									if (nr1 > 29)a[0] -= 1;
+									disc[index].block.push_back(a[0]);
 
-							while (j < 32) {
-								int help = int(disc[index].block[k]) - 48;
-								disc[help].block.push_back(text[i]);
-								i++;
-								j++;
+									while (j < 32) {
+										int help = int(disc[index].block[k]) - 48;
+										disc[help].block.push_back(text[i]);
+										i++;
+										j++;
+									}
+									len -= 32;
+									j = 0;
+									k++;
+								}
+								//brak i-tego bloku
+							}*/
+							//	if (len <= 32) {
+									//Zapis je¿eli pozosta³e do zapisu dane maj¹ nie wiêcej ni¿ 32 bajty
+							nr1 = free_block();
+							if (nr1 != -1) {
+								disc[nr1].free = 1;
+
+								string a = to_string(nr1);
+								if (nr1 > 9)a[0] += nr1 - 1;
+								if (nr1 > 19)a[0] -= 1;
+								if (nr1 > 29)a[0] -= 1;
+								disc[index].block.push_back(a[0]);
+
+								for (j = 0; j < dl; j++) {
+
+									int help = int(disc[index].block[k]) - 48;
+									disc[help].block.push_back(text[i]);
+									i++;
+
+								}
+								k++;
+								len -= 32;
 							}
-							len -= 32;
-							j = 0;
-							k++;
-						}
-						//brak i-tego bloku
-					}
-					if (len <= 32) {
-						//Zapis je¿eli pozosta³e do zapisu dane maj¹ nie wiêcej ni¿ 32 bajty
-						nr1 = free_block();
-						if (nr1 != -1) {
-							disc[nr1].free = 1;
-
-							string a = to_string(nr1);
-							if (nr1 > 9)a[0] += nr1 - 1;
-							if (nr1 > 19)a[0] -= 1;
-							if (nr1 > 29)a[0] -= 1;
-							disc[index].block.push_back(a[0]);
-
-							for (j = 0; j < len; j++) {
-
-								int help = int(disc[index].block[k]) - 48;
-								disc[help].block.push_back(text[i]);
-								i++;
+							else {
+								clean_file_data(name);
+								save = 1;
+								break;
 							}
+							//brak i-tego bloku
 						}
-						//brak i-tego bloku
-					}
 
+					}
+					else {
+						clean_file_data(name);
+						save = 1;
+					}
+					//brak bloku indexowego
 				}
+				else {
+					clean_file_data(name);
+					save = 1;
+				}
+				
 			}
-			//brak bloku indexowego
+			else {
+				clean_file_data(name);
+				save = 1;
+			}
 		}
 
+
+		if (save == 1) {
+			save_data_to_file(name, kopia);
+		}
 	}
 }
 
