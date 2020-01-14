@@ -61,7 +61,6 @@ int FileManager::find_file(string name) {
 	return pom;
 }
 
-
 void FileManager::clean_block(string name) {
 	int pom = find_file(name);
 
@@ -203,14 +202,15 @@ void FileManager::save_data_to_file(string name, string text) {
 					
 					string a = to_string(nr1);
 					if (nr1 > 9)a[0] += nr1-1;
-					if (nr1 > 19)a[0] += 10*nr1-1;
-					if (nr1 > 29)a[0] += 20*nr1-1;
+					//if (nr1 > 19)a[0] += 10;
+					//if (nr1 > 29)a[0] += 10;
 					disc[index].block.push_back(a[0]);
 				
 					
 				
 					while (j < 32) {
 						int help = int(disc[index].block[k]) - 48;
+						if (help > 20)help--;
 						disc[help].block.push_back(text[i]);
 
 						i++;
@@ -227,13 +227,14 @@ void FileManager::save_data_to_file(string name, string text) {
 
 					string a = to_string(nr1);
 					if (nr1 > 9)a[0] += nr1-1;
-					if (nr1 > 19)a[0] += 10 * nr1-1;
-					if (nr1 > 29)a[0] += 20 * nr1-1;
+				//	if (nr1 > 19)a[0] += 10;
+				//	if (nr1 > 29)a[0] += 10;
 					disc[index].block.push_back(a[0]);
 				
 					for (j = 0; j < len; j++) {
 
 						int help = int(disc[index].block[k]) - 48;
+						if (help > 20)help--;
 						disc[help].block.push_back(text[i]);
 
 						i++;
@@ -404,10 +405,16 @@ void FileManager::add_to_file() {
 }
 
 
-//Jeszcze nie usuwa, bêdzie mieæ nazwê pliku jako argument
+//Usuwa pliki
 void FileManager::delete_file(string name) {
 	clean_block(name);
-	
+	int pom = find_file(name);
+	if (pom == -1) {
+		cout<< "Brak takiego pliku";
+	}
+	else {
+		cataloge.erase(cataloge.begin() + pom);
+	}
 }
 
 
