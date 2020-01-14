@@ -286,13 +286,40 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 int Interpreter::execute_line() //czy na pewno nazwa?? 
 {
+
+	cout << "exe" << endl;
 	shared_ptr<PCB> running_proc = planist.ReadyPCB.front();
+	
+	if (running_proc->time_run == 0) {
+		planist.manager();
+	}
+
+	/* - zakomentowane w celu sprawdzenia poprawnoœci odejmowania i przydzia³u kwantów czasu 
+		po odkomentowaniu poprawne dzia³anie dla procesu INIT 
+		b³¹d krytyczny przy nowo utworzonych procesach ze wzglêdu na brak jakochkolwiek rozkazów :)
+		Pozdrawiam cie ³ukasz 
+
+
+
 	take_from_proc(running_proc);
 	instruction = get_instruction(instruction_counter, running_proc);
 	cout << instruction << "\n";
 	this->display_registers();
 	execute_instruction(instruction, running_proc);
-	update_proc(running_proc);
+	update_proc(running_proc);*/ 
+
+	
+	// planista i procesy
+	running_proc->time_run--;  // zmiejszenie przydzielonego kwantu czasu o 1
+	planist.time_sum--; // zmiejszenie sumy przydzielonych kwantów o 1
+
+	if (running_proc->time_run == 0) { // je¿eli proces kwant czasu ma na 0 to zostaje przeniesiony na koniec i run otrzymuje nastêpny proces
+		planist.first_to_end();
+	}
+
+	if (planist.time_sum == 0) {	 // je¿eli suma kwantów jest 0 to na nowo przydzielamy kwanty dla procesów
+		planist.manager();
+	}
 
 	return 0;
 }

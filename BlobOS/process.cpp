@@ -6,7 +6,7 @@
 #include <iostream>
 #include "Memory.h"
 #include "process.h"
-//#include "procesor.h"
+#include "procesor.h"
 
 extern Memory memory;
 
@@ -68,7 +68,15 @@ void PCB::kill() // zmiana stanu procesu za zakończony
 
 void PCB::change_state(process_state &new_state) // zmiana stanu procesu (planista)
 {
+
+	//cout << "change state" << endl;
     this->state = new_state;
+	planist.check();
+	if (new_state == wait) {
+		this->time_run = 0;
+	}
+
+	
 	// planista - oczekiwanie
 	// Planist::manage();
 }
@@ -127,6 +135,7 @@ void PCB::kill_kid(int &kid_pid) {
 	for (int i = 0; i < this->children_vector.size(); i++) {
 		if (children_vector[i]->pid == kid_pid) {
 			//cout << children_vector[i]->name << " - " << children_vector[i]->pid << endl;
+			planist.remove_process(children_vector[i]);
 			this->children_vector.erase(this->children_vector.begin() + i); // usunięcie procesu 
 			
 		}
@@ -142,7 +151,7 @@ void ProcTree::init(shared_ptr<PCB> init_proc) {
 
 int ProcTree::create_process_file(string &name, string &file_name, int parent_pid)  // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
 {
-	
+	//cout << "pp "<< parent_pid << endl;
 	PCB_return = nullptr;
 	find_bool = 0;
 	shared_ptr<PCB> proc = ProcTree::find_name(this->init_proc, name);
@@ -153,8 +162,11 @@ int ProcTree::create_process_file(string &name, string &file_name, int parent_pi
 			proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
 			this->init_proc->children_vector.push_back(proc); // dodanie procesu jako dziecka procesu INIT
 			memory.LoadProgram(file_name, proc->pid); // Załaduj kod programu do pamięci wirtualnej
+			planist.add_process(proc);
 			cout << "process created" << endl;
 			proc->show_info();
+			planist.check();
+			return proc->pid;
 		}
 		else {
 			PCB_return = nullptr;
@@ -167,16 +179,21 @@ int ProcTree::create_process_file(string &name, string &file_name, int parent_pi
 
 			if (parent == nullptr) {
 				cout << "No parent ! " << endl;
+				return -1;
 			}
 			else {
 				proc = make_shared<PCB>(name, parent_pid);  // utworzenie wskaźnika na proces - wywołanie konstruktora procesu
 				parent->children_vector.push_back(proc); // dodanie procesu jako dziecka odnalezionego procesu rodzica
 				memory.LoadProgram(file_name, proc->pid); // Załaduj kod programu do pamięci wirtualnej
-				cout << "process created" << endl;
+				planist.add_process(proc);
+				//cout << "process created" << endl;
 				proc->show_info();
+				planist.check();
+				return proc->pid;
 			}
 		}
-		return proc->pid;
+		
+		
 	}
 	else {
 		cout << "Process already exists !" << endl;
@@ -184,7 +201,7 @@ int ProcTree::create_process_file(string &name, string &file_name, int parent_pi
 	}
 }
 
-shared_ptr<PCB> ProcTree::find_pid(shared_ptr<PCB> pcb_child, int &pid_proc)
+shared_ptr<PCB> ProcTree::find_pid(shared_ptr<PCB> pcb_child, int pid_proc)
 {
 	//cout << this->init_proc->name << " - " << this->init_proc->pid << endl;
 	//PCB_return = nullptr;
@@ -274,7 +291,7 @@ shared_ptr<PCB> ProcTree::find_name(string &name) {
 void ProcTree::kill_pid(int pid) { // zabicie procesu po PID
 
 	shared_ptr<PCB> PCB_proc_kill = ProcTree::find_pid(this->init_proc, pid); 
-	shared_ptr<PCB> PCB_parent = ProcTree::find_pid(this->init_proc, PCB_proc_kill->parent_pid);
+	shared_ptr<PCB> PCB_parent = nullptr;
 	bool vector_child = 0;
 	process_state PCB_new_state;
 
@@ -286,8 +303,12 @@ void ProcTree::kill_pid(int pid) { // zabicie procesu po PID
 		cout << "unable to delete INIT process!" << endl;
 	}
 	else {
+		PCB_parent = ProcTree::find_pid(this->init_proc, PCB_proc_kill->parent_pid);
+
 		vector_child = PCB_proc_kill->null_vector_child();
 		if (vector_child == true) {
+
+			
 			// kill proces
 			PCB_new_state = terminated;
 			PCB_proc_kill->change_state(PCB_new_state);  // zmiana stanu na terminated 
@@ -296,6 +317,8 @@ void ProcTree::kill_pid(int pid) { // zabicie procesu po PID
 			
 			// wyświetlenie informacji o zakończonym procesie i jego statusie
 			PCB_proc_kill->show_info();
+
+			
 			// usuwanie z drzewa
 			PCB_parent->kill_kid(pid);
 
