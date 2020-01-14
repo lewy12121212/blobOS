@@ -27,12 +27,12 @@ class FileManager {
 	void create_file(string name);
 	int free_block();
 	int find_file(string name);
-	void clean_block(string name);
+	void clean_file_data(string name);
 	void save_data_to_file(string name, string text);
 	void show_disc();
 	void edit_file(string name, string text);
 	string show_file(string name);
-	void add_to_file();
+	void add_to_file(string name,string text);
 	void delete_file(string name);
 };
 
