@@ -53,7 +53,7 @@ int FileManager::find_file(string name) {
 	for (int i = 0; i < cataloge.size(); i++) {
 		if (cataloge[i].first == name) {
 			pom = i;
-			//cout << "ZNALEZIONO plik" << endl;
+		
 		}
 
 	}
@@ -202,15 +202,16 @@ void FileManager::save_data_to_file(string name, string text) {
 					
 					string a = to_string(nr1);
 					if (nr1 > 9)a[0] += nr1-1;
-					//if (nr1 > 19)a[0] += 10;
-					//if (nr1 > 29)a[0] += 10;
+					if (nr1 > 19)a[0] -= 1;
+					if (nr1 > 29)a[0] -= 1;
 					disc[index].block.push_back(a[0]);
 				
 					
 				
 					while (j < 32) {
 						int help = int(disc[index].block[k]) - 48;
-						if (help > 20)help--;
+						//if (help > 20)help--;
+						//if (help > 30)help--;
 						disc[help].block.push_back(text[i]);
 
 						i++;
@@ -221,20 +222,21 @@ void FileManager::save_data_to_file(string name, string text) {
 					j = 0;
 					k++;
 				}
-				if (len < 32) {
+				if (len <= 32) {
 					nr1 = free_block();
 					disc[nr1].free = 1;
 
 					string a = to_string(nr1);
 					if (nr1 > 9)a[0] += nr1-1;
-				//	if (nr1 > 19)a[0] += 10;
-				//	if (nr1 > 29)a[0] += 10;
+					if (nr1 > 19)a[0] -= 1;
+					if (nr1 > 29)a[0] -= 1;
 					disc[index].block.push_back(a[0]);
 				
 					for (j = 0; j < len; j++) {
 
 						int help = int(disc[index].block[k]) - 48;
-						if (help > 20)help--;
+					//	if (help > 20)help--;
+					//	if (help > 30)help--;
 						disc[help].block.push_back(text[i]);
 
 						i++;
@@ -319,7 +321,7 @@ string FileManager::show_file(string name) {
 				k++;
 				len -= 32;
 			}
-			if (len < 32) {
+			if (len <= 32) {
 				for (j = 0; j < len; j++) {
 					int help = int(disc[cataloge[pom].second.number[2]].block[k]) - 48;
 
