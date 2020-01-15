@@ -84,3 +84,13 @@ const string mutex::get_owner_name() const
 		return WAITING_PCB.front()->name;
 	else return "NO OWNER";
 }
+
+bool mutex::lock_for_editor()
+{
+	if (LOCKED)
+	{
+		cout << "Plik jest zajety przez inny proces, nie mozna zapisac. Uzyj komendy '$ go' i sprobuj ponownie\n";
+		return false;
+	}
+	else return true;
+}
