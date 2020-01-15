@@ -1,4 +1,4 @@
-#include "Interpreter.h"
+ï»¿#include "Interpreter.h"
 #include <iostream>
 #include <sstream>
 #include "process.h"
@@ -92,7 +92,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 {
 
 
-	//tutaj b?d? pobierane rejestry itd, szukanie procesu i wrzucenie go do instrukcji 
+	//tutaj bï¿½dï¿½ pobierane rejestry itd, szukanie procesu i wrzucenie go do instrukcji 
 	exec_instruction = instruction_separate(instruction);
 	int i = 0;
 	int adres = 0;
@@ -124,7 +124,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		else if (exec_instruction[1] == "B") { rej1 = &B; }
 		else if (exec_instruction[1] == "C") { rej1 = &C; }
 		else if (exec_instruction[1] == "D") { counter = D; }
-		else if (exec_instruction[1] == "[") {
+		else if (exec_instruction[1][0] == '[') {
 
 			exec_instruction[1].pop_back();
 			exec_instruction[1].erase(exec_instruction[1].begin());
@@ -132,10 +132,10 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 			adres = stoi(exec_instruction[1]);
 
 		}
-		else if (exec_instruction[1] == "(") {
+		else if (exec_instruction[1][0] == '(') {
 
 			exec_instruction[1].pop_back();
-			exec_instruction[1].erase(exec_instruction[1].begin());
+			exec_instruction[1].erase(0, 1);
 
 			file_name = exec_instruction[1];
 
@@ -162,7 +162,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		else if (exec_instruction[2] == "B") { rej2 = &B; }
 		else if (exec_instruction[2] == "C") { rej2 = &C; }
 		else if (exec_instruction[2] == "D") { counter = D; }
-		else if (exec_instruction[2] == "[") {
+		else if (exec_instruction[2][0] == '[') {
 
 			exec_instruction[2].pop_back();
 			exec_instruction[2].erase(exec_instruction[2].begin());
@@ -170,7 +170,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 			adres = stoi(exec_instruction[2]);
 
 		}
-		else if (exec_instruction[2] == "(") {
+		else if (exec_instruction[2][0] == '(') {
 
 			exec_instruction[2].pop_back();
 			exec_instruction[2].erase(exec_instruction[2].begin());
@@ -195,7 +195,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		}
 	}
 
-	//tu s? ogarniane rozkazy 
+	//tu sï¿½ ogarniane rozkazy 
 	if (command == "AD") { *rej1 += *rej2; }
 	else if (command == "SB") { *rej1 -= *rej2; }
 	else if (command == "ML") { *rej1 *= *rej2; }
@@ -214,6 +214,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		auto it = value.begin();
 		while (it != value.end()) {
 			memory.set(adres, *it, running_proc->pid);
+			adres++;
 			it++;
 		}
 	}
@@ -246,15 +247,16 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "MF") {
 
 		FM.create_file(file_name);
-		//tu poleci co? od plik?w
+		//tu poleci coï¿½ od plikï¿½w
 	}
 	else if (command == "OF") {
 
-		//tu te?
+		FM.open_file(file_name);
 	}
 	else if (command == "WF") {
-
+		if(!text.empty())
 		FM.save_data_to_file(file_name, text);
+		else FM.save_data_to_file(file_name, to_string(*rej2));
 		//i tu
 	}
 	else if (command == "AF") {
@@ -266,6 +268,8 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		//kurwa ile jeszcze 
 	}
 	else if (command == "CF") {
+
+		FM.close_file(file_name);
 		//dobra koniec xd	
 	}
 	else if (command == "CP") {
@@ -303,10 +307,10 @@ int Interpreter::execute_line() //czy na pewno nazwa??
 		planist.manager();
 	}
 
-	/* - zakomentowane w celu sprawdzenia poprawnoœci odejmowania i przydzia³u kwantów czasu 
-		po odkomentowaniu poprawne dzia³anie dla procesu INIT 
-		b³¹d krytyczny przy nowo utworzonych procesach ze wzglêdu na brak jakochkolwiek rozkazów :)
-		Pozdrawiam cie ³ukasz 
+	/* - zakomentowane w celu sprawdzenia poprawnoÅ›ci odejmowania i przydziaÅ‚u kwantÃ³w czasu 
+		po odkomentowaniu poprawne dziaÅ‚anie dla procesu INIT 
+		bÅ‚Ä…d krytyczny przy nowo utworzonych procesach ze wzglÄ™du na brak jakochkolwiek rozkazÃ³w :)
+		Pozdrawiam cie Å‚ukasz 
 	*/
 
 
@@ -320,13 +324,13 @@ int Interpreter::execute_line() //czy na pewno nazwa??
 	
 	// planista i procesy
 	running_proc->time_run--;  // zmiejszenie przydzielonego kwantu czasu o 1
-	planist.time_sum--; // zmiejszenie sumy przydzielonych kwantów o 1
+	planist.time_sum--; // zmiejszenie sumy przydzielonych kwantÃ³w o 1
 
-	if (running_proc->time_run == 0) { // je¿eli proces kwant czasu ma na 0 to zostaje przeniesiony na koniec i run otrzymuje nastêpny proces
+	if (running_proc->time_run == 0) { // jeÅ¼eli proces kwant czasu ma na 0 to zostaje przeniesiony na koniec i run otrzymuje nastÄ™pny proces
 		planist.first_to_end();
 	}
 
-	if (planist.time_sum == 0) {	 // je¿eli suma kwantów jest 0 to na nowo przydzielamy kwanty dla procesów
+	if (planist.time_sum == 0) {	 // jeÅ¼eli suma kwantÃ³w jest 0 to na nowo przydzielamy kwanty dla procesÃ³w
 		planist.manager();
 	}
 
