@@ -171,6 +171,18 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 			adres = stoi(exec_instruction[2]);
 
+			if (command == "AD" || command == "SB" || command == "ML" || command == "DV" || command == "MD" || command == "MV") {
+				while (true) {
+					val = memory.get(adres, running_proc->pid);
+					if (val == ';') break;
+					else tmp.push_back(val);
+					adres++;
+				}
+
+				from_memory = stoi(tmp);
+				*rej2 = from_memory;
+			}
+
 		}
 		else if (exec_instruction[2][0] == '(') {
 
@@ -197,11 +209,16 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		}
 	}
 
-	//tu s� ogarniane rozkazy 
+	//tu są ogarniane rozkazy 
 	if (command == "AD") { *rej1 += *rej2; }
 	else if (command == "SB") { *rej1 -= *rej2; }
 	else if (command == "ML") { *rej1 *= *rej2; }
-	else if (command == "DV") { *rej1 /= *rej2; }
+	else if (command == "DV") {
+		if (rej2 == 0) {
+			cout << "Dzielenie przez 0!" << endl;
+			*rej1 /= *rej2;
+		}
+	}
 	else if (command == "MD") {
 		if (rej2 == 0) {
 			cout << "Dzielenie przez 0!" << endl;
@@ -212,12 +229,26 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "DE") { (*rej1)--; }
 	else if (command == "MV") { *rej1 = *rej2; }
 	else if (command == "WR") {
-
-		auto it = value.begin();
-		while (it != value.end()) {
-			memory.set(adres, *it, running_proc->pid);
-			adres++;
-			it++;
+		if (!value.empty()) {
+			auto it = value.begin();
+			while (it != value.end()) {
+				memory.set(adres, *it, running_proc->pid);
+				adres++;
+				it++;
+			}
+		}
+		else {
+			tmp = to_string(*rej2);
+			for (auto& a : tmp) {
+				value.push_back(a);
+			}
+			value.push_back(';');
+			auto it = value.begin();
+			while (it != value.end()) {
+				memory.set(adres, *it, running_proc->pid);
+				adres++;
+				it++;
+			}
 		}
 	}
 	else if (command == "GT") {
@@ -225,11 +256,15 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		tmp.clear();
 		while (true) {
 			val = memory.get(adres, running_proc->pid);
-			if (val == ';') false;
+			if (val == ';') break;
 			else tmp.push_back(val);
+			cout << "!!!!" << tmp << endl;
+			adres++;
 		}
 
+		cout << "!!!!" << tmp << endl;
 		from_memory = stoi(tmp);
+		*rej1 = from_memory;
 
 	}
 	else if (command == "LP") {
