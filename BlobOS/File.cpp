@@ -1,13 +1,11 @@
 
 #include"File.h"
-
+#include "mutex.h"
 struct inode
 {
-	int size_int_byte;
-
-	//pierwsze dwa to nr bloki danych 
-	//nastêpny to nr bloku indeksowego
-	vector<int> number;
+	int size_int_byte; //rozmiar danych pliku
+	vector<int> number; //pierwsze dwa to nr bloków bezpoœrednie danych, nastêpny to numer bloku indeksowego
+	mutex zamek; 
 
 	inode() {
 		size_int_byte = 0;
@@ -30,18 +28,16 @@ void FileManager::create_file(string name) {
 	//Sprawdzenie czy nie ma ju¿ takiego pliku
 	int sec_name = find_file(name);
 	if (sec_name == -1) {
-		inode file_node;
-		pair<string, inode> file(name, file_node);
+		inode file_node; //Tworzy i-wêze³
+		pair<string, inode> file(name, file_node); //Tworzy ,,plik"
 
-		cataloge.push_back(file);
+		cataloge.push_back(file); //Dodaje plik do katalogu
 	}
 	else cout << "File is existing" << endl;
 
-	//zamek???
-
 }
 
-//Wyszukuje pusty blok pamiêci
+//Wyszukuje pusty blok pamiêci i zwraca jego 
 int FileManager::free_block() {
 	for (int i = 0; i < 32; i++) {
 		if (disc[i].free == 0)return i;
@@ -56,14 +52,12 @@ int FileManager::find_file(string name) {
 	for (int i = 0; i < cataloge.size(); i++) {
 		if (cataloge[i].first == name) {
 			pom = i;
-		
 		}
-
 	}
 	return pom;
 }
 
-//Czyœci 
+//Czyœci plik z danych
 void FileManager::clean_file_data(string name) {
 	//Szuka pliku
 	int pom = find_file(name);
@@ -140,38 +134,34 @@ void FileManager::save_data_to_file(string name, string text) {
 	int pom = find_file(name);
 	bool save = 0;
 	if (pom != -1) {
-		string kopia = show_file(name);
+		string kopia = show_file(name); //Kopia danych na wypadek gdyby nie zmieœci³y siê w pamiêci i nie mo¿na by³o zapisaæ pliku
 		unsigned int length = text.size();
-		//Wyczyœæ dane pliku
-		clean_file_data(name);
+	
+		clean_file_data(name); 	//Czyœci aktualne dane pliku
 
-		if (length <= 32) {
-
-			int nr = free_block();
+		if (length <= 32) { //zapis dla plików o maksymalnie 32 bajtach
+			int nr = free_block(); //wyszukuje pusty blok pamiêci
 			if (nr != -1) {
 				cataloge[pom].second.number.push_back(nr);
 				//zapis danych
 				for (int i = 0; i < length; i++) {
 					disc[cataloge[pom].second.number[0]].block.push_back(text[i]);
 				}
-				cataloge[pom].second.size_int_byte = length;
-
+				cataloge[pom].second.size_int_byte = length; //Zmiana d³ugoœci pliku
 				disc[nr].free = 1;
 			}
 			else {
 				clean_file_data(name);
 				save = 1;
 			}
-
-			//brak bloku
 		}
 
-		if (length > 32 && length <= 64) {
+		if (length > 32 && length <= 64) { //zapis dla plików o maksymalnie 64 bajtach
 
-			int nr1 = free_block();
+			int nr1 = free_block(); //wyszukuje pusty blok pamiêci
 			if (nr1 != -1) {
 				disc[nr1].free = 1;
-				int nr2 = free_block();
+				int nr2 = free_block(); //wyszukuje pusty blok pamiêci
 				if (nr2 != -1) {
 					disc[nr2].free = 1;
 					cataloge[pom].second.number.push_back(nr1);
@@ -194,17 +184,15 @@ void FileManager::save_data_to_file(string name, string text) {
 					clean_file_data(name);
 					save = 1;
 				}
-				//brak bloku 2
 			}
-			//brak bloku
 		}
 
-		if (length > 64) {
+		if (length > 64) { //zapis dla wiêkszych plików 
 			int i = 0;
-			int nr1 = free_block();
+			int nr1 = free_block(); //wyszukuje pusty blok pamiêci
 			if (nr1 != -1) {
 				disc[nr1].free = 1;
-				int nr2 = free_block();
+				int nr2 = free_block(); //wyszukuje pusty blok pamiêci
 				if (nr2 != -1) {
 
 					disc[nr2].free = 1;
@@ -222,7 +210,7 @@ void FileManager::save_data_to_file(string name, string text) {
 					}
 
 
-					int index = free_block();
+					int index = free_block(); //wyszukuje pusty blok pamiêci
 					if (index != -1) {
 						//blok indeksowy
 						disc[index].free = 1;
@@ -233,45 +221,22 @@ void FileManager::save_data_to_file(string name, string text) {
 						int j = 0, dl = 0;
 
 						while (i < length) {
+							//Sprawdzanie czy do bloku ma wpisaæ 32 bajty czy mniej
 							if (len > 32)dl = 32;
 							else dl = len;
 
-							/*while (len > 32) {
-								//Zapis do kolejnych bloków po 32 bajty
-								nr1 = free_block();
-								if (nr1 != -1) {
-									disc[nr1].free = 1;
 
-									string a = to_string(nr1);
-									if (nr1 > 9)a[0] += nr1 - 1;
-									if (nr1 > 19)a[0] -= 1;
-									if (nr1 > 29)a[0] -= 1;
-									disc[index].block.push_back(a[0]);
-
-									while (j < 32) {
-										int help = int(disc[index].block[k]) - 48;
-										disc[help].block.push_back(text[i]);
-										i++;
-										j++;
-									}
-									len -= 32;
-									j = 0;
-									k++;
-								}
-								//brak i-tego bloku
-							}*/
-							//	if (len <= 32) {
-									//Zapis je¿eli pozosta³e do zapisu dane maj¹ nie wiêcej ni¿ 32 bajty
-							nr1 = free_block();
+							nr1 = free_block(); //wyszukuje pusty blok pamiêci
 							if (nr1 != -1) {
 								disc[nr1].free = 1;
-
+								//Wpisywanie numeru bloku (ASCII)
 								string a = to_string(nr1);
 								if (nr1 > 9)a[0] += nr1 - 1;
 								if (nr1 > 19)a[0] -= 1;
 								if (nr1 > 29)a[0] -= 1;
 								disc[index].block.push_back(a[0]);
 
+								//zapis danych
 								for (j = 0; j < dl; j++) {
 
 									int help = int(disc[index].block[k]) - 48;
@@ -287,21 +252,17 @@ void FileManager::save_data_to_file(string name, string text) {
 								save = 1;
 								break;
 							}
-							//brak i-tego bloku
 						}
-
 					}
 					else {
 						clean_file_data(name);
 						save = 1;
 					}
-					//brak bloku indexowego
 				}
 				else {
 					clean_file_data(name);
 					save = 1;
 				}
-				
 			}
 			else {
 				clean_file_data(name);
@@ -309,7 +270,7 @@ void FileManager::save_data_to_file(string name, string text) {
 			}
 		}
 
-
+		//Zapis poprzedniego pliku je¿eli, nowe dane siê nie mieszcz¹
 		if (save == 1) {
 			save_data_to_file(name, kopia);
 		}
@@ -317,28 +278,31 @@ void FileManager::save_data_to_file(string name, string text) {
 }
 
 
-//W sumie teraz to chyba nic nie robi, zobaczê potem czy nie bêdê tego potrzebowa³a do czegoœ innego
+//Sprawdza zamek dla edytora i zapisuje dane do pliku
 void FileManager::edit_file(string name, string text) {
 	//edytor tekstu od Ani
+	int pom = find_file(name);
 
-	save_data_to_file(name, text);
-
-
+	if (pom != -1) {
+		if (cataloge[pom].second.zamek.lock_for_editor()) {
+			save_data_to_file(name, text);
+		}
+	}
 }
 
 
 // Po podaniu nazwy pliku zwraca stringa z jego zawartoœci¹
 string FileManager::show_file(string name) {
 	string text;
-	show_disc();
+	//show_disc();
 	int pom = find_file(name);
 	if (pom == -1) {
 
-		return "Brak takiego pliku";
+		return "There is no existing file";
 	}
 	int length = cataloge[pom].second.size_int_byte;
 
-
+	//Dla plików nie wiêkszych ni¿ 32 bajty
 	if (length <= 32) {
 
 		for (int i = 0; i < length; i++) {
@@ -347,6 +311,7 @@ string FileManager::show_file(string name) {
 
 	}
 
+	//Dla plików nie wiêkszych ni¿ 64 bajty
 	if (length > 32 && length <= 64) {
 
 		int i = 0, j = 0;
@@ -359,6 +324,8 @@ string FileManager::show_file(string name) {
 		}
 
 	}
+
+	//Dla plików wiêkszych ni¿ 64 bajty
 	if (length > 64) {
 
 		int i = 0, j = 0;
@@ -415,7 +382,7 @@ void FileManager::add_to_file(string name, string text) {
 		plik += text;
 		save_data_to_file(name, plik);
 	}
-	else cout << "Brak pliku" << endl;
+	else cout << "There is no existing file" << endl;
 }
 
 
@@ -424,7 +391,7 @@ void FileManager::delete_file(string name) {
 	//Wyszukuje plik
 	int pom = find_file(name);
 	if (pom == -1) {
-		cout<< "Brak takiego pliku";
+		cout<< "There is no existing file";
 	}
 	else {
 		//Czyœci dane pliku i usuwa go z katalogu
@@ -434,4 +401,28 @@ void FileManager::delete_file(string name) {
 }
 
 
+//Otwieranie pliku z procesu
+void FileManager::open_file(string name) {
+	//Szuka pliku
+	int pom = find_file(name);
 
+	if (pom != -1) {
+		
+			if (planist.ReadyPCB[0]->pid == cataloge[pom].second.zamek.get_owner_id()) {
+				cataloge[pom].second.zamek.lock(planist.ReadyPCB[0]);
+			}
+	}
+	else cout << "There is no existing file" << endl;
+}
+
+//Otwieranie pliku z procesu
+void FileManager::close_file(string name) {
+	//Szuka pliku
+	int pom = find_file(name);
+	if (pom != -1){
+		if (planist.ReadyPCB[0]->pid == cataloge[pom].second.zamek.get_owner_id()) {
+			cataloge[pom].second.zamek.unlock(planist.ReadyPCB[0]);
+		}
+	}
+	else cout << "There is no existing file" << endl;
+}
