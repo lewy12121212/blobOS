@@ -5,6 +5,7 @@
 #include<array>
 #include<fstream>
 #include <conio.h>
+#include "procesor.h"
 
 using namespace std;
 
@@ -36,5 +37,8 @@ class FileManager {
 	string show_file(string name);
 	void add_to_file(string name,string text);
 	void delete_file(string name);
+	void open_file(string name);
+	void close_file(string name);
 };
+extern Planist planist;
 

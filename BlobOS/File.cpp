@@ -1,6 +1,6 @@
 
 #include"File.h"
-
+#include "mutex.h"
 struct inode
 {
 	int size_int_byte;
@@ -8,7 +8,7 @@ struct inode
 	//pierwsze dwa to nr bloki danych 
 	//nastêpny to nr bloku indeksowego
 	vector<int> number;
-
+	mutex zamek;
 	inode() {
 		size_int_byte = 0;
 	}
@@ -36,8 +36,6 @@ void FileManager::create_file(string name) {
 		cataloge.push_back(file);
 	}
 	else cout << "File is existing" << endl;
-
-	//zamek???
 
 }
 
@@ -434,4 +432,20 @@ void FileManager::delete_file(string name) {
 }
 
 
+//Dodaæ je potem do edytora
+void FileManager::open_file(string name) {
+	int pom = find_file(name);
 
+	if (pom != -1 && planist.ReadyPCB[0]->pid == cataloge[pom].second.zamek.get_owner_id()) {
+		cataloge[pom].second.zamek.lock(planist.ReadyPCB[0]);
+	}
+}
+
+
+void FileManager::close_file(string name) {
+	int pom = find_file(name);
+
+	if (pom != -1 && planist.ReadyPCB[0]->pid == cataloge[pom].second.zamek.get_owner_id()) {
+		cataloge[pom].second.zamek.unlock(planist.ReadyPCB[0]);
+	}
+}
