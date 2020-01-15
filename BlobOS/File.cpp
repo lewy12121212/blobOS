@@ -16,7 +16,11 @@ struct inode
 
 };
 
-
+//Zamykaie i otwieranie pliku
+//Zamki
+//Edytor? Zaspis i jego brak
+//Popytaæ siê ludzi co jeszcze
+//Dodaæ napisy po angielsku
 
 FileManager FM;
 
@@ -31,7 +35,7 @@ void FileManager::create_file(string name) {
 
 		cataloge.push_back(file);
 	}
-	else cout << "Taki plik ju¿ istnieje" << endl;
+	else cout << "File is existing" << endl;
 
 	//zamek???
 
@@ -42,26 +46,26 @@ int FileManager::free_block() {
 	for (int i = 0; i < 32; i++) {
 		if (disc[i].free == 0)return i;
 	}
-	cout << "Brak wolnego bloku" << endl;
+	cout << "There is no free blocks" << endl;
 	return -1;
 }
 
 //Odszukuje plik o danej nazwie w katalogu i zwraca jego numer
 int FileManager::find_file(string name) {
-
 	int pom = -1;
 	for (int i = 0; i < cataloge.size(); i++) {
 		if (cataloge[i].first == name) {
 			pom = i;
-			//cout << "ZNALEZIONO plik" << endl;
+		
 		}
 
 	}
-	//if (pom == -1)cout << "Nie znaleziono pliku" << endl;
 	return pom;
 }
 
-void FileManager::clean_block(string name) {
+//Czyœci 
+void FileManager::clean_file_data(string name) {
+	//Szuka pliku
 	int pom = find_file(name);
 
 	if (pom != -1) {
@@ -69,25 +73,28 @@ void FileManager::clean_block(string name) {
 		unsigned int length = cataloge[pom].second.size_int_byte;
 		if (length > 0) {
 			if (length <= 32) {
+				//Czyœci dane zapisane w bloku pamiêci
 				disc[cataloge[pom].second.number[0]].block.clear();
 				disc[cataloge[pom].second.number[0]].free = 0;
+				//Usuwa blok pamiêci z i-wêz³a
 				cataloge[pom].second.number.clear();
 				cataloge[pom].second.size_int_byte = 0;
 
 			}
 
 			if (length > 32 && length <= 64) {
-
+				//Czyœci dane zapisane w blokach pamiêci
 				disc[cataloge[pom].second.number[0]].block.clear();
 				disc[cataloge[pom].second.number[0]].free = 0;
 				disc[cataloge[pom].second.number[1]].block.clear();
 				disc[cataloge[pom].second.number[1]].free = 0;
+				//Usuwa bloki pamiêci z i-wêz³a
 				cataloge[pom].second.number.clear();
 				cataloge[pom].second.size_int_byte = 0;
 			}
 
 			if (length > 64) {
-
+				//Czyœci dane zapisane w blokach pamiêci
 				disc[cataloge[pom].second.number[0]].free = 0;
 				disc[cataloge[pom].second.number[0]].block.clear();
 
@@ -98,14 +105,17 @@ void FileManager::clean_block(string name) {
 				int k = 0, len = cataloge[pom].second.number[2];
 				int ilosc = disc[len].block.size();
 				while (k < ilosc) {
+					//Czyœci bloki pamiêci zapisane w bloku indeksowym
 					int help = int(disc[cataloge[pom].second.number[2]].block[k]) - 48;
 					disc[help].block.clear();
 					disc[help].free = 0;
 					k++;
 				}
+				//Czyœci blok indeksowy
 				disc[cataloge[pom].second.number[2]].free = 0;
 				disc[cataloge[pom].second.number[2]].block.clear();
 				cataloge[pom].second.size_int_byte = 0;
+				//Usuwa bloki pamiêci z i-wêz³a
 				cataloge[pom].second.number.clear();
 			}
 		}
@@ -113,6 +123,7 @@ void FileManager::clean_block(string name) {
 	}
 }
 
+//Pokazuje dysk
 void FileManager::show_disc() {
 	for (int j = 0; j < 32; j++) {
 		cout << j << "(" << disc[j].free << "): ";
@@ -124,127 +135,184 @@ void FileManager::show_disc() {
 }
 
 //Zapisuje tekst do pamiêci dla podanego pliku 
-//Dzia³a, ale jeszcze nie ma odczytu du¿ych plików
 void FileManager::save_data_to_file(string name, string text) {
+	//Wyszukuje plik
 	int pom = find_file(name);
-
+	bool save = 0;
 	if (pom != -1) {
-
+		string kopia = show_file(name);
 		unsigned int length = text.size();
-
-		clean_block(name);
+		//Wyczyœæ dane pliku
+		clean_file_data(name);
 
 		if (length <= 32) {
 
 			int nr = free_block();
-			cataloge[pom].second.number.push_back(nr);
-			//zapis danych
-			for (int i = 0; i < length; i++) {
-				disc[cataloge[pom].second.number[0]].block.push_back(text[i]);
-			}
-			cataloge[pom].second.size_int_byte = length;
+			if (nr != -1) {
+				cataloge[pom].second.number.push_back(nr);
+				//zapis danych
+				for (int i = 0; i < length; i++) {
+					disc[cataloge[pom].second.number[0]].block.push_back(text[i]);
+				}
+				cataloge[pom].second.size_int_byte = length;
 
-			disc[nr].free = 1;
+				disc[nr].free = 1;
+			}
+			else {
+				clean_file_data(name);
+				save = 1;
+			}
+
+			//brak bloku
 		}
 
 		if (length > 32 && length <= 64) {
-			
+
 			int nr1 = free_block();
-			disc[nr1].free = 1;
-			cataloge[pom].second.number.push_back(nr1);
-			int i = 0;
-			for (i; i < 32; i++) {
-				disc[cataloge[pom].second.number[0]].block.push_back(text[i]);
+			if (nr1 != -1) {
+				disc[nr1].free = 1;
+				int nr2 = free_block();
+				if (nr2 != -1) {
+					disc[nr2].free = 1;
+					cataloge[pom].second.number.push_back(nr1);
+					int i = 0;
+					//zapis danych
+					for (i; i < 32; i++) {
+						disc[cataloge[pom].second.number[0]].block.push_back(text[i]);
+					}
+
+					cataloge[pom].second.number.push_back(nr2);
+
+					for (i; i < length; i++) {
+						disc[cataloge[pom].second.number[1]].block.push_back(text[i]);
+
+					}
+
+					cataloge[pom].second.size_int_byte = length;
+				}
+				else {
+					clean_file_data(name);
+					save = 1;
+				}
+				//brak bloku 2
 			}
-
-			int nr2 = free_block();
-			disc[nr2].free = 1;
-			cataloge[pom].second.number.push_back(nr2);
-
-			for (i; i < length; i++) {
-				disc[cataloge[pom].second.number[1]].block.push_back(text[i]);
-
-			}
-
-			cataloge[pom].second.size_int_byte = length;
-
-
+			//brak bloku
 		}
 
 		if (length > 64) {
-			int nr1 = free_block();
-			disc[nr1].free = 1;
-			int nr2 = free_block();
-			disc[nr2].free = 1;
-			cataloge[pom].second.number.push_back(nr1);
-			cataloge[pom].second.number.push_back(nr2);
 			int i = 0;
-			for (i; i < 32; i++) {
-				disc[cataloge[pom].second.number[0]].block.push_back(text[i]);
-			}
-			for (i; i < 64; i++) {
-				disc[cataloge[pom].second.number[1]].block.push_back(text[i]);
-			}
+			int nr1 = free_block();
+			if (nr1 != -1) {
+				disc[nr1].free = 1;
+				int nr2 = free_block();
+				if (nr2 != -1) {
 
-			int index = free_block();
-			disc[index].free = 1;
-			cataloge[pom].second.number.push_back(index);
-
-			cataloge[pom].second.size_int_byte = length;
-			int k = 0, len = length - 64;
-			int j = 0;
-			while (i < length) {
+					disc[nr2].free = 1;
+					cataloge[pom].second.number.push_back(nr1);
+					//zapis danych
+					for (i; i < 32; i++) {
+						disc[cataloge[pom].second.number[0]].block.push_back(text[i]);
+					}
 
 
-				while (len > 32) {
-					nr1 = free_block();
-					disc[nr1].free = 1;
-					
-					string a = to_string(nr1);
-					if (nr1 > 9)a[0] += nr1-1;
-					//if (nr1 > 19)a[0] += 10;
-					//if (nr1 > 29)a[0] += 10;
-					disc[index].block.push_back(a[0]);
-				
-					
-				
-					while (j < 32) {
-						int help = int(disc[index].block[k]) - 48;
-						if (help > 20)help--;
-						disc[help].block.push_back(text[i]);
+					cataloge[pom].second.number.push_back(nr2);
+					//zapis danych
+					for (i; i < 64; i++) {
+						disc[cataloge[pom].second.number[1]].block.push_back(text[i]);
+					}
 
-						i++;
-						j++;
+
+					int index = free_block();
+					if (index != -1) {
+						//blok indeksowy
+						disc[index].free = 1;
+						cataloge[pom].second.number.push_back(index);
+
+						cataloge[pom].second.size_int_byte = length;
+						int k = 0, len = length - 64;
+						int j = 0, dl = 0;
+
+						while (i < length) {
+							if (len > 32)dl = 32;
+							else dl = len;
+
+							/*while (len > 32) {
+								//Zapis do kolejnych bloków po 32 bajty
+								nr1 = free_block();
+								if (nr1 != -1) {
+									disc[nr1].free = 1;
+
+									string a = to_string(nr1);
+									if (nr1 > 9)a[0] += nr1 - 1;
+									if (nr1 > 19)a[0] -= 1;
+									if (nr1 > 29)a[0] -= 1;
+									disc[index].block.push_back(a[0]);
+
+									while (j < 32) {
+										int help = int(disc[index].block[k]) - 48;
+										disc[help].block.push_back(text[i]);
+										i++;
+										j++;
+									}
+									len -= 32;
+									j = 0;
+									k++;
+								}
+								//brak i-tego bloku
+							}*/
+							//	if (len <= 32) {
+									//Zapis je¿eli pozosta³e do zapisu dane maj¹ nie wiêcej ni¿ 32 bajty
+							nr1 = free_block();
+							if (nr1 != -1) {
+								disc[nr1].free = 1;
+
+								string a = to_string(nr1);
+								if (nr1 > 9)a[0] += nr1 - 1;
+								if (nr1 > 19)a[0] -= 1;
+								if (nr1 > 29)a[0] -= 1;
+								disc[index].block.push_back(a[0]);
+
+								for (j = 0; j < dl; j++) {
+
+									int help = int(disc[index].block[k]) - 48;
+									disc[help].block.push_back(text[i]);
+									i++;
+
+								}
+								k++;
+								len -= 32;
+							}
+							else {
+								clean_file_data(name);
+								save = 1;
+								break;
+							}
+							//brak i-tego bloku
+						}
 
 					}
-					len -= 32;
-					j = 0;
-					k++;
-				}
-				if (len < 32) {
-					nr1 = free_block();
-					disc[nr1].free = 1;
-
-					string a = to_string(nr1);
-					if (nr1 > 9)a[0] += nr1-1;
-				//	if (nr1 > 19)a[0] += 10;
-				//	if (nr1 > 29)a[0] += 10;
-					disc[index].block.push_back(a[0]);
-				
-					for (j = 0; j < len; j++) {
-
-						int help = int(disc[index].block[k]) - 48;
-						if (help > 20)help--;
-						disc[help].block.push_back(text[i]);
-
-						i++;
-
+					else {
+						clean_file_data(name);
+						save = 1;
 					}
+					//brak bloku indexowego
 				}
-
+				else {
+					clean_file_data(name);
+					save = 1;
+				}
+				
+			}
+			else {
+				clean_file_data(name);
+				save = 1;
 			}
 		}
 
+
+		if (save == 1) {
+			save_data_to_file(name, kopia);
+		}
 	}
 }
 
@@ -319,7 +387,7 @@ string FileManager::show_file(string name) {
 				k++;
 				len -= 32;
 			}
-			if (len < 32) {
+			if (len <= 32) {
 				for (j = 0; j < len; j++) {
 					int help = int(disc[cataloge[pom].second.number[2]].block[k]) - 48;
 
@@ -337,82 +405,30 @@ string FileManager::show_file(string name) {
 }
 
 
-//Jeszcze nie dzia³a
-void FileManager::add_to_file() {
-	string name;
-	string text;
-	cout << "Podaj nazwê pliku ";
-	cin >> name;
-	name += ".txt";
-
-	int pom = -1;
-	for (int i = 0; i < cataloge.size(); i++) {
-		if (cataloge[i].first == name) {
-			pom = i;
-		}
+//dodawanie czegoœ na koñcu pliku
+void FileManager::add_to_file(string name, string text) {
+	//szuka pliku
+	int pom = find_file(name);
+	if (pom != -1) {
+		//Zczytuje dane ju¿ zapisane i dopisuje na ich koñcu nowo dodane dane
+		string plik = show_file(name);
+		plik += text;
+		save_data_to_file(name, plik);
 	}
-
-
-	/*
-	//czy ma pokazywaæ co juz jest w plkiu?
-	ofstream plik(name.c_str(), ios::app);
-	if (plik) {
-		unsigned char znak;
-		do
-		{
-			getline(cin, text);
-			plik << text;
-			/*if ((int)text.back == 13) {
-
-				plik << endl;
-			}
-			else {
-				plik << text;
-			}
-			znak = _getch();
-			cout << znak;
-			if (znak != 27)plik << znak;
-			static_cast <int>(znak);
-			while (_kbhit())
-			{
-				getline(cin, text);
-				plik << text;
-				znak = _getch();
-				cout << znak;
-				if (znak != 27)plik << znak;
-				static_cast <int>(znak);
-			}
-			//std::cout << std::endl;
-
-
-		} while (znak != 27); //ESC
-
-	}
-	else
-	{
-		cout << "BLAD" << endl;
-	}
-	plik.close();
-
-	cataloge[pom].second.change_size(cataloge[pom].first);
-
-	else {
-
-
-		cout << "Nie ma takiego pliku";
-	}*/
-	//dodawanie czegoœ na koñcu pliku
+	else cout << "Brak pliku" << endl;
 }
 
 
 //Usuwa pliki
 void FileManager::delete_file(string name) {
-	clean_block(name);
+	//Wyszukuje plik
 	int pom = find_file(name);
 	if (pom == -1) {
 		cout<< "Brak takiego pliku";
 	}
 	else {
+		//Czyœci dane pliku i usuwa go z katalogu
+		clean_file_data(name);
 		cataloge.erase(cataloge.begin() + pom);
 	}
 }
