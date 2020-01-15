@@ -298,6 +298,7 @@ void Shell::showroot() {
 void Shell::showtree() {
 
 	if (parsed.size() == 2) {
+		set_color(white);
 		PTree.display_tree();
 	}
 	else {
@@ -312,6 +313,7 @@ void Shell::showpagetable() {
 	if ((parsed.size() == 3)) {
 		try {
 			int znak = std::stoi(parsed[2]);
+			set_color(white);
 			memory.ShowPageTable(znak);
 		}
 		catch(const std::invalid_argument& a){
