@@ -1,5 +1,6 @@
 #include "Interpreter.h"
 #include <iostream>
+#include <sstream>
 #include "process.h"
 #include "procesor.h"
 #include "File.h"
@@ -19,13 +20,14 @@ string Interpreter::get_instruction(unsigned int& instruction_counter, const sha
 	
 	string instruction;
 	char sign; 
-
+	
 	while (memory.get(instruction_counter, running_proc->pid) != ';') {
 		sign = memory.get(instruction_counter, running_proc->pid);
 		instruction.push_back(sign);
 		instruction_counter++;
 	}
 
+	instruction_counter++;
 
 	return instruction;
 }
@@ -52,21 +54,25 @@ void Interpreter::update_proc(const shared_ptr<PCB>& running_proc)
 
 array<string, 4> Interpreter::instruction_separate(const std::string & instruction)
 {
-	string tmp;
-	array<string, 4> command;
-	int i = 0;
-
-	for (const char& x : instruction) {
-		if (x != ' ' || x == ';') {
-			tmp += x;
-		}
-		else if (!tmp.empty())
-		{
-			command[i] = tmp;
-			tmp.clear();
-			i++;
-		}
+	std::istringstream iss(instruction);
+	std::vector<std::string> results((std::istream_iterator<std::string>{iss}),
+		std::istream_iterator<std::string>());
+	array<string, 4> command = array<string, 4>();
+	for (int i = 0; i < results.size(); i++) {
+		command[i] = results[i];
 	}
+
+	//for (const char& x : instruction) {
+	//	/*if (x != ' ') {
+	//		tmp += x;
+	//	}
+	//	else if (!tmp.empty())
+	//	{
+	//		command[i] = tmp;
+	//		tmp.clear();
+	//		i++;
+	//	}*/
+	//}
 
 	return command;
 }
@@ -76,7 +82,7 @@ void Interpreter::display_registers()
 {
 
 	cout << "Registers: " << endl;
-	cout << "A:  " << "  " << A << "B:  " << B << "  " << "C:  " << C << "  " << "D:  " << D << endl;
+	cout << "A:  " << A << "  " << "B:  " << B << "  " << "C:  " << C << "  " << "D:  " << D << endl;
 	cout << "Instruction counter:  " << instruction_counter << endl;
 
 }
@@ -84,21 +90,24 @@ void Interpreter::display_registers()
 
 int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& running_proc)
 {
-	
 
-	//tutaj bêd¹ pobierane rejestry itd, szukanie procesu i wrzucenie go do instrukcji 
+
+	//tutaj b?d? pobierane rejestry itd, szukanie procesu i wrzucenie go do instrukcji 
 	exec_instruction = instruction_separate(instruction);
 	int i = 0;
 	int adres = 0;
 	int from_memory = 0;
 
 
-	vector<char>value; 
+	vector<char>value;
 	char val = '0';
 
-	int *rej1=0;
-	int *rej2=0;
-	int counter=0;
+	int rej1np = 0;
+	int rej2np = 0;
+
+	int* rej1 = &rej1np;
+	int* rej2 = &rej2np;
+	int counter = 0;
 
 
 
@@ -116,7 +125,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		else if (exec_instruction[1] == "C") { rej1 = &C; }
 		else if (exec_instruction[1] == "D") { counter = D; }
 		else if (exec_instruction[1] == "[") {
-			
+
 			exec_instruction[1].pop_back();
 			exec_instruction[1].erase(exec_instruction[1].begin());
 
@@ -128,7 +137,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 			exec_instruction[1].pop_back();
 			exec_instruction[1].erase(exec_instruction[1].begin());
 
-			file_name=exec_instruction[1];
+			file_name = exec_instruction[1];
 
 		}
 		else {
@@ -154,7 +163,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		else if (exec_instruction[2] == "C") { rej2 = &C; }
 		else if (exec_instruction[2] == "D") { counter = D; }
 		else if (exec_instruction[2] == "[") {
-			
+
 			exec_instruction[2].pop_back();
 			exec_instruction[2].erase(exec_instruction[2].begin());
 
@@ -186,7 +195,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		}
 	}
 
-	//tu s¹ ogarniane rozkazy 
+	//tu s? ogarniane rozkazy 
 	if (command == "AD") { *rej1 += *rej2; }
 	else if (command == "SB") { *rej1 -= *rej2; }
 	else if (command == "ML") { *rej1 *= *rej2; }
@@ -209,7 +218,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		}
 	}
 	else if (command == "GT") {
-		
+
 		tmp.clear();
 		while (true) {
 			val = memory.get(adres, running_proc->pid);
@@ -237,11 +246,11 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "MF") {
 
 		FM.create_file(file_name);
-		//tu poleci coœ od plików
+		//tu poleci co? od plik?w
 	}
 	else if (command == "OF") {
 
-		//tu te¿
+		//tu te?
 	}
 	else if (command == "WF") {
 
@@ -279,7 +288,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 	}
 
-	
+
 
 	return 1;
 }
@@ -298,15 +307,15 @@ int Interpreter::execute_line() //czy na pewno nazwa??
 		po odkomentowaniu poprawne dzia³anie dla procesu INIT 
 		b³¹d krytyczny przy nowo utworzonych procesach ze wzglêdu na brak jakochkolwiek rozkazów :)
 		Pozdrawiam cie ³ukasz 
-
+	*/
 
 
 	take_from_proc(running_proc);
 	instruction = get_instruction(instruction_counter, running_proc);
 	cout << instruction << "\n";
-	this->display_registers();
 	execute_instruction(instruction, running_proc);
-	update_proc(running_proc);*/ 
+	this->display_registers();
+	update_proc(running_proc);
 
 	
 	// planista i procesy

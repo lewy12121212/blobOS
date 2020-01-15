@@ -78,7 +78,7 @@ public:
 	std::map<int, std::vector<Page>> PageFile;
 
 	// Obsługa ładowania stron do RAM
-	void PageHandler(int address, int PID);
+	int PageHandler(int address, int PID);
 
 	// Ładowanie programu do pliku stronnicowania
 	// Na razie do testowania std::string ale to zależy od syetmu plików
