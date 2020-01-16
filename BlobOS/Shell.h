@@ -50,8 +50,9 @@ protected:
 	void showpages();
 
 	//pliki i katalogi
-	void showroot();
 	void touch();
+	void open();
+	void close();
 	void rm();
 	void wf();
 	void copy();

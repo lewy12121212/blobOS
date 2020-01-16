@@ -1,11 +1,10 @@
-
 #include"File.h"
 #include "mutex.h"
 struct inode
 {
 	int size_int_byte; //rozmiar danych pliku
 	vector<int> number; //pierwsze dwa to nr bloków bezpoœrednie danych, nastêpny to numer bloku indeksowego
-	mutex zamek; 
+	mutex mutex; 
 
 	inode() {
 		size_int_byte = 0;
@@ -284,7 +283,7 @@ void FileManager::edit_file(string name, string text) {
 	int pom = find_file(name);
 
 	if (pom != -1) {
-		if (cataloge[pom].second.zamek.lock_for_editor()) {
+		if ( cataloge[pom].second.mutex.lock_for_editor()) {
 			save_data_to_file(name, text);
 		}
 	}
@@ -376,11 +375,12 @@ string FileManager::show_file(string name) {
 void FileManager::add_to_file(string name, string text) {
 	//szuka pliku
 	int pom = find_file(name);
+	//Nie sprawdza zamka, plik powinien byæ ju¿ otwarty
 	if (pom != -1) {
 		//Zczytuje dane ju¿ zapisane i dopisuje na ich koñcu nowo dodane dane
 		string plik = show_file(name);
 		plik += text;
-		save_data_to_file(name, plik);
+		edit_file(name, plik);
 	}
 	else cout << "There is no existing file" << endl;
 }
@@ -407,10 +407,8 @@ void FileManager::open_file(string name) {
 	int pom = find_file(name);
 
 	if (pom != -1) {
-		
-			if (planist.ReadyPCB[0]->pid == cataloge[pom].second.zamek.get_owner_id()) {
-				cataloge[pom].second.zamek.lock(planist.ReadyPCB[0]);
-			}
+		//Probuje dostac zamek, jesli sie nie uda zmienia stan procesu na waiting i wywoluje planiste
+		cataloge[pom].second.mutex.lock(planist.ReadyPCB[0]);
 	}
 	else cout << "There is no existing file" << endl;
 }
@@ -420,9 +418,8 @@ void FileManager::close_file(string name) {
 	//Szuka pliku
 	int pom = find_file(name);
 	if (pom != -1){
-		if (planist.ReadyPCB[0]->pid == cataloge[pom].second.zamek.get_owner_id()) {
-			cataloge[pom].second.zamek.unlock(planist.ReadyPCB[0]);
-		}
+		//Odblokowuje zamek
+		cataloge[pom].second.mutex.unlock(planist.ReadyPCB[0]);
 	}
 	else cout << "There is no existing file" << endl;
 }

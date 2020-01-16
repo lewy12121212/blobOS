@@ -393,15 +393,12 @@ void ProcTree::kill_name(string name) { // zabicie procesu po name
 }
 
 void ProcTree::show_vector_child(shared_ptr<PCB> proc_show) {
-
+	std::string tab = "   ";
 	for (int i = 0; i < proc_show->children_vector.size(); i++) {
 	
+		cout <<tab<<proc_show->children_vector[i]->name << " - "<< proc_show->children_vector[i]->pid << " parent - " << proc_show->children_vector[i]->parent_pid << endl;
 		ProcTree::show_vector_child(proc_show->children_vector[i]);
-		cout << proc_show->children_vector[i]->name << " - "<< proc_show->children_vector[i]->pid << " parent - " << proc_show->children_vector[i]->parent_pid << endl;
-
 	}
-
-
 }
 
 void ProcTree::display_tree()

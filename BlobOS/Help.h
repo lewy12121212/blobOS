@@ -9,6 +9,8 @@ public:
 	static void dp();
 	static void show();
 	static void touch();
+	static void open();
+	static void close();
 	static void rm();
 	static void wf();
 	static void copy();
