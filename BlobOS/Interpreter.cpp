@@ -1,5 +1,6 @@
-#include "Interpreter.h"
+ï»¿#include "Interpreter.h"
 #include <iostream>
+#include <sstream>
 #include "process.h"
 #include "procesor.h"
 #include "File.h"
@@ -19,13 +20,14 @@ string Interpreter::get_instruction(unsigned int& instruction_counter, const sha
 	
 	string instruction;
 	char sign; 
-
+	
 	while (memory.get(instruction_counter, running_proc->pid) != ';') {
 		sign = memory.get(instruction_counter, running_proc->pid);
 		instruction.push_back(sign);
 		instruction_counter++;
 	}
 
+	instruction_counter++;
 
 	return instruction;
 }
@@ -52,21 +54,25 @@ void Interpreter::update_proc(const shared_ptr<PCB>& running_proc)
 
 array<string, 4> Interpreter::instruction_separate(const std::string & instruction)
 {
-	string tmp;
-	array<string, 4> command;
-	int i = 0;
-
-	for (const char& x : instruction) {
-		if (x != ' ' || x == ';') {
-			tmp += x;
-		}
-		else if (!tmp.empty())
-		{
-			command[i] = tmp;
-			tmp.clear();
-			i++;
-		}
+	std::istringstream iss(instruction);
+	std::vector<std::string> results((std::istream_iterator<std::string>{iss}),
+		std::istream_iterator<std::string>());
+	array<string, 4> command = array<string, 4>();
+	for (int i = 0; i < results.size(); i++) {
+		command[i] = results[i];
 	}
+
+	//for (const char& x : instruction) {
+	//	/*if (x != ' ') {
+	//		tmp += x;
+	//	}
+	//	else if (!tmp.empty())
+	//	{
+	//		command[i] = tmp;
+	//		tmp.clear();
+	//		i++;
+	//	}*/
+	//}
 
 	return command;
 }
@@ -76,7 +82,7 @@ void Interpreter::display_registers()
 {
 
 	cout << "Registers: " << endl;
-	cout << "A:  " << "  " << A << "B:  " << B << "  " << "C:  " << C << "  " << "D:  " << D << endl;
+	cout << "A:  " << A << "  " << "B:  " << B << "  " << "C:  " << C << "  " << "D:  " << D << endl;
 	cout << "Instruction counter:  " << instruction_counter << endl;
 
 }
@@ -84,21 +90,25 @@ void Interpreter::display_registers()
 
 int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& running_proc)
 {
-	
 
-	//tutaj bêd¹ pobierane rejestry itd, szukanie procesu i wrzucenie go do instrukcji 
+
+	//tutaj bï¿½dï¿½ pobierane rejestry itd, szukanie procesu i wrzucenie go do instrukcji 
 	exec_instruction = instruction_separate(instruction);
 	int i = 0;
 	int adres = 0;
 	int from_memory = 0;
 
 
-	vector<char>value; 
+	vector<char>value;
 	char val = '0';
 
-	int *rej1=0;
-	int *rej2=0;
-	int counter=0;
+	int rej1np = 0;
+	int rej2np = 0;
+	//int counternp = 0;
+
+	int* rej1 = &rej1np;
+	int* rej2 = &rej2np;
+	//int* counter = &counternp;
 
 
 
@@ -114,23 +124,24 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		if (exec_instruction[1] == "A") { rej1 = &A; }
 		else if (exec_instruction[1] == "B") { rej1 = &B; }
 		else if (exec_instruction[1] == "C") { rej1 = &C; }
-		else if (exec_instruction[1] == "D") { counter = D; }
-		else if (exec_instruction[1] == "[") {
-			
+		else if (exec_instruction[1] == "D") { rej1 = &D; }
+		else if (exec_instruction[1][0] == '[') {
+
 			exec_instruction[1].pop_back();
 			exec_instruction[1].erase(exec_instruction[1].begin());
 
 			adres = stoi(exec_instruction[1]);
 
 		}
-		else if (exec_instruction[1] == "(") {
+		else if (exec_instruction[1][0] == '(') {
 
 			exec_instruction[1].pop_back();
-			exec_instruction[1].erase(exec_instruction[1].begin());
+			exec_instruction[1].erase(0, 1);
 
-			file_name=exec_instruction[1];
+			file_name = exec_instruction[1];
 
 		}
+		else if (exec_instruction[1] == "LP"){}
 		else {
 			tmp = exec_instruction[1];
 
@@ -152,16 +163,28 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		if (exec_instruction[2] == "A") { rej2 = &A; }
 		else if (exec_instruction[2] == "B") { rej2 = &B; }
 		else if (exec_instruction[2] == "C") { rej2 = &C; }
-		else if (exec_instruction[2] == "D") { counter = D; }
-		else if (exec_instruction[2] == "[") {
-			
+		else if (exec_instruction[2] == "D") { rej2 = &D; }
+		else if (exec_instruction[2][0] == '[') {
+
 			exec_instruction[2].pop_back();
 			exec_instruction[2].erase(exec_instruction[2].begin());
 
 			adres = stoi(exec_instruction[2]);
 
+			if (command == "AD" || command == "SB" || command == "ML" || command == "DV" || command == "MD" || command == "MV") {
+				while (true) {
+					val = memory.get(adres, running_proc->pid);
+					if (val == ';') break;
+					else tmp.push_back(val);
+					adres++;
+				}
+
+				from_memory = stoi(tmp);
+				*rej2 = from_memory;
+			}
+
 		}
-		else if (exec_instruction[2] == "(") {
+		else if (exec_instruction[2][0] == '(') {
 
 			exec_instruction[2].pop_back();
 			exec_instruction[2].erase(exec_instruction[2].begin());
@@ -186,66 +209,91 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		}
 	}
 
-	//tu s¹ ogarniane rozkazy 
+	//tu sÄ… ogarniane rozkazy 
 	if (command == "AD") { *rej1 += *rej2; }
 	else if (command == "SB") { *rej1 -= *rej2; }
 	else if (command == "ML") { *rej1 *= *rej2; }
-	else if (command == "DV") { *rej1 /= *rej2; }
+	else if (command == "DV") {
+		if (rej2 == 0) {
+			cout << "Dzielenie przez 0!" << endl;
+			*rej1 /= *rej2;
+		}
+	}
 	else if (command == "MD") {
 		if (rej2 == 0) {
 			cout << "Dzielenie przez 0!" << endl;
 			*rej1 = *rej1 % *rej2;
 		}
 	}
-	else if (command == "IN") { *rej1++; }
-	else if (command == "DE") { *rej1--; }
+	else if (command == "IN") { (*rej1)++; }
+	else if (command == "DE") { (*rej1)--; }
 	else if (command == "MV") { *rej1 = *rej2; }
 	else if (command == "WR") {
-
-		auto it = value.begin();
-		while (it != value.end()) {
-			memory.set(adres, *it, running_proc->pid);
-			it++;
+		if (!value.empty()) {
+			auto it = value.begin();
+			while (it != value.end()) {
+				memory.set(adres, *it, running_proc->pid);
+				adres++;
+				it++;
+			}
+		}
+		else {
+			tmp = to_string(*rej2);
+			for (auto& a : tmp) {
+				value.push_back(a);
+			}
+			value.push_back(';');
+			auto it = value.begin();
+			while (it != value.end()) {
+				memory.set(adres, *it, running_proc->pid);
+				adres++;
+				it++;
+			}
 		}
 	}
 	else if (command == "GT") {
-		
+
 		tmp.clear();
 		while (true) {
 			val = memory.get(adres, running_proc->pid);
-			if (val == ';') false;
+			if (val == ';') break;
 			else tmp.push_back(val);
+			cout << "!!!!" << tmp << endl;
+			adres++;
 		}
 
+		cout << "!!!!" << tmp << endl;
 		from_memory = stoi(tmp);
+		*rej1 = from_memory;
 
 	}
 	else if (command == "LP") {
-		C = instruction_counter++;
+		C = instruction_counter+1;
 	}
 	else if (command == "JP") {
-		instruction_counter = adres;
+		instruction_counter = C;
 	}
 	else if (command == "JZ") {
-		if (counter == 0)
-			instruction_counter = C;
+		if (D == 0)
+			instruction_counter = C-1;
 	}
 	else if (command == "JN") {
-		if (counter != 0)
-			instruction_counter = adres;
+		if (D != 0)
+			instruction_counter = C-1;
 	}
 	else if (command == "MF") {
 
 		FM.create_file(file_name);
-		//tu poleci coœ od plików
+		//tu poleci coï¿½ od plikï¿½w
 	}
 	else if (command == "OF") {
 
-		//tu te¿
+		FM.open_file(file_name);
 	}
 	else if (command == "WF") {
-
+		if(!text.empty())
 		FM.save_data_to_file(file_name, text);
+		else FM.save_data_to_file(file_name, to_string(*rej2));
 		//i tu
 	}
 	else if (command == "AF") {
@@ -257,6 +305,8 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		//kurwa ile jeszcze 
 	}
 	else if (command == "CF") {
+
+		FM.close_file(file_name);
 		//dobra koniec xd	
 	}
 	else if (command == "CP") {
@@ -279,7 +329,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 	}
 
-	
+
 
 	return 1;
 }
@@ -294,30 +344,30 @@ int Interpreter::execute_line() //czy na pewno nazwa??
 		planist.manager();
 	}
 
-	/* - zakomentowane w celu sprawdzenia poprawnoœci odejmowania i przydzia³u kwantów czasu 
-		po odkomentowaniu poprawne dzia³anie dla procesu INIT 
-		b³¹d krytyczny przy nowo utworzonych procesach ze wzglêdu na brak jakochkolwiek rozkazów :)
-		Pozdrawiam cie ³ukasz 
-
+	/* - zakomentowane w celu sprawdzenia poprawnoÅ›ci odejmowania i przydziaÅ‚u kwantÃ³w czasu 
+		po odkomentowaniu poprawne dziaÅ‚anie dla procesu INIT 
+		bÅ‚Ä…d krytyczny przy nowo utworzonych procesach ze wzglÄ™du na brak jakochkolwiek rozkazÃ³w :)
+		Pozdrawiam cie Å‚ukasz 
+	*/
 
 
 	take_from_proc(running_proc);
 	instruction = get_instruction(instruction_counter, running_proc);
 	cout << instruction << "\n";
-	this->display_registers();
 	execute_instruction(instruction, running_proc);
-	update_proc(running_proc);*/ 
+	this->display_registers();
+	update_proc(running_proc);
 
 	
 	// planista i procesy
 	running_proc->time_run--;  // zmiejszenie przydzielonego kwantu czasu o 1
-	planist.time_sum--; // zmiejszenie sumy przydzielonych kwantów o 1
+	planist.time_sum--; // zmiejszenie sumy przydzielonych kwantÃ³w o 1
 
-	if (running_proc->time_run == 0) { // je¿eli proces kwant czasu ma na 0 to zostaje przeniesiony na koniec i run otrzymuje nastêpny proces
+	if (running_proc->time_run == 0) { // jeÅ¼eli proces kwant czasu ma na 0 to zostaje przeniesiony na koniec i run otrzymuje nastÄ™pny proces
 		planist.first_to_end();
 	}
 
-	if (planist.time_sum == 0) {	 // je¿eli suma kwantów jest 0 to na nowo przydzielamy kwanty dla procesów
+	if (planist.time_sum == 0) {	 // jeÅ¼eli suma kwantÃ³w jest 0 to na nowo przydzielamy kwanty dla procesÃ³w
 		planist.manager();
 	}
 

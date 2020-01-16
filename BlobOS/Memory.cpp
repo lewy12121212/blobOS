@@ -23,7 +23,7 @@ void Memory::insert_to_ram(int nr, int data, int PID)
 	char str[16];
 	_itoa_s(data, str, 10);
 	for (int i = 0; i < size; i++) {
-		PageHandler(nr+i, PID);
+		int frame = PageHandler(nr+i, PID);
 		RAM[nr + i] = str[i];
 	}
 }
@@ -44,7 +44,7 @@ int Memory::get_data(int nr, int size, int PID)
 	char c = '\0';
 	for (int i = 0; i < size; i++)
 	{
-		PageHandler(nr + i, PID);
+		int frame = PageHandler(nr + i, PID);
 		c = RAM[nr + i];
 		if (c >= 48 && c <= 57)
 			data += pow(10, size - i - 1) * ((int)c - 48);
@@ -58,13 +58,15 @@ int Memory::get_data(int nr, int size, int PID)
 }
 
 void Memory::set(int address,char val, int PID){
-	PageHandler(address, PID);
-	RAM[address] = val;
+	int frame = PageHandler(address, PID);
+	address = address % 16;
+	RAM[(16 * frame) + address] = val;
 }
 
 char Memory::get(int address, int PID) {
-	PageHandler(address, PID);
-	return RAM[address];
+	int frame = PageHandler(address, PID);
+	address = address % 16;
+	return RAM[(16 * frame) + address];
 }
 
 void Memory::show_frame(int nr)
@@ -141,7 +143,7 @@ Page::Page(std::string s){
 	std::copy(s.begin(), s.end(), data.data());
 }
 
-void Memory::PageHandler(int address, int PID) {
+int Memory::PageHandler(int address, int PID) {
 	// Stałe pomocnicze
 	const int page = address / 16;
 	const int offset = address % 16;
@@ -171,6 +173,7 @@ void Memory::PageHandler(int address, int PID) {
 				Frames.insert(Frames.end(), std::pair<int, std::pair<int, int>>(next_empty_frame, std::pair<int, int>(PID, page)));
 				process->page_table.at(page).frame = next_empty_frame;
 				process->page_table.at(page).bit = true;
+				return next_empty_frame;
 			}
 		}
 		else {
@@ -201,8 +204,10 @@ void Memory::PageHandler(int address, int PID) {
 			// Update informacji w page_table procesu działającego
 			process->page_table.at(page).bit = true;
 			process->page_table.at(page).frame = victim;
+			return victim;
 		}
 	}
+	return process->page_table.at(page).frame;
 }
 
 void Memory::LoadProgram(std::string file_name, int PID)
@@ -259,7 +264,7 @@ void Memory::CreatePageTable(int PID)
 	});
 
 	// Zapisanie PageTable w PCB
-	PTree.init_proc->page_table = v;
+	PTree.find_pid(PTree.init_proc, PID)->page_table = v;
 }
 
 void Memory::ShowPageTable(int PID) {

@@ -12,7 +12,7 @@ void mutex::lock(std::shared_ptr<PCB>process)
 	WAITING_PCB.push(process);
 	if (LOCKED)
 	{ 
-		std::cout << "lock: " <<  process->name << ": Zamek jest zamkniety przez proces " << WAITING_PCB.front()->name << ", wywolanie planisty\n";
+		std::cout << "lock: " <<  process->name << ": File locked by: " << WAITING_PCB.front()->name << ", calling planist.\n";
 		wait(process);
 	}
 	else 
@@ -21,7 +21,7 @@ void mutex::lock(std::shared_ptr<PCB>process)
 		OWNER_ID = process->pid;
 		//zamyka zamek
 		LOCKED = true; 
-		std::cout << "lock: " << process->name << ": Zamknieto zamek\n";
+		std::cout << "lock: " << process->name << ": File has been locked.\n";
 	}
 }
 
@@ -29,14 +29,13 @@ void mutex::unlock(std::shared_ptr<PCB>process)
 {
 	//jesli proces nie jest wlascicielem
 	if (process->pid != OWNER_ID)
-		std::cout << "unlock(): " << process->name << ": proces nie jest wlascicielem zamka, nie mozna otworzyc\n";
+		std::cout << "unlock(): " << process->name << ": the process is not the lock's owner, cannot unlock.\n";
 	//jesli proces jest wlascicielem
 	if (LOCKED && process->pid == OWNER_ID)
 	{
 		//sprawdza stan kolejki i usuwa z niej wykonany proces 
 		if (!WAITING_PCB.empty())
 			WAITING_PCB.pop();
-		std::cout << "unlock(): " << process->name << ": Wywolanie notify()\n";
 		notify();
 	}
 }
@@ -59,7 +58,7 @@ void mutex::notify()
 			WAITING_PCB.front()->change_state(state);
 			//zmiana wlasciciela, zamek pozostaje zamkniety
 			OWNER_ID = WAITING_PCB.front()->pid;
-			std::cout << "notify(): Odblokowano zamek, przydzielono dostep kolejnemu procesowi w kolejce zamka(" << WAITING_PCB.front()->name << ") i zmieniono jego stan na ready\n";
+			std::cout << "notify(): The file's lock ownership moved to (" << WAITING_PCB.front()->name << "), the process is now ready\n";
 			//wywoluje planiste - przekazanie sterowania
 			planist.check();
 		}
@@ -68,19 +67,17 @@ void mutex::notify()
 		{
 			LOCKED = false;
 			OWNER_ID = 0; 
-			std::cout << "notify(): Odblokowano zamek\n";
+			std::cout << "notify(): unlocked\n";
 		}
 		//badz wolny pliku		
 }
 
-const int mutex::get_owner_id() const
-{
-	return OWNER_ID;
-}
-
-const string mutex::get_owner_name() const
+bool mutex::lock_for_editor()
 {
 	if (LOCKED)
-		return WAITING_PCB.front()->name;
-	else return "NO OWNER";
+	{
+		cout << "The file is being edited by another process, cannot save. Use '$ go' and try again.\n";
+		return false;
+	}
+	else return true;
 }

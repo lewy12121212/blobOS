@@ -217,7 +217,7 @@ shared_ptr<PCB> ProcTree::find_pid(shared_ptr<PCB> pcb_child, int pid_proc)
 
 			if (pcb_child->children_vector[i]->pid == pid_proc) {
 
-				cout << "find pid = " << pcb_child->children_vector[i]->pid << endl;
+				//cout << "find pid = " << pcb_child->children_vector[i]->pid << endl;
 				PCB_return =  pcb_child->children_vector[i];
 				find_bool = 1;
 				return PCB_return;
