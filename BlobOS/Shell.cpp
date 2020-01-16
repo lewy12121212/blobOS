@@ -556,12 +556,11 @@ void Shell::editor(std::string filename){
 
 		//Tu chyba na razie brakuje opcji zapis/bez zapisu więc po prostu poczotkowy to tekst zapisany w pliku
 		//który potem jest zmieniany edytorem, poczotkowy jest nadpisywany i przesyłany do zapisu
-		
-		
 
 	poczatkowy.clear();
 	for (int i = 0; i < tekst.size();i++) {
 		poczatkowy.push_back(tekst[i]);
 	}
+	//Pozwala na edycję w konsoli bez sprawdzania zamka, sprawdza go przed zapisem i ewentualnie go pomija
 	FM.edit_file(parsed[1],poczatkowy);
 }

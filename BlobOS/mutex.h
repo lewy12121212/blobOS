@@ -15,8 +15,6 @@ public:
 	mutex();									//ustawia LOCKED i OWNER_ID na 0
 	void lock(std::shared_ptr<PCB>process);		//przyjmuje wskaznik na proces zamykajacy zamek
 	void unlock(std::shared_ptr<PCB>process);	//przyjmuje wskaznik na proces otwierajacy zamek (wlasciciela)
-	const int get_owner_id() const;				//id procesu-wlasciciela
-	const string get_owner_name() const;		//nazwa procesu-wlasciciela
 	bool lock_for_editor();						//lock() wylacznie dla edytora, sprawdza zamek ale go nie zajmuje, unlock() niepotrzebne
 };
 

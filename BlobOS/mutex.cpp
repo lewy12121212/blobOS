@@ -72,18 +72,6 @@ void mutex::notify()
 		//badz wolny pliku		
 }
 
-const int mutex::get_owner_id() const
-{
-	return OWNER_ID;
-}
-
-const string mutex::get_owner_name() const
-{
-	if (LOCKED)
-		return WAITING_PCB.front()->name;
-	else return "NO OWNER";
-}
-
 bool mutex::lock_for_editor()
 {
 	if (LOCKED)
