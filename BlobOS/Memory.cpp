@@ -144,9 +144,8 @@ Page::Page(std::string s){
 }
 
 int Memory::PageHandler(int address, int PID) {
-	// Stałe pomocnicze
-	const int page = address / 16;
-	const int offset = address % 16;
+	int page = address / 16;
+	int offset = address % 16;
 	shared_ptr<PCB> process = PTree.find_pid(PTree.init_proc, PID);
 
 	// Jeśli strona nie jest w RAM, załadują ją do RAM
@@ -156,21 +155,24 @@ int Memory::PageHandler(int address, int PID) {
 			if (FIFO.size() == 0) {
 				// Jeśli wszystkie ramki wolne
 				for (int i = 0; i < 16; i++) {
-					RAM.at((page * 16) + i) = PageFile.at(PID).at(page).data.at(i);
+					RAM.at(i) = PageFile.at(PID).at(page).data.at(i);
 				}
 				FIFO.push(0);
-				Frames.insert(Frames.end(), std::pair<int, std::pair<int, int>>(0, std::pair<int, int>(PID, page)));
+				Frames.at(0) = std::pair<int, int>(PID, page);
 				process->page_table.at(page).frame = 0;
 				process->page_table.at(page).bit = true;
 			}
 			else {
 				// Jeśli są jeszcze wolne ramki
 				int next_empty_frame = FIFO.back() + 1;
+
+				if (next_empty_frame == 16) next_empty_frame = 0;
+
 				for (int i = 0; i < 16; i++) {
 					RAM.at((next_empty_frame * 16) + i) = PageFile.at(PID).at(page).data.at(i);
 				}
 				FIFO.push(next_empty_frame);
-				Frames.insert(Frames.end(), std::pair<int, std::pair<int, int>>(next_empty_frame, std::pair<int, int>(PID, page)));
+				Frames.at(next_empty_frame) = std::pair<int, int>(PID, page);
 				process->page_table.at(page).frame = next_empty_frame;
 				process->page_table.at(page).bit = true;
 				return next_empty_frame;
@@ -179,8 +181,10 @@ int Memory::PageHandler(int address, int PID) {
 		else {
 			// Jeśli nie ma wolnych ramek (wymiana)
 			// Ramka do zabicia
-			int victim = FIFO.front();
 
+			int victim = FIFO.front();
+			FIFO.pop();
+			FIFO.push(victim);
 			// Stronnica która znajduje się w ramce victim
 			int page_to_update = Frames.at(victim).second;
 
@@ -243,7 +247,7 @@ void Memory::LoadProgram(std::string file_name, int PID)
 
 void Memory::SetupInitProcess() {
 	this->PageFile.insert(std::pair<int, std::vector<Page>>(0, std::vector<Page>()));
-
+	Frames.at(0) = std::pair<int, int>(0, 0);
 	this->PageFile.at(0).push_back(Page("JP [0];"));
 
 	this->CreatePageTable(0);
