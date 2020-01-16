@@ -48,6 +48,18 @@ A FILE argument that does not exist is created empty.
 )EOF");
 }
 
+void Help::open() {
+
+
+
+}
+
+void Help::close() {
+
+
+
+}
+
 void Help::rm() {
 	set_color(white);
 	printf(R"EOF(

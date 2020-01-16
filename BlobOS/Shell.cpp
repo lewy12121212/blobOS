@@ -105,8 +105,8 @@ void Shell::logo() {
           `-------------ys:+h:-----------------------:h+:ss-------------`                                               
          `-------------/h---oo-----------------------oo---h:-------------`                                              
          .---------------------------------------------------------------.                                              
-        `-----------------------------------------------------------------`                                             
-        --------------------------:-------------:-------------------------.                                             
+        `------------------------::-------------::------------------------`                                             
+        ------------------------:::-------------:::-----------------------.                                             
        `---------------::::::::::::-------------::::::::::::---------------`                                            
    `````---------------:::///:::::::-----------:::::::///:::---------------`````                                        
   ::::::----------------:::://////::::-------:::://////::::----------------:::::-                                       
@@ -148,6 +148,10 @@ dp [PID]
 
 touch [FILENAME] - A FILE argument that does not exist is created empty
 
+open [FILENAME]
+
+close [FILENAME]
+
 rm [FILENAME] -remove the FILE
 
 wf [FILENAME] - display the contain of FILE and edit the FILE in text editor
@@ -175,6 +179,8 @@ void Shell::execute() {
 	else if (parsed[0] == "rm") { rm(); }
 	else if (parsed[0] == "copy") { copy(); }
 	else if (parsed[0] == "cat") { cat(); }
+	else if (parsed[0] == "open") { open(); }
+	else if (parsed[0] == "close") { close(); }
 	else if (parsed[0] == "wf") { wf(); }
 	else if (parsed[0] == "fileinfo") { fileinfo(); }
 	else if (parsed[0] == "go" || parsed[0] == "") { go(); }
@@ -270,12 +276,19 @@ void Shell::showpcblist() {
 }
 
 void Shell::showpcb() {
-
-	/*
-	shared_ptr<PCB> pcb_show = PTree.find_name(PTree.init_proc, name);
-	pcb_show->show_info();
-	*/
-	std::cout << "showpcblist" << std::endl;
+	if (parsed.size() == 2) {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "missing operand";
+		throw exc;
+	}
+	else if(parsed.size()==3) {
+		set_color(white);
+		shared_ptr<PCB> pcb_show = PTree.find_name(PTree.init_proc, (parsed[2]));
+		pcb_show->show_info();
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::showram() {
@@ -288,11 +301,6 @@ void Shell::showram() {
 		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
 		throw exc;
 	}
-}
-
-void Shell::showroot() {
-
-	std::cout << "root" << std::endl;
 }
 
 void Shell::showtree() {
@@ -435,15 +443,18 @@ void Shell::wf() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::wf();
 	}
-	else if (parsed.size() == 2) editor(parsed[1]);
-		else if (parsed.size() == 1) {
-			std::string exc = parsed[0] + ": " + "missing operand";
-			throw exc;
-		}
-		else {
-			std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
-			throw exc;
-		}
+	else if (parsed.size() == 2) {
+		set_color(white);
+		editor(parsed[1]);
+	}
+	else if (parsed.size() == 1) {
+		std::string exc = parsed[0] + ": " + "missing operand";
+		throw exc;
+	}
+	else {
+		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
+		throw exc;
+	}
 }
 
 void Shell::cat() {
@@ -456,6 +467,38 @@ void Shell::cat() {
 	}
 	else if (parsed.size() == 2) {
 		std::cout << "Wyswietlanie plikow" << std::endl;
+	}
+}
+
+void Shell::open() {
+
+	if (parsed.size() == 2 && parsed[1] == "--help") {
+		Help::open();
+	}
+	else if (parsed.size() == 2)std::cout<<"Otwarcie pliku";
+	else if (parsed.size() == 1) {
+		std::string exc = parsed[0] + ": " + "missing operand";
+		throw exc;
+	}
+	else {
+		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
+		throw exc;
+	}
+}
+
+void Shell::close() {
+
+	if (parsed.size() == 2 && parsed[1] == "--help") {
+		Help::close();
+	}
+	else if (parsed.size() == 2)std::cout << "Zamkniecie pliku";
+	else if (parsed.size() == 1) {
+		std::string exc = parsed[0] + ": " + "missing operand";
+		throw exc;
+	}
+	else {
+		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
+		throw exc;
 	}
 }
 
@@ -505,7 +548,7 @@ void Shell::go() {
 }
 void Shell::editor(std::string filename){
 	//Do testowania plików
-	FM.show_disc();
+	//FM.show_disc();
 
 	std::string poczatkowy = FM.show_file(parsed[1]);
 	std::vector<char>tekst;
@@ -529,7 +572,7 @@ void Shell::editor(std::string filename){
 					std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
 					std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
 					//Do testowania plików
-					FM.show_disc();
+					//FM.show_disc();
 					for (auto i : tekst) {
 						std::cout << i;
 					}
@@ -546,7 +589,7 @@ void Shell::editor(std::string filename){
 				std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
 				std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
 				//Do testowania plików
-				FM.show_disc();
+				//FM.show_disc();
 				for (auto i : tekst) {
 					std::cout << i;
 				}
@@ -563,5 +606,6 @@ void Shell::editor(std::string filename){
 	for (int i = 0; i < tekst.size();i++) {
 		poczatkowy.push_back(tekst[i]);
 	}
+	system("cls");
 	FM.edit_file(parsed[1],poczatkowy);
 }
