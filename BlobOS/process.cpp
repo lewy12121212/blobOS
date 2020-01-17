@@ -136,6 +136,9 @@ void PCB::kill_kid(int &kid_pid) {
 		if (children_vector[i]->pid == kid_pid) {
 			//cout << children_vector[i]->name << " - " << children_vector[i]->pid << endl;
 			planist.remove_process(children_vector[i]);
+			// HAL_START_BARTEK
+			memory.PageFile.erase(children_vector[i]->pid);
+			// HAL_END_BARTEK
 			this->children_vector.erase(this->children_vector.begin() + i); // usunięcie procesu 
 			
 		}
@@ -204,7 +207,7 @@ int ProcTree::create_process_file(string &name, string &file_name, int parent_pi
 shared_ptr<PCB> ProcTree::find_pid(shared_ptr<PCB> pcb_child, int pid_proc)
 {
 	//cout << this->init_proc->name << " - " << this->init_proc->pid << endl;
-	//PCB_return = nullptr;
+	PCB_return = nullptr;
 
 	
 	if (this->init_proc->pid == pid_proc) {
@@ -238,7 +241,7 @@ shared_ptr<PCB> ProcTree::find_pid(shared_ptr<PCB> pcb_child, int pid_proc)
 shared_ptr<PCB> ProcTree::find_name(shared_ptr<PCB> pcb_child, string &name)
 {
 	//cout << this->init_proc->name << " - " << this->init_proc->pid << endl;
-	//PCB_return = nullptr;
+	PCB_return = nullptr;
 
 
 	if (this->init_proc->name == name) {
