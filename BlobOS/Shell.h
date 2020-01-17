@@ -33,6 +33,7 @@ protected:
 	void exit();
 	void logo();
 
+
 	//procesy i proces
 	void cp();
 	void dp();
@@ -58,6 +59,7 @@ protected:
 	void copy();
 	void cat();
 	void fileinfo();
+	void showdisc();
 	void editor(std::string filename);
 
 	//interpreter
