@@ -9,8 +9,8 @@ void Help::cp() {
 
 void Help::dp() {
 	set_color(white);
-	std::cout << "dp [PROC NAME]" << std::endl;
-	std::cout << "dp [PID]" << std::endl;
+	std::cout << "dp -n [PROC NAME]" << std::endl;
+	std::cout << "dp -p [PID]" << std::endl;
 }
 
 void Help::show() {
