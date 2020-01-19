@@ -297,7 +297,9 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		//i tu
 	}
 	else if (command == "AF") {
-		FM.edit_file(file_name, text);
+		if (!text.empty())
+			FM.add_to_file(file_name, text);
+		else FM.add_to_file(file_name, to_string(*rej2));
 	}
 	else if (command == "RF") {
 		string textt = FM.show_file(file_name);
