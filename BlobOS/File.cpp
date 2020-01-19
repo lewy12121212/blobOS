@@ -375,8 +375,7 @@ string FileManager::show_file(string name) {
 void FileManager::add_to_file(string name, string text) {
 	//szuka pliku
 	int pom = find_file(name);
-	//Nie sprawdza zamka, plik powinien byæ ju¿ otwarty
-	if (pom != -1) {
+	if (pom != -1 && cataloge[pom].second.mutex.get_owner_id() == planist.ReadyPCB[0]->pid) {
 		//Zczytuje dane ju¿ zapisane i dopisuje na ich koñcu nowo dodane dane
 		string plik = show_file(name);
 		plik += text;

@@ -81,3 +81,8 @@ bool mutex::lock_for_editor()
 	}
 	else return true;
 }
+
+const int mutex::get_owner_id() const
+{
+	return OWNER_ID;
+}
