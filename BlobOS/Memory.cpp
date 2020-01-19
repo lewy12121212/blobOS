@@ -185,20 +185,24 @@ int Memory::PageHandler(int address, int PID) {
 			int victim = FIFO.front();
 			FIFO.pop();
 			FIFO.push(victim);
+
+
 			// Stronnica która znajduje się w ramce victim
 			int page_to_update = Frames.at(victim).second;
 
 			// Do kogo należy stronnica z ramki victim
 			shared_ptr<PCB> process_to_update = PTree.find_pid(PTree.init_proc, Frames.at(victim).first);
 
-			// Przepisz zmiany z RAM do pliku wymiany
-			for (int i = 0; i < 16; i++) {
-				PageFile.at(process_to_update->pid).at(page_to_update).data.at(i) = RAM.at((victim * 16) + i);
-			}
+			if (process_to_update != nullptr){
+				// Przepisz zmiany z RAM do pliku wymiany
+				for (int i = 0; i < 16; i++) {
+					PageFile.at(process_to_update->pid).at(page_to_update).data.at(i) = RAM.at((victim * 16) + i);
+				}
 
-			// Update informacji w page_table procesu victima
-			process_to_update->page_table.at(page_to_update).bit = false;
-			process_to_update->page_table.at(page_to_update).frame = -1;
+				// Update informacji w page_table procesu victima
+				process_to_update->page_table.at(page_to_update).bit = false;
+				process_to_update->page_table.at(page_to_update).frame = -1;
+			}
 
 			// Nadpisanie ramki victim nową stroną
 			for (int i = 0; i < 16; i++) {
@@ -251,6 +255,9 @@ void Memory::SetupInitProcess() {
 	this->PageFile.at(0).push_back(Page("JP [0];"));
 
 	this->CreatePageTable(0);
+
+	PTree.find_pid(PTree.init_proc, 0)->page_table.at(0).bit = true;
+	PTree.find_pid(PTree.init_proc, 0)->page_table.at(0).frame = 0;
 
 	for (int i = 0; i < 16; i++) {
 		RAM.at(i) = PageFile.at(0).at(0).data.at(i);

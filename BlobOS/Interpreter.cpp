@@ -80,7 +80,7 @@ array<string, 4> Interpreter::instruction_separate(const std::string & instructi
 
 void Interpreter::display_registers()
 {
-
+	
 	cout << "Registers: " << endl;
 	cout << "A:  " << A << "  " << "B:  " << B << "  " << "C:  " << C << "  " << "D:  " << D << endl;
 	cout << "Instruction counter:  " << instruction_counter << endl;
@@ -215,13 +215,13 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "ML") { *rej1 *= *rej2; }
 	else if (command == "DV") {
 		if (rej2 == 0) {
-			cout << "Dzielenie przez 0!" << endl;
+			cout << "Division by 0!" << endl;
 			*rej1 /= *rej2;
 		}
 	}
 	else if (command == "MD") {
 		if (rej2 == 0) {
-			cout << "Dzielenie przez 0!" << endl;
+			cout << "Division by 0!" << endl;
 			*rej1 = *rej1 % *rej2;
 		}
 	}
@@ -258,11 +258,11 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 			val = memory.get(adres, running_proc->pid);
 			if (val == ';') break;
 			else tmp.push_back(val);
-			cout << "!!!!" << tmp << endl;
+			//cout << "!!!!" << tmp << endl;
 			adres++;
 		}
 
-		cout << "!!!!" << tmp << endl;
+		//cout << "!!!!" << tmp << endl;
 		from_memory = stoi(tmp);
 		*rej1 = from_memory;
 
@@ -302,12 +302,10 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "RF") {
 
 		FM.show_file(file_name);
-		//kurwa ile jeszcze 
 	}
 	else if (command == "CF") {
 
 		FM.close_file(file_name);
-		//dobra koniec xd	
 	}
 	else if (command == "CP") {
 		PTree.create_process_file(file_name, text, running_proc->pid);
@@ -316,7 +314,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "KP") {
 		//a tu go zabic 
 		//running_proc->kill();
-		PTree.kill_pid(running_proc->pid);
+		PTree.kill_name(file_name);
 		//blaa
 	}
 	else if (command == "HT") {
@@ -337,9 +335,12 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 int Interpreter::execute_line() //czy na pewno nazwa?? 
 {
 
-	cout << "exe" << endl;
+	//cout << "exe" << endl;
+
 	shared_ptr<PCB> running_proc = planist.ReadyPCB.front();
 	
+
+
 	if (running_proc->time_run == 0) {
 		planist.manager();
 	}
@@ -350,7 +351,7 @@ int Interpreter::execute_line() //czy na pewno nazwa??
 		Pozdrawiam cie łukasz 
 	*/
 
-
+	cout << "Running proccess: " << running_proc->name << endl;
 	take_from_proc(running_proc);
 	instruction = get_instruction(instruction_counter, running_proc);
 	cout << instruction << "\n";
@@ -362,6 +363,8 @@ int Interpreter::execute_line() //czy na pewno nazwa??
 	// planista i procesy
 	running_proc->time_run--;  // zmiejszenie przydzielonego kwantu czasu o 1
 	planist.time_sum--; // zmiejszenie sumy przydzielonych kwantów o 1
+
+	cout << "Time to run: " << running_proc->time_run << endl;
 
 	if (running_proc->time_run == 0) { // jeżeli proces kwant czasu ma na 0 to zostaje przeniesiony na koniec i run otrzymuje następny proces
 		planist.first_to_end();
