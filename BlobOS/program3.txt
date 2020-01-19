@@ -1,8 +1,8 @@
 MV A 10;
 MV B 0;
 DV A B;
-IN B; 
-SB A B; 
+IN B;
+SB A B;
 CP (proc10) (program2.txt);
 MF (pl1.txt);
 OF (pl1.txt);
