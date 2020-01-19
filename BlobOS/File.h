@@ -34,6 +34,7 @@ class FileManager {
 	void save_data_to_file(string name, string text);
 	void show_disc();
 	void edit_file(string name, string text);
+	void edit_file_editor(string name, string text);
 	string show_file(string name);
 	void add_to_file(string name,string text);
 	void delete_file(string name);

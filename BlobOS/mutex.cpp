@@ -12,8 +12,13 @@ void mutex::lock(std::shared_ptr<PCB>process)
 	WAITING_PCB.push(process);
 	if (LOCKED)
 	{ 
-		std::cout << "lock: " <<  process->name << ": File locked by: " << WAITING_PCB.front()->name << ", calling planist.\n";
-		wait(process);
+		if (process->pid == OWNER_ID)
+			std::cout << "The process is the owner, processing.\n";
+		else
+		{
+			std::cout << "lock: " << process->name << ": File locked by: " << WAITING_PCB.front()->name << ", calling planist.\n";
+			wait(process);
+		}
 	}
 	else 
 	{ 

@@ -277,8 +277,18 @@ void FileManager::save_data_to_file(string name, string text) {
 }
 
 
-//Sprawdza zamek dla edytora i zapisuje dane do pliku
+//Sprawdza zameki zapisuje dane do pliku
 void FileManager::edit_file(string name, string text) {
+	//edytor tekstu od Ani
+	int pom = find_file(name);
+
+	if (pom != -1 && cataloge[pom].second.mutex.get_owner_id() == planist.ReadyPCB[0]->pid) {
+			save_data_to_file(name, text);
+	}
+}
+
+//Sprawdza zamek dla edytora i zapisuje dane do pliku
+void FileManager::edit_file_editor(string name, string text) {
 	//edytor tekstu od Ani
 	int pom = find_file(name);
 
