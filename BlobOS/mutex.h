@@ -3,6 +3,7 @@
 #include <memory>
 #include "process.h"
 #include "procesor.h"
+#include"Shell.h"
 class mutex
 {
 	bool LOCKED;

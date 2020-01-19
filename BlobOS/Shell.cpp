@@ -39,8 +39,8 @@ void Shell::boot() {
 		logo = _getch();
 	}
 	system("color 8");
-	std::cout<<std::endl;
-	std::cout << std::endl;
+	//std::cout<<std::endl;
+	//std::cout << std::endl;
 	loop();
 }
 
@@ -80,7 +80,6 @@ void Shell::loop() {
 			std::cout << e << std::endl;
 			std::cout << "Try \'" << parsed[0] << " --help\' for more information." << std::endl;
 		}
-
 		line.clear();
 		parsed.clear();
 
@@ -326,7 +325,9 @@ close [FILENAME]
 
 rm [FILENAME] -remove the FILE
 
-wf [FILENAME] - display the contain of FILE and edit the FILE in text editor
+edit [FILENAME] - display the contain of FILE and edit the FILE in text editor
+
+write [FILENAME] [line to add to FILE] 
 
 copy [SOURCE FILENAME1] [DEST FILENAME2] - copy the contain of SOURCE to DEST
 
@@ -353,7 +354,8 @@ void Shell::execute() {
 	else if (parsed[0] == "cat") { cat(); }
 	else if (parsed[0] == "open") { open(); }
 	else if (parsed[0] == "close") { close(); }
-	else if (parsed[0] == "wf") { wf(); }
+	else if (parsed[0] == "edit") { edit(); }
+	else if (parsed[0] == "write") { write(); }
 	else if (parsed[0] == "fileinfo") { fileinfo(); }
 	else if (parsed[0] == "go" || parsed[0] == "") { go(); }
 	else if (parsed[0] == "help") { help(); }
@@ -623,9 +625,9 @@ void Shell::rm() {
 	}
 }
 
-void Shell::wf() {
+void Shell::edit() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
-		Help::wf();
+		Help::edit();
 	}
 	else if (parsed.size() == 2) {
 		set_color(white);
@@ -650,7 +652,15 @@ void Shell::cat() {
 		Help::cat();
 	}
 	else if (parsed.size() == 2) { //nie dziala
-		FM.show_file(parsed[1]);
+		if (FM.find_file(parsed[1])>-1) {
+			std::string text = FM.show_file(parsed[1]);
+			set_color(white);
+			std::cout << text << std::endl;
+		}
+		else {
+			std::string exc = "File "+ parsed[1] + " does not exist";
+			throw exc;
+		}
 	}
 	else {
 		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
@@ -663,7 +673,15 @@ void Shell::open() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::open();
 	}
-	else if (parsed.size() == 2)std::cout<<"Otwarcie pliku";
+	else if (parsed.size() == 2) {
+		if (FM.find_file(parsed[1]) > -1) {
+			FM.open_file(parsed[1]);
+		}
+		else {
+			std::string exc = "File " + parsed[1] + " does not exist";
+			throw exc;
+		}
+	}
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
@@ -679,7 +697,15 @@ void Shell::close() {
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::close();
 	}
-	else if (parsed.size() == 2)std::cout << "Zamkniecie pliku";
+	else if (parsed.size() == 2) {
+		if (FM.find_file(parsed[1]) > -1) {
+			FM.close_file(parsed[1]);
+		}
+		else {
+			std::string exc = "File " + parsed[1] + " does not exist";
+			throw exc;
+		}
+	}
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
@@ -723,7 +749,8 @@ void Shell::fileinfo() {
 
 void Shell::go() {
 	if (parsed.size() == 1) {
-		std::cout << "go go go" << std::endl;
+		//std::cout << "go go go" << std::endl;
+		set_color(white);
 		interpreter.execute_line();
 	}
 	else if (parsed.size() == 2 && parsed[1] == "--help") {
@@ -734,6 +761,7 @@ void Shell::go() {
 		throw temp;
 	}
 }
+
 void Shell::editor(std::string filename){
 	//Do testowania plików
 	//FM.show_disc();
@@ -782,15 +810,37 @@ void Shell::editor(std::string filename){
 			}
 		}
 	} while ((znak !=19) && (znak!=17)); //17 ^Q  19 ^S 
-
-		//Tu chyba na razie brakuje opcji zapis/bez zapisu więc po prostu poczotkowy to tekst zapisany w pliku
-		//który potem jest zmieniany edytorem, poczotkowy jest nadpisywany i przesyłany do zapisu
-
-	poczatkowy.clear();
-	for (int i = 0; i < tekst.size();i++) {
-		poczatkowy.push_back(tekst[i]);
+	if (znak == 19) {
+		poczatkowy.clear();
+		for (int i = 0; i < tekst.size(); i++) {
+			poczatkowy.push_back(tekst[i]);
+		}
+		//Pozwala na edycję w konsoli bez sprawdzania zamka, sprawdza go przed zapisem i ewentualnie go pomija
+		FM.edit_file(parsed[1], poczatkowy);
 	}
 	system("cls");
-	//Pozwala na edycję w konsoli bez sprawdzania zamka, sprawdza go przed zapisem i ewentualnie go pomija
-	FM.edit_file(parsed[1],poczatkowy);
+}
+
+//dopisanie na koniec pliku
+void Shell:: write() {
+	if (parsed.size() == 1) {
+		std::string exc = parsed[0] + ": " + "missing operand";
+		throw exc;
+	}
+	if (parsed.size() == 2 && parsed[1] == "--help") {
+		Help::write();
+	}
+	if (parsed.size() > 2) {
+		if (FM.find_file(parsed[1]) > -1) {
+			std::string temp;
+			for (auto it = parsed.begin() + 2; it != parsed.end(); it++) {
+				temp +=" "+ *it;
+			}
+			FM.add_to_file(parsed[1], temp);
+		}
+		else {
+			std::string exc = "File " + parsed[1] + " does not exist";
+			throw exc;
+		}
+	}
 }

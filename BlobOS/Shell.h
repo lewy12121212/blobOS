@@ -55,12 +55,13 @@ protected:
 	void open();
 	void close();
 	void rm();
-	void wf();
+	void edit();
 	void copy();
 	void cat();
 	void fileinfo();
 	void showdisc();
 	void editor(std::string filename);
+	void write();
 
 	//interpreter
 	void go();

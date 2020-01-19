@@ -8,6 +8,7 @@ mutex::mutex()
 
 void mutex::lock(std::shared_ptr<PCB>process)
 {
+	set_color(white);
 	//dodaje wykonywany proces do kolejki zamka
 	WAITING_PCB.push(process);
 	if (LOCKED)
@@ -27,6 +28,7 @@ void mutex::lock(std::shared_ptr<PCB>process)
 
 void mutex::unlock(std::shared_ptr<PCB>process)
 {
+	set_color(white);
 	//jesli proces nie jest wlascicielem
 	if (process->pid != OWNER_ID)
 		std::cout << "unlock(): " << process->name << ": the process is not the lock's owner, cannot unlock.\n";
@@ -50,7 +52,8 @@ void mutex::wait(std::shared_ptr<PCB>process)
 }
 
 void mutex::notify()
-{		
+
+{		set_color(white);
 		if (!WAITING_PCB.empty())
 		{
 			//zmienia stan procesu kolejnego w kolejce: waiting->ready
@@ -76,6 +79,7 @@ bool mutex::lock_for_editor()
 {
 	if (LOCKED)
 	{
+		set_color(white);
 		cout << "The file is being edited by another process, cannot save. Use '$ go' and try again.\n";
 		return false;
 	}

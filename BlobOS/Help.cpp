@@ -72,12 +72,24 @@ Remove the FILE.
 )EOF");
 }
 
-void Help::wf() {
+void Help::edit() {
 	set_color(white);
 	printf(R"EOF(
-Usage: wf [FILENAME]
+Usage: edit [FILENAME]
 
 Display the contain of FILE and edit the FILE in text editor.
+
+	--help	display this help and exit
+
+)EOF");
+}
+
+void Help::write() {
+	set_color(white);
+	printf(R"EOF(
+Usage: write [FILENAME] [line to add to FILE]
+
+Add the line at the end ???
 
 	--help	display this help and exit
 
