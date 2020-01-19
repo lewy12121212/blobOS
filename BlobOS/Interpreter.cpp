@@ -83,7 +83,7 @@ void Interpreter::display_registers()
 	
 	cout << "Registers: " << endl;
 	cout << "A:  " << A << "  " << "B:  " << B << "  " << "C:  " << C << "  " << "D:  " << D << endl;
-	cout << "Instruction counter:  " << instruction_counter << endl;
+	cout << "Instruction counter:  " << instruction_counter << endl<<endl;
 
 }
 
@@ -300,8 +300,8 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		FM.edit_file(file_name, text);
 	}
 	else if (command == "RF") {
-
-		FM.show_file(file_name);
+		string textt = FM.show_file(file_name);
+		cout << textt << endl;
 	}
 	else if (command == "CF") {
 
