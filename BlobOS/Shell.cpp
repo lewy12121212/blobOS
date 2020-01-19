@@ -792,5 +792,5 @@ void Shell::editor(std::string filename){
 	}
 	system("cls");
 	//Pozwala na edycję w konsoli bez sprawdzania zamka, sprawdza go przed zapisem i ewentualnie go pomija
-	FM.edit_file(parsed[1],poczatkowy);
+	FM.edit_file_editor(parsed[1],poczatkowy);
 }
