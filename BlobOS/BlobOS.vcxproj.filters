@@ -79,5 +79,8 @@
     <Text Include="program2.txt">
       <Filter>Pliki zasobów</Filter>
     </Text>
+    <Text Include="program3.txt">
+      <Filter>Pliki zasobów</Filter>
+    </Text>
   </ItemGroup>
 </Project>
