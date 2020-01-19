@@ -193,6 +193,8 @@ int Memory::PageHandler(int address, int PID) {
 			// Do kogo należy stronnica z ramki victim
 			shared_ptr<PCB> process_to_update = PTree.find_pid(PTree.init_proc, Frames.at(victim).first);
 
+			Frames.at(victim) = std::pair<int, int>(PID, page);
+
 			if (process_to_update != nullptr){
 				// Przepisz zmiany z RAM do pliku wymiany
 				for (int i = 0; i < 16; i++) {
