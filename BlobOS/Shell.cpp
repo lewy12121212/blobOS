@@ -87,8 +87,8 @@ void Shell::loop() {
 }
 
 void Shell::logo() {
-
-	set_color(purple);
+	int timer = 100;
+	set_color(10);
 	printf(R"EOF(                                                                                                                                                                                                              
                                  ```...........``                                                                       
                              `..-------------------..`                                                                  
@@ -120,7 +120,7 @@ void Shell::logo() {
                                             
 
 )EOF");
-	Sleep(110);
+	Sleep(timer);
 	system("cls");
 
 
@@ -156,7 +156,7 @@ void Shell::logo() {
 
 )EOF");
 
-Sleep(110);
+Sleep(timer);
 system("cls");
 	printf(R"EOF(                                                                                                                                                                                                              
                                  ```...........``                                                                       
@@ -190,7 +190,7 @@ system("cls");
 
 )EOF");
 
-	Sleep(110);
+	Sleep(timer);
 	system("cls");
 	printf(R"EOF(                                                                                                                                                                                                              
                                  ```...........``                                                                       
@@ -224,7 +224,7 @@ system("cls");
 
 )EOF");
 
-	Sleep(110);
+	Sleep(timer);
 	system("cls");
 printf(R"EOF(                                                                                                                                                                                                              
                                  ```...........``                                                                       

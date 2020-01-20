@@ -403,7 +403,6 @@ void FileManager::delete_file(string name) {
 	//Wyszukuje plik
 	int pom = find_file(name);
 	if (pom == -1) {
-	if (pom == -1) {
 		cout<< "There is no existing file";
 	}
 	else {
