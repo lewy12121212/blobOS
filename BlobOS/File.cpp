@@ -385,11 +385,14 @@ string FileManager::show_file(string name) {
 void FileManager::add_to_file(string name, string text) {
 	//szuka pliku
 	int pom = find_file(name);
-	if (pom != -1 && cataloge[pom].second.mutex.get_owner_id() == planist.ReadyPCB[0]->pid) {
-		//Zczytuje dane ju¿ zapisane i dopisuje na ich koñcu nowo dodane dane
-		string plik = show_file(name);
-		plik += text;
-		edit_file(name, plik);
+	if (pom != -1) {
+		if (cataloge[pom].second.mutex.get_owner_id() == planist.ReadyPCB[0]->pid)
+		{
+			//Zczytuje dane ju¿ zapisane i dopisuje na ich koñcu nowo dodane dane
+			string plik = show_file(name);
+			plik += text;
+			edit_file(name, plik);
+		}
 	}
 	else cout << "There is no existing file" << endl;
 }
@@ -399,6 +402,7 @@ void FileManager::add_to_file(string name, string text) {
 void FileManager::delete_file(string name) {
 	//Wyszukuje plik
 	int pom = find_file(name);
+	if (pom == -1) {
 	if (pom == -1) {
 		cout<< "There is no existing file";
 	}
