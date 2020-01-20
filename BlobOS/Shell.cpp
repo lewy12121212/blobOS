@@ -403,11 +403,11 @@ void Shell::dp() {
 		throw exc;
 	}
 	else if ((parsed.size() == 3)&&(parsed[1]=="-p")) {
-		PTree.kill_pid(std::stoi(parsed[1])); // dla pid
+		PTree.kill_pid(std::stoi(parsed[2])); // dla pid
 	}
 
 	else if ((parsed.size() == 3) && (parsed[1] == "-n")) {
-		PTree.kill_name(parsed[1]);
+		PTree.kill_name(parsed[2]);
 	}
 	else {
 		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
