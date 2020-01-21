@@ -359,6 +359,8 @@ int Interpreter::execute_line()
 
 		if (running_proc->time_run == 0) { // jeżeli proces kwant czasu ma na 0 to zostaje przeniesiony na koniec i run otrzymuje następny proces
 			planist.first_to_end();
+			//planist.check();
+			planist.sort_list();
 		}
 
 		if (planist.time_sum == 0) {	 // jeżeli suma kwantów jest 0 to na nowo przydzielamy kwanty dla procesów
