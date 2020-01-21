@@ -92,7 +92,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 {
 
 
-	//tutaj b�d� pobierane rejestry itd, szukanie procesu i wrzucenie go do instrukcji 
+	//tutaj będą pobierane rejestry itd, szukanie procesu i wrzucenie go do instrukcji 
 	exec_instruction = instruction_separate(instruction);
 	int i = 0;
 	int adres = 0;
@@ -104,11 +104,10 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 
 	int rej1np = 0;
 	int rej2np = 0;
-	//int counternp = 0;
+	
 
 	int* rej1 = &rej1np;
 	int* rej2 = &rej2np;
-	//int* counter = &counternp;
 
 
 
@@ -284,7 +283,7 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "MF") {
 
 		FM.create_file(file_name);
-		//tu poleci co� od plik�w
+		
 	}
 	else if (command == "OF") {
 
@@ -294,7 +293,6 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 		if(!text.empty())
 		FM.save_data_to_file(file_name, text);
 		else FM.save_data_to_file(file_name, to_string(*rej2));
-		//i tu
 	}
 	else if (command == "AF") {
 		if (!text.empty())
@@ -311,17 +309,13 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	}
 	else if (command == "CP") {
 		PTree.create_process_file(file_name, text, running_proc->pid);
-		//tu teoretycznie moge stworzyc proces
 	}
 	else if (command == "KP") {
-		//a tu go zabic 
-		//running_proc->kill();
+		
 		PTree.kill_name(file_name);
-		//blaa
+		
 	}
 	else if (command == "HT") {
-		//
-		//running_proc->kill();
 		PTree.kill_pid(running_proc->pid);
 		return -1;
 	}
@@ -330,51 +324,49 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	}
 
 
-
 	return 1;
 }
 
-int Interpreter::execute_line() //czy na pewno nazwa?? 
+int Interpreter::execute_line() 
 {
-
-	//cout << "exe" << endl;
-
 	shared_ptr<PCB> running_proc = planist.ReadyPCB.front();
 	
+	if (running_proc != nullptr) {
+		if (running_proc->time_run == 0) {
+			planist.manager();
+		}
+
+		/*
+			- zakomentowane w celu sprawdzenia poprawności odejmowania i przydziału kwantów czasu
+			po odkomentowaniu poprawne działanie dla procesu INIT
+			błąd krytyczny przy nowo utworzonych procesach ze względu na brak jakochkolwiek rozkazów :)
+		*/
+
+		cout << "Running proccess: " << running_proc->name << endl;
+		take_from_proc(running_proc);
+		instruction = get_instruction(instruction_counter, running_proc);
+		cout << instruction << "\n";
+		execute_instruction(instruction, running_proc);
+		this->display_registers();
+		update_proc(running_proc);
 
 
-	if (running_proc->time_run == 0) {
-		planist.manager();
+		// planista i procesy
+		running_proc->time_run--;  // zmiejszenie przydzielonego kwantu czasu o 1
+		planist.time_sum--; // zmiejszenie sumy przydzielonych kwantów o 1
+
+		cout << "Time to run: " << running_proc->time_run << endl;
+
+		if (running_proc->time_run == 0) { // jeżeli proces kwant czasu ma na 0 to zostaje przeniesiony na koniec i run otrzymuje następny proces
+			planist.first_to_end();
+		}
+
+		if (planist.time_sum == 0) {	 // jeżeli suma kwantów jest 0 to na nowo przydzielamy kwanty dla procesów
+			planist.manager();
+		}
 	}
-
-	/* - zakomentowane w celu sprawdzenia poprawności odejmowania i przydziału kwantów czasu 
-		po odkomentowaniu poprawne działanie dla procesu INIT 
-		błąd krytyczny przy nowo utworzonych procesach ze względu na brak jakochkolwiek rozkazów :)
-		Pozdrawiam cie łukasz 
-	*/
-
-	cout << "Running proccess: " << running_proc->name << endl;
-	take_from_proc(running_proc);
-	instruction = get_instruction(instruction_counter, running_proc);
-	cout << instruction << "\n";
-	execute_instruction(instruction, running_proc);
-	this->display_registers();
-	update_proc(running_proc);
-
-	
-	// planista i procesy
-	running_proc->time_run--;  // zmiejszenie przydzielonego kwantu czasu o 1
-	planist.time_sum--; // zmiejszenie sumy przydzielonych kwantów o 1
-
-	cout << "Time to run: " << running_proc->time_run << endl;
-
-	if (running_proc->time_run == 0) { // jeżeli proces kwant czasu ma na 0 to zostaje przeniesiony na koniec i run otrzymuje następny proces
-		planist.first_to_end();
-	}
-
-	if (planist.time_sum == 0) {	 // jeżeli suma kwantów jest 0 to na nowo przydzielamy kwanty dla procesów
-		planist.manager();
-	}
+	else
+		cout << "The process does not exist!" << endl;
 
 	return 0;
 }

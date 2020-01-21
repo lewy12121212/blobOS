@@ -6,7 +6,7 @@ SB A B;
 CP (proc10) (program2.txt);
 MF (pl1.txt);
 OF (pl1.txt);
-WF (pl1.txt) (wynik);
+WF (pl1.txt) (wynik );
 AF (pl1.txt) A;
 RF (pl1.txt);
 KP (proc10);

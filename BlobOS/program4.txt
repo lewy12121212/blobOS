@@ -1,0 +1,6 @@
+OF (pl1.txt);
+WF (pl1.txt) (proba);
+CF (pl1.txt);
+KP (proc1);
+KP (proc2);
+HT;
