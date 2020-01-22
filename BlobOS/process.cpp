@@ -23,20 +23,20 @@ void PCB::show_info() {
 
 	cout << "NAME: " << this->name << endl;
 	cout << "PID: "<< this->pid<< endl;
-	cout << "Parent: " << this->parent_pid << endl;
-	cout << "State: "; 
+	cout << "PARENT: " << this->parent_pid << endl;
+	cout << "STATE: "; 
 	switch (this->state) {
 	case 0:
-		cout << "ready" << endl;
+		cout << "READY" << endl;
 		break;
 	case 1:
-		cout << "run" << endl;
+		cout << "RUN" << endl;
 		break;
 	case 2:
-		cout << "wait" << endl;
+		cout << "WAIT" << endl;
 		break;
 	case 3:
-		cout << "terminated" << endl;
+		cout << "TERMINATED" << endl;
 		break;
 	}
 	//cout << "bool kill" << this->bool_kill << endl;
