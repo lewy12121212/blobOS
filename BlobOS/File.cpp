@@ -13,11 +13,9 @@ struct inode
 
 };
 
-//Zamykaie i otwieranie pliku
-//Zamki
-//Edytor? Zaspis i jego brak
-//Popytaæ siê ludzi co jeszcze
-//Dodaæ napisy po angielsku
+
+//File info
+
 
 FileManager FM;
 
@@ -128,6 +126,7 @@ void FileManager::show_disc() {
 }
 
 //Pokazuje kolejkê zamka
+//??? <- Ania F
 void FileManager::show_lock_queue(const string &filename)
 {
 	int pom = find_file(filename);
@@ -296,7 +295,6 @@ void FileManager::save_data_to_file(string name, string text) {
 
 //Sprawdza zameki zapisuje dane do pliku
 void FileManager::edit_file(string name, string text) {
-	//edytor tekstu od Ani
 	int pom = find_file(name);
 
 	if (pom != -1 && cataloge[pom].second.mutex.get_owner_id() == planist.ReadyPCB[0]->pid) {
@@ -306,7 +304,6 @@ void FileManager::edit_file(string name, string text) {
 
 //Sprawdza zamek dla edytora i zapisuje dane do pliku
 void FileManager::edit_file_editor(string name, string text) {
-	//edytor tekstu od Ani
 	int pom = find_file(name);
 
 	if (pom != -1) {
@@ -414,6 +411,21 @@ void FileManager::add_to_file(string name, string text) {
 	else cout << "There is no existing file" << endl;
 }
 
+//Kopiuje zawartoœæ pierwszego pliku do drugiego
+void FileManager::copy_file(string name1, string name2) {
+	int pom1 = find_file(name1);
+	int pom2 = find_file(name2);
+
+	if (pom1 != -1) {
+		if (pom2 != -1) {
+			string tekst1 = show_file(name1);
+			edit_file(name2, tekst1);
+
+		}
+		else cout << "There is no existing file" << endl;
+	}
+	else cout << "There is no existing file" << endl;
+}
 
 //Usuwa pliki
 void FileManager::delete_file(string name) {
@@ -451,4 +463,8 @@ void FileManager::close_file(string name) {
 		cataloge[pom].second.mutex.unlock(planist.ReadyPCB[0]);
 	}
 	else cout << "There is no existing file" << endl;
+}
+
+void FileManager::file_info(string name) {
+
 }
