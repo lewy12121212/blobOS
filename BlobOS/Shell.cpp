@@ -625,7 +625,6 @@ void Shell::touch() {
 	else if (parsed.size() == 2) {
 		set_color(white);
 		FM.create_file(parsed[1]);
-		std::cout << "File created" << std::endl;
 	}
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
@@ -644,7 +643,6 @@ void Shell::rm() {
 	else if (parsed.size() == 2) {
 		set_color(white);
 		FM.delete_file(parsed[1]);
-		std::cout << "File deleted" << std::endl;
 	}
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
@@ -753,7 +751,7 @@ void Shell::copy() {
 		throw exc;
 	}
 	else if (parsed.size() == 3) {
-		std::cout << "File is copied" << std::endl;
+		std::cout << "File "<<parsed[1]<<" copied" << std::endl;
 		FM.copy_file(parsed[1], parsed[2]);
 	}
 	else {
@@ -772,7 +770,6 @@ void Shell::fileinfo() {
 		Help::fileinfo();
 	}
 	else if (parsed.size() == 2) {
-		//std::cout << "file info" << std::endl;
 		FM.file_info(parsed[1]);
 		//Tu też zaraz zrobię funkcję <- Ania F
 	}
@@ -863,7 +860,7 @@ void Shell:: write() {
 		if (FM.find_file(parsed[1]) > -1) {
 			std::string temp;
 			for (auto it = parsed.begin() + 2; it != parsed.end(); it++) {
-				temp += *it;
+				temp +=" " +*it;
 			}
 			FM.add_to_file(parsed[1],temp);
 		}

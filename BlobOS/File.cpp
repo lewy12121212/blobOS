@@ -420,9 +420,9 @@ void FileManager::copy_file(string name1, string name2) {
 			edit_file(name2, tekst1);
 
 		}
-		else cout << "There is no existing file" << endl;
+		else cout << "File does not exist" << endl;
 	}
-	else cout << "There is no existing file" << endl;
+	else cout << "File does not exist" << endl;
 }
 
 //Usuwa pliki
@@ -461,10 +461,7 @@ void FileManager::close_file(string name) {
 		//Odblokowuje zamek
 		cataloge[pom].second.mutex.unlock(planist.ReadyPCB[0]);
 	}
-<<<<<<< HEAD
 	else cout << "File does not exist" << endl;
-=======
-	else cout << "There is no existing file" << endl;
 }
 
 void FileManager::file_info(string name) {
@@ -485,6 +482,5 @@ void FileManager::file_info(string name) {
 		}
 		cout << endl;
 	}
-	else cout << "There is no existing file" << endl;
->>>>>>> e5eaa27c8d146acd24dda7fb002252b02cff1e0e
+	else cout << "File does not exist" << endl;
 }
