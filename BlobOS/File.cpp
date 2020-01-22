@@ -466,5 +466,22 @@ void FileManager::close_file(string name) {
 }
 
 void FileManager::file_info(string name) {
-
+	//szuka pliku
+	int pom = find_file(name);
+	if (pom != -1) {
+		cout << "File name: " << name << endl;
+		cout << "File size: " << cataloge[pom].second.size_int_byte << endl;
+		cout << "Blocks of disc used by this file: ";
+		int j = cataloge[pom].second.number.size();
+		for (int i = 0; i < j; i++) {
+			cout << "[" << cataloge[pom].second.number[i] << "] ";
+			if (i == 2) {
+				for (auto e: disc[cataloge[pom].second.number[2]].block) {
+					cout << "[" << e << "] ";
+				}
+			}
+		}
+		cout << endl;
+	}
+	else cout << "There is no existing file" << endl;
 }
