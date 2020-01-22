@@ -30,7 +30,7 @@ void FileManager::create_file(string name) {
 
 		cataloge.push_back(file); //Dodaje plik do katalogu
 	}
-	else cout << "File is existing" << endl;
+	else cout << "File exists." << endl;
 
 }
 
@@ -39,7 +39,7 @@ int FileManager::free_block() {
 	for (int i = 0; i < 32; i++) {
 		if (disc[i].free == 0)return i;
 	}
-	cout << "There is no free blocks" << endl;
+	cout << "There are no free blocks" << endl;
 	return -1;
 }
 

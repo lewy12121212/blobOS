@@ -20,6 +20,7 @@ Usage: show [OPTION]
 Show the information about OPTION.
 
 	-pcb [PROC NAME] [FILENAME] [PARENT PID]  display information about the process with this PID
+	-pcblist	display the contents of WAITING and RUNNING list
 	-pagetable [PROC PID]	display the contents of page table
 	-frame [NO FRAME]	display the content of frame
 	-pages [PROC PID]	display the content of pages
@@ -36,7 +37,6 @@ Example:
 
 
 void Help::touch() {
-
 	set_color(white);
 	printf(R"EOF(
 Usage: touch [FILENAME]
@@ -49,14 +49,28 @@ A FILE argument that does not exist is created empty.
 }
 
 void Help::open() {
+	set_color(white);
+	printf(R"EOF(
+Usage: open [FILENAME]
 
+Open the FILE.
 
+	--help	display this help and exit
+
+)EOF");
 
 }
 
 void Help::close() {
+	set_color(white);
+	printf(R"EOF(
+Usage: close [FILENAME]
 
+Close the FILE.
 
+	--help	display this help and exit
+
+)EOF");
 
 }
 

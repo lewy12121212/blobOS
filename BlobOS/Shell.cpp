@@ -87,7 +87,7 @@ void Shell::loop() {
 }
 
 void Shell::logo() {
-	int timer = 100;
+	int timer = 120;
 	set_color(10);
 	printf(R"EOF(                                                                                                                                                                                                              
                                  ```...........``                                                                       
@@ -305,6 +305,7 @@ void Shell::help() {
 	printf(R"EOF(
 show 
 	-pcb [PROC NAME] [FILENAME] [PARENT PID]  display information about the process with this PID
+	-pcblist	display the contents of WAITING and RUNNING list
 	-pagetable [PROC PID]	display the contents of page table
 	-frame [NO FRAME]	display the content of frame
 	-pages [PROC PID]	display the content of pages
@@ -822,7 +823,7 @@ void Shell::editor(std::string filename){
 			poczatkowy.push_back(tekst[i]);
 		}
 		//Pozwala na edycję w konsoli bez sprawdzania zamka, sprawdza go przed zapisem i ewentualnie go pomija
-		FM.edit_file(parsed[1], poczatkowy);
+		FM.edit_file_editor(parsed[1], poczatkowy);
 	}
 	system("cls");
 }
@@ -842,7 +843,7 @@ void Shell:: write() {
 			for (auto it = parsed.begin() + 2; it != parsed.end(); it++) {
 				temp +=" "+ *it;
 			}
-			FM.edit_file_editor(parsed[1],temp);
+			FM.edit_file(parsed[1],temp);
 		}
 		else {
 			std::string exc = "File " + parsed[1] + " does not exist";
