@@ -625,7 +625,7 @@ void Shell::touch() {
 	else if (parsed.size() == 2) {
 		set_color(white);
 		FM.create_file(parsed[1]);
-		std::cout << "File created" << std::endl;
+		std::cout << "File " << parsed[1] << " created" << std::endl;
 	}
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
@@ -644,7 +644,7 @@ void Shell::rm() {
 	else if (parsed.size() == 2) {
 		set_color(white);
 		FM.delete_file(parsed[1]);
-		std::cout << "File deleted" << std::endl;
+		std::cout << "File " << parsed[1] << " deleted" << std::endl;
 	}
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
