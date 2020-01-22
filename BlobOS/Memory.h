@@ -57,7 +57,7 @@ public:
 												{15,{-1, -1}},
 	};
 
-	//Funkcje - nie jestem pewny, które się przydadzą
+	//Funkcje
 
 	/*Zapisuje liczbę we wskazane miejsce w RAMie.
 	nr - numer komórki RAM

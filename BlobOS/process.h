@@ -86,8 +86,10 @@ public:
 
     int create_process_file(string &name, string &file_name, int parent_pid); // zakładająć że nie mamy podfolderów i ścieżka będzię jedynie nazwą pliku
     shared_ptr<PCB> find_pid(shared_ptr<PCB> pcb_child, int pid_proc); // przeszukiwanie drzewa po pid
-	shared_ptr<PCB> find_name(shared_ptr<PCB> pcb_child, string &name); // przeszukiwanie drzewa po name 
+	shared_ptr<PCB> find_pid_recu(shared_ptr<PCB> pcb_child, int pid_proc);
 
+	shared_ptr<PCB> find_name(shared_ptr<PCB> pcb_child, string &name); // przeszukiwanie drzewa po name 
+	shared_ptr<PCB> find_name_recu(shared_ptr<PCB> pcb_child, string &name);
 	//shared_ptr<PCB> find_pid_child_vect(shared_ptr<PCB> pcb_child, int pid_proc); // szukanie dzieci po pid 
 	//shared_ptr<PCB> find_name_child_vect(shared_ptr<PCB> pcb_child, string &name); // szukanie dzieci po name
 

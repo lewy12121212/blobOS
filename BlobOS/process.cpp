@@ -204,70 +204,144 @@ int ProcTree::create_process_file(string &name, string &file_name, int parent_pi
 	}
 }
 
+shared_ptr<PCB> ProcTree::find_pid_recu(shared_ptr<PCB> pcb_child, int pid_proc) {
+
+
+	if (PCB_return != nullptr) {
+		return PCB_return;
+	}
+	else {
+
+		if (this->init_proc->pid == pid_proc) {
+			return this->init_proc;
+		}
+		else {
+
+			if (PCB_return != nullptr) {
+				return PCB_return;
+			}
+
+
+			for (int i = 0; i < pcb_child->children_vector.size(); i++) {
+
+				if (PCB_return != nullptr) {
+					return PCB_return;
+				}
+
+				//cout<< pcb_child->children_vector[i]->name << " pid = "<< pcb_child->children_vector[i]->pid << endl;
+
+				if (pcb_child->children_vector[i]->pid == pid_proc) {
+
+				//	cout << "find pid = " << pcb_child->children_vector[i]->pid << endl;
+					PCB_return = pcb_child->children_vector[i];
+					find_bool = 1;
+					return PCB_return;
+				}
+				else {
+					//
+					//cout << "rekurencja " << endl;
+					if (PCB_return != nullptr) {
+						return PCB_return;
+					}
+
+
+
+					PCB_return = ProcTree::find_pid_recu(pcb_child->children_vector[i], pid_proc);
+				}
+			}
+			if (PCB_return != nullptr) {
+				return PCB_return;
+			}
+
+
+			return nullptr;
+		}
+
+	}
+
+}
+
 shared_ptr<PCB> ProcTree::find_pid(shared_ptr<PCB> pcb_child, int pid_proc)
 {
 	//cout << this->init_proc->name << " - " << this->init_proc->pid << endl;
 	PCB_return = nullptr;
+	shared_ptr<PCB> PCB_re = ProcTree::find_pid_recu(pcb_child, pid_proc);
+	return PCB_re;
 
-	
-	if (this->init_proc->pid == pid_proc) {
-		return this->init_proc;
-	}
-	else {
-		for (int i = 0; i < pcb_child->children_vector.size(); i++) {
-
-			//cout<< pcb_child->children_vector[i]->name << " pid = "<< pcb_child->children_vector[i]->pid << endl;
-
-			if (pcb_child->children_vector[i]->pid == pid_proc) {
-
-				//cout << "find pid = " << pcb_child->children_vector[i]->pid << endl;
-				PCB_return =  pcb_child->children_vector[i];
-				find_bool = 1;
-				return PCB_return;
-			}
-			else {
-				//
-				//cout << "rekurencja " << endl;
-				PCB_return = ProcTree::find_pid(pcb_child->children_vector[i], pid_proc);
-			}
-		}
-		return PCB_return;
-	}
-
-	
 }
 
+shared_ptr<PCB> ProcTree::find_name_recu(shared_ptr<PCB> pcb_child, string &name) {
+
+
+	if (PCB_return != nullptr) {
+	//	cout << "zwracam PCB 1 " << endl;
+		return PCB_return;
+	}
+	else {
+
+		if (this->init_proc->name == name) {
+			return this->init_proc;
+		}
+		else {
+
+			if (PCB_return != nullptr) {
+		//		cout << "zwracam PCB 2 " << endl;
+				return PCB_return;
+			}
+
+
+			for (int i = 0; i < pcb_child->children_vector.size(); i++) {
+
+				if (PCB_return != nullptr) {
+			//		cout << "zwracam PCB 3 " << endl;
+					return PCB_return;
+				}
+
+				//cout<< pcb_child->children_vector[i]->name << " pid = "<< pcb_child->children_vector[i]->pid << endl;
+
+				if (pcb_child->children_vector[i]->name == name) {
+
+			//		cout << "find pid = " << pcb_child->children_vector[i]->pid << endl;
+					PCB_return = pcb_child->children_vector[i];
+					find_bool = 1;
+					return PCB_return;
+				}
+				else {
+					//
+					//cout << "rekurencja " << endl;
+					if (PCB_return != nullptr) {
+			//			cout << "zwracam PCB 4 " << endl;
+						return PCB_return;
+					}
+
+
+
+					PCB_return = ProcTree::find_name_recu(pcb_child->children_vector[i], name);
+				}
+			}
+			if (PCB_return != nullptr) {
+			//	cout << "zwracam PCB 5" << endl;
+				return PCB_return;
+			}
+
+
+			return nullptr;
+		}
+
+	}
+
+}
 
 shared_ptr<PCB> ProcTree::find_name(shared_ptr<PCB> pcb_child, string &name)
 {
 	//cout << this->init_proc->name << " - " << this->init_proc->pid << endl;
 	PCB_return = nullptr;
+	shared_ptr<PCB> PCB_re = ProcTree::find_name_recu(pcb_child, name);
+	if (PCB_re != nullptr) {
+		PCB_re->show_info();
 
-
-	if (this->init_proc->name == name) {
-		return this->init_proc;
 	}
-	else {
-		for (int i = 0; i < pcb_child->children_vector.size(); i++) {
-
-			//cout<< pcb_child->children_vector[i]->name << " pid = "<< pcb_child->children_vector[i]->pid << endl;
-
-			if (pcb_child->children_vector[i]->name == name) {
-
-				cout << "find name = " << pcb_child->children_vector[i]->name << endl;
-				PCB_return = pcb_child->children_vector[i];
-				find_bool = 1;
-				return PCB_return;
-			}
-			else {
-				//
-				//cout << "rekurencja " << endl;
-				PCB_return = ProcTree::find_name(pcb_child->children_vector[i], name);
-			}
-		}
-		return PCB_return;
-	}
-
+	return PCB_re;
 
 }
 
@@ -354,7 +428,7 @@ void ProcTree::kill_pid(int pid) { // zabicie procesu po PID
 void ProcTree::kill_name(string name) { // zabicie procesu po name
 
 	shared_ptr<PCB> PCB_proc_kill = ProcTree::find_name(this->init_proc, name);
-	shared_ptr<PCB> PCB_parent = ProcTree::find_pid(this->init_proc, PCB_proc_kill->parent_pid);
+	shared_ptr<PCB> PCB_parent = nullptr;
 	bool vector_child = 0;
 	process_state PCB_new_state;
 
@@ -362,23 +436,30 @@ void ProcTree::kill_name(string name) { // zabicie procesu po name
 		// niedobrze
 		cout << "There are no processes with the NAME provided" << endl;
 	}
-	else if (PCB_parent->pid == 0) {
+	else if (PCB_proc_kill->pid == 0) {
 		cout << "unable to delete INIT process!" << endl;
 	}
 	else {
+		PCB_parent = ProcTree::find_pid(this->init_proc, PCB_proc_kill->parent_pid);
 		vector_child = PCB_proc_kill->null_vector_child();
+
 		if (vector_child == true) {
 			// kill proces
 			PCB_new_state = terminated;
 			PCB_proc_kill->change_state(PCB_new_state);  // zmiana stanu na terminated 
 
-			PCB_proc_kill->show_info();
+			//PCB_proc_kill->show_info();
 			// usuwanie z drzewa
 			PCB_parent->kill_kid(PCB_proc_kill->pid);
 
 			//usuwanie z kolejek - czeka na zmiany w planiście
 //Planist::remove_pcb_from_ready(pid); 
 //Planist::remove_pcb_from_wait(pid); 
+
+			if (PCB_parent->bool_kill == true) {
+				cout << "parent kill " << endl;
+				ProcTree::kill_pid(PCB_parent->pid);
+			}
 
 		}
 		else {
@@ -387,6 +468,7 @@ void ProcTree::kill_name(string name) { // zabicie procesu po name
 			// planista - czeka na funkcję 
 			// Planist::manage(); 
 			PCB_proc_kill->change_state(PCB_new_state);
+			PCB_proc_kill->bool_kill = 1;
 			PCB_proc_kill->show_info();
 
 		}

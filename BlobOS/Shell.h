@@ -60,6 +60,7 @@ protected:
 	void cat();
 	void fileinfo();
 	void showdisc();
+	void showlock();
 	void editor(std::string filename);
 	void write();
 
