@@ -72,6 +72,11 @@ char Memory::get(int address, int PID) {
 void Memory::show_frame(int nr)
 {
 	char c;
+	if (nr < 0 || nr > 15)
+	{
+		std::cout << "Incorrect number. \n\n";
+		return;
+	}
 	std::cout << "Frame nr " << nr << ":" << "\n";
 	for (int j = 0; j < 16; j++)
 	{
@@ -81,7 +86,7 @@ void Memory::show_frame(int nr)
 		else
 			std::cout << c;
 	}
-	std::cout << "\n" << "\n";
+	std::cout << "\n\n";
 }
 
 void Memory::show_ram()
