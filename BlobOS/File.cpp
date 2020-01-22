@@ -9,8 +9,6 @@ struct inode
 	inode() {
 		size_int_byte = 0;
 	}
-
-
 };
 
 //Zamykaie i otwieranie pliku
@@ -31,9 +29,9 @@ void FileManager::create_file(string name) {
 		pair<string, inode> file(name, file_node); //Tworzy ,,plik"
 
 		cataloge.push_back(file); //Dodaje plik do katalogu
+		cout << "File "<<name<< " created" << endl;
 	}
-	else cout << "File is existing" << endl;
-
+	else cout << "File exists" << endl;
 }
 
 //Wyszukuje pusty blok pamiêci i zwraca jego 
@@ -41,7 +39,7 @@ int FileManager::free_block() {
 	for (int i = 0; i < 32; i++) {
 		if (disc[i].free == 0)return i;
 	}
-	cout << "There is no free blocks" << endl;
+	cout << "There are no free blocks" << endl;
 	return -1;
 }
 
@@ -324,7 +322,7 @@ string FileManager::show_file(string name) {
 	int pom = find_file(name);
 	if (pom == -1) {
 
-		return "There is no existing file";
+		return "File does not exist";
 	}
 	int length = cataloge[pom].second.size_int_byte;
 
@@ -411,7 +409,7 @@ void FileManager::add_to_file(string name, string text) {
 			edit_file(name, plik);
 		}
 	}
-	else cout << "There is no existing file" << endl;
+	else cout << "File does not exist" << endl;
 }
 
 
@@ -420,12 +418,13 @@ void FileManager::delete_file(string name) {
 	//Wyszukuje plik
 	int pom = find_file(name);
 	if (pom == -1) {
-		cout<< "There is no existing file";
+		cout<< "File does not exist";
 	}
 	else {
 		//Czyœci dane pliku i usuwa go z katalogu
 		clean_file_data(name);
 		cataloge.erase(cataloge.begin() + pom);
+		cout << "File " << name << " deleted" << endl;
 	}
 }
 
@@ -439,7 +438,7 @@ void FileManager::open_file(string name) {
 		//Probuje dostac zamek, jesli sie nie uda zmienia stan procesu na waiting i wywoluje planiste
 		cataloge[pom].second.mutex.lock(planist.ReadyPCB[0]);
 	}
-	else cout << "There is no existing file" << endl;
+	else cout << "File does not exist" << endl;
 }
 
 //Otwieranie pliku z procesu
@@ -450,5 +449,5 @@ void FileManager::close_file(string name) {
 		//Odblokowuje zamek
 		cataloge[pom].second.mutex.unlock(planist.ReadyPCB[0]);
 	}
-	else cout << "There is no existing file" << endl;
+	else cout << "File does not exist" << endl;
 }

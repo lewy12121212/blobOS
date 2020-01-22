@@ -127,7 +127,8 @@ void Planist::sort_list(){
 
 void Planist::add_process(const shared_ptr<PCB>& process){
     // dodawanie procesow w stanie READY i RUN
-	cout << "process" << process->name << " is added to ready queue" << endl;
+    
+	cout << "process " << process->name << " is added to ready queue" << endl;
     if (process->state == ready || process->state == run){
         ReadyPCB.push_back(process);
         sort_list();
@@ -139,16 +140,11 @@ void Planist::add_process(const shared_ptr<PCB>& process){
 
 void Planist::remove_process(const shared_ptr<PCB>& process){
 
-
-	cout << "ready" << endl;
-
-	for (int i = 0; i < this->ReadyPCB.size(); i++) {
+    for (int i = 0; i < this->ReadyPCB.size(); i++) {
 		if (this->ReadyPCB[i]->pid == process->pid) {
 			this->ReadyPCB.erase(this->ReadyPCB.begin() + i);
 		}
 	}
-
-	cout << "wait" << endl;
 
 	for (int i = 0; i < this->WaitPCB.size(); i++) {
 		if (this->WaitPCB[i]->pid == process->pid) {

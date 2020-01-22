@@ -290,7 +290,6 @@ printf(R"EOF(
                                             
 Welcome to BlobOS. Press ENTER to start shell
 )EOF");
-
 }
 
 
@@ -312,34 +311,35 @@ show
 	-ram		display the contents of RAM
 	-queue		display the contents of FIFO queue
 	-pagefile	display the contents of page file
+	-lock		display the contents of lock queue
 
-cp [PROC NAME] [FILENAME] [PARENT PID] 
+cp [PROC NAME] [FILENAME] [PARENT PID] - create process 
 
-dp -n [PROC NAME]
-dp -p [PID]
+dp -n [PROC NAME] - delete process by NAME
+dp -p [PID] - delete process by PID
 
 touch [FILENAME] - A FILE argument that does not exist is created empty
 
-open [FILENAME]
+open [FILENAME] - open the FILE
 
-close [FILENAME]
+close [FILENAME] - close the FILE
 
-rm [FILENAME] -remove the FILE
+rm [FILENAME] - remove the FILE
 
-edit [FILENAME] - display the contain of FILE and edit the FILE in text editor
+edit [FILENAME] - display the contents of FILE and edit the FILE in text editor
 
-write [FILENAME] [line to add to FILE] 
+write [FILENAME] [LINE] - write LINE to FILE   
 
-copy [SOURCE FILENAME1] [DEST FILENAME2] - copy the contain of SOURCE to DEST
+copy [SOURCE FILENAME1] [DEST FILENAME2] - copy the contents of SOURCE to DEST
 
-cat [FILENAME]... - concatenate FILE(s) to standard output
+cat [FILENAME] - display the contents of FILE
 
 fileinfo [OPTION] [FILENAME] - list information about FILE
 
-go 
-ENTER
+go - interpret next line of code
+ENTER - interpret next line of code
 
-[COMMAND] --help	display help for this command
+[COMMAND] --help	- display help for this command
 
 )EOF");
 }
@@ -374,7 +374,7 @@ void Shell::clear() {
 }
 
 void Shell::cp() {
-
+	set_color(white);
 	if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::cp();
 	}
@@ -383,10 +383,12 @@ void Shell::cp() {
 		throw exc;
 	}
 	else if (parsed.size() == 4) {
-		// To do dadania 3 parametr (nazwa procesu, nazwa pliku, parent_pid)
-		int pid = PTree.create_process_file(parsed[1], parsed[2], std::stoi(parsed[3]));
-		if (pid != -1) {
-			//planist.add_process(PTree.find_pid(PTree.init_proc, pid));	
+		try {
+			int p = std::stoi(parsed[3]);
+			int pid = PTree.create_process_file(parsed[1], parsed[2], p);
+		}
+		catch (const std::invalid_argument & a) {
+			std::cout << "Could not convert arg to PARENT PID" << std::endl;
 		}
 	}
 	else {
@@ -404,10 +406,18 @@ void Shell::dp() {
 		throw exc;
 	}
 	else if ((parsed.size() == 3)&&(parsed[1]=="-p")) {
-		PTree.kill_pid(std::stoi(parsed[2])); // dla pid
+		set_color(white);
+		int pid;
+		try {
+			pid = std::stoi(parsed[2]);
+			PTree.kill_pid(pid);
+		}
+		catch (const std::invalid_argument & a) {
+				std::cout << "Could not convert arg to PID" << std::endl;
+		}
 	}
-
 	else if ((parsed.size() == 3) && (parsed[1] == "-n")) {
+		set_color(white);
 		PTree.kill_name(parsed[2]);
 	}
 	else {
@@ -417,6 +427,7 @@ void Shell::dp() {
 }
 
 void Shell::show() {
+	set_color(white);
 	if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;
@@ -431,8 +442,8 @@ void Shell::show() {
 	else if (parsed[1] == "-queue") showqueue();
 	else if (parsed[1] == "-pagefile") showpagefile();
 	else if (parsed[1] == "-pages") showpages();
-	else if (parsed[1] == "-pagetable") showpagetable(); //OK
-	else if (parsed[1] == "-frame") showframe(); //OK
+	else if (parsed[1] == "-pagetable") showpagetable();
+	else if (parsed[1] == "-frame") showframe();
 	else if (parsed[1] == "-disc") showdisc();
 	else if (parsed[1] == "-lock")showlock();
 	else {
@@ -443,9 +454,16 @@ void Shell::show() {
 
 
 void Shell:: showlock() {
-
-	if (parsed.size() == 3) {
+	if (parsed.size() == 2) {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "missing operand";
+		throw exc;
+	}
+	else if (parsed.size() == 3) {
 		FM.show_lock_queue(parsed[2]);
+	}
+	else {
+		std::string exc = parsed[0] + " " + parsed[1] + ": " + "extra operand \'" + parsed[3] + "\'";
+		throw exc;
 	}
 }
 void Shell::showpcblist() {
@@ -566,7 +584,7 @@ void Shell::showpagefile() {
 	}
 }
 
-void Shell:: showpages() {
+void Shell::showpages() {
 
 	if ((parsed.size() == 3)) {
 		try {
@@ -604,7 +622,7 @@ void Shell::touch() {
 		Help::touch();
 	}
 	else if (parsed.size() == 2) {
-		//std::cout << "touch -tworzenie pliku" << std::endl;
+		set_color(white);
 		FM.create_file(parsed[1]);
 	}
 	else if (parsed.size() == 1) {
@@ -622,6 +640,7 @@ void Shell::rm() {
 		Help::rm();
 	}
 	else if (parsed.size() == 2) {
+		set_color(white);
 		FM.delete_file(parsed[1]);
 	}
 	else if (parsed.size() == 1) {
@@ -660,7 +679,7 @@ void Shell::cat() {
 	else if (parsed.size() == 2 && parsed[1] == "--help") {
 		Help::cat();
 	}
-	else if (parsed.size() == 2) { //nie dziala
+	else if (parsed.size() == 2) {
 		if (FM.find_file(parsed[1])>-1) {
 			std::string text = FM.show_file(parsed[1]);
 			set_color(white);
@@ -740,6 +759,7 @@ void Shell::copy() {
 }
 
 void Shell::fileinfo() {
+	set_color(white);
 	if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
 		throw exc;

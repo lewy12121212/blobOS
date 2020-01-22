@@ -14,7 +14,7 @@ void Help::dp() {
 }
 
 void Help::show() {
-	set_color(white);
+	//set_color(white);
 	printf(R"EOF(
 Usage: show [OPTION]
 Show the information about OPTION.
@@ -28,6 +28,7 @@ Show the information about OPTION.
 	-ram		display the contents of RAM
 	-queue		display the contents of FIFO queue
 	-pagefile	display the contents of page file
+	-lock		display the contents of lock queue
 
 Example:
 	show -pcb p1 file1 1	Information about the process p1. 
