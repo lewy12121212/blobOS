@@ -43,6 +43,7 @@ class FileManager {
 	void close_file(string name);
 	void copy_file(string name1, string name2);
 	void file_info(string name);
+	void show_cataloge();
 };
 extern Planist planist;
 

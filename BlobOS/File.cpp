@@ -485,3 +485,14 @@ void FileManager::file_info(string name) {
 	}
 	else cout << "There is no existing file" << endl;
 }
+
+//Pokazuje wpisy katalowgowe
+void FileManager::show_cataloge() {
+	if (cataloge.size() > 0) {
+		cout << "File list:" << endl;
+		for (int i = 0; i < cataloge.size(); i++) {
+			cout << "- " << cataloge[i].first << endl;
+		}
+	}
+	else cout << "There is no file in cataloge" << endl;
+}
