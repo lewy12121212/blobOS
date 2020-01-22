@@ -87,7 +87,7 @@ void Shell::loop() {
 }
 
 void Shell::logo() {
-	int timer = 100;
+	int timer = 120;
 	set_color(10);
 	printf(R"EOF(                                                                                                                                                                                                              
                                  ```...........``                                                                       
@@ -304,6 +304,7 @@ void Shell::help() {
 	printf(R"EOF(
 show 
 	-pcb [PROC NAME] [FILENAME] [PARENT PID]  display information about the process with this PID
+	-pcblist	display the contents of WAITING and RUNNING list
 	-pagetable [PROC PID]	display the contents of page table
 	-frame [NO FRAME]	display the content of frame
 	-pages [PROC PID]	display the content of pages
