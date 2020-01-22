@@ -1,5 +1,5 @@
 #pragma once
-#include <queue>
+#include <deque>
 #include <memory>
 #include "process.h"
 #include "procesor.h"
@@ -8,7 +8,7 @@ class mutex
 {
 	bool LOCKED;
 	int OWNER_ID;
-	std::queue<std::shared_ptr<PCB>> WAITING_PCB;//kolejka ID procesow czekajacych na plik
+	std::deque<std::shared_ptr<PCB>> WAITING_PCB;//kolejka ID procesow czekajacych na plik
 
 	void wait(std::shared_ptr<PCB>process);		//zmienia stan procesu i wywoluje planiste
 	void notify();								//przydziela dostep, zmienia stan procesu i wywoluje planiste lub zwalnia zasob
@@ -18,5 +18,6 @@ public:
 	void unlock(std::shared_ptr<PCB>process);	//przyjmuje wskaznik na proces otwierajacy zamek (wlasciciela)
 	bool lock_for_editor();						//lock() wylacznie dla edytora, sprawdza zamek ale go nie zajmuje, unlock() niepotrzebne
 	const int get_owner_id() const;				//PID w³aœciciela
+	std::deque<std::shared_ptr<PCB>> copy_queue(); 
 };
 

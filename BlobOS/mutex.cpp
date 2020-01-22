@@ -10,7 +10,7 @@ void mutex::lock(std::shared_ptr<PCB>process)
 {
 	set_color(white);
 	//dodaje wykonywany proces do kolejki zamka
-	WAITING_PCB.push(process);
+	WAITING_PCB.push_back(process);
 	if (LOCKED)
 	{ 
 		if (process->pid == OWNER_ID)
@@ -42,7 +42,7 @@ void mutex::unlock(std::shared_ptr<PCB>process)
 	{
 		//sprawdza stan kolejki i usuwa z niej wykonany proces 
 		if (!WAITING_PCB.empty())
-			WAITING_PCB.pop();
+			WAITING_PCB.pop_front();
 		notify();
 	}
 }
@@ -94,4 +94,14 @@ bool mutex::lock_for_editor()
 const int mutex::get_owner_id() const
 {
 	return OWNER_ID;
+}
+
+std::deque<std::shared_ptr<PCB>> mutex::copy_queue()
+{
+	std::deque<std::shared_ptr<PCB>> copied;
+	for (auto process : WAITING_PCB)
+	{
+		copied.push_back(process);
+	}
+	return copied;
 }

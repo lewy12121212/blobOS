@@ -433,12 +433,20 @@ void Shell::show() {
 	else if (parsed[1] == "-pagetable") showpagetable(); //OK
 	else if (parsed[1] == "-frame") showframe(); //OK
 	else if (parsed[1] == "-disc") showdisc();
+	else if (parsed[1] == "-lock")showlock();
 	else {
 			std::string exc = "error: unsupported option";
 			throw exc;
 	}
 }
 
+
+void Shell:: showlock() {
+
+	if (parsed.size() == 3) {
+		FM.show_lock_queue(parsed[2]);
+	}
+}
 void Shell::showpcblist() {
 
 	if (parsed.size() == 2) {

@@ -127,6 +127,23 @@ void FileManager::show_disc() {
 	}
 }
 
+//Pokazuje kolejkê zamka
+void FileManager::show_lock_queue(const string &filename)
+{
+	int pom = find_file(filename);
+	if (pom != -1) {
+		std::deque<std::shared_ptr<PCB>> queue = FM.cataloge[pom].second.mutex.copy_queue();
+		int counter = 0;
+		std::cout << "Queue of processes waiting for the lock of '" << filename << "' file:\n";
+		for (auto process : queue)
+		{
+			std::cout << counter << ". " << process->name << " " << process->pid << "\n";
+			counter++;
+		}
+		std::cout << "\n";
+	}
+}
+
 //Zapisuje tekst do pamiêci dla podanego pliku 
 void FileManager::save_data_to_file(string name, string text) {
 	//Wyszukuje plik

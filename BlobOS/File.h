@@ -33,6 +33,7 @@ class FileManager {
 	void clean_file_data(string name);
 	void save_data_to_file(string name, string text);
 	void show_disc();
+	void show_lock_queue(const string &filename);
 	void edit_file(string name, string text);
 	void edit_file_editor(string name, string text);
 	string show_file(string name);
