@@ -232,7 +232,7 @@ shared_ptr<PCB> ProcTree::find_pid_recu(shared_ptr<PCB> pcb_child, int pid_proc)
 
 				if (pcb_child->children_vector[i]->pid == pid_proc) {
 
-					cout << "find pid = " << pcb_child->children_vector[i]->pid << endl;
+				//	cout << "find pid = " << pcb_child->children_vector[i]->pid << endl;
 					PCB_return = pcb_child->children_vector[i];
 					find_bool = 1;
 					return PCB_return;
@@ -274,7 +274,7 @@ shared_ptr<PCB> ProcTree::find_name_recu(shared_ptr<PCB> pcb_child, string &name
 
 
 	if (PCB_return != nullptr) {
-		cout << "zwracam PCB 1 " << endl;
+	//	cout << "zwracam PCB 1 " << endl;
 		return PCB_return;
 	}
 	else {
@@ -285,7 +285,7 @@ shared_ptr<PCB> ProcTree::find_name_recu(shared_ptr<PCB> pcb_child, string &name
 		else {
 
 			if (PCB_return != nullptr) {
-				cout << "zwracam PCB 2 " << endl;
+		//		cout << "zwracam PCB 2 " << endl;
 				return PCB_return;
 			}
 
@@ -293,7 +293,7 @@ shared_ptr<PCB> ProcTree::find_name_recu(shared_ptr<PCB> pcb_child, string &name
 			for (int i = 0; i < pcb_child->children_vector.size(); i++) {
 
 				if (PCB_return != nullptr) {
-					cout << "zwracam PCB 3 " << endl;
+			//		cout << "zwracam PCB 3 " << endl;
 					return PCB_return;
 				}
 
@@ -301,7 +301,7 @@ shared_ptr<PCB> ProcTree::find_name_recu(shared_ptr<PCB> pcb_child, string &name
 
 				if (pcb_child->children_vector[i]->name == name) {
 
-					cout << "find pid = " << pcb_child->children_vector[i]->pid << endl;
+			//		cout << "find pid = " << pcb_child->children_vector[i]->pid << endl;
 					PCB_return = pcb_child->children_vector[i];
 					find_bool = 1;
 					return PCB_return;
@@ -310,7 +310,7 @@ shared_ptr<PCB> ProcTree::find_name_recu(shared_ptr<PCB> pcb_child, string &name
 					//
 					//cout << "rekurencja " << endl;
 					if (PCB_return != nullptr) {
-						cout << "zwracam PCB 4 " << endl;
+			//			cout << "zwracam PCB 4 " << endl;
 						return PCB_return;
 					}
 
@@ -320,7 +320,7 @@ shared_ptr<PCB> ProcTree::find_name_recu(shared_ptr<PCB> pcb_child, string &name
 				}
 			}
 			if (PCB_return != nullptr) {
-				cout << "zwracam PCB 5" << endl;
+			//	cout << "zwracam PCB 5" << endl;
 				return PCB_return;
 			}
 

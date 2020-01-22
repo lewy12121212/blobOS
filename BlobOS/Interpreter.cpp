@@ -213,13 +213,13 @@ int Interpreter::execute_instruction(std::string& instruction, shared_ptr<PCB>& 
 	else if (command == "SB") { *rej1 -= *rej2; }
 	else if (command == "ML") { *rej1 *= *rej2; }
 	else if (command == "DV") {
-		if (rej2 == 0) {
+		if (*rej2 == 0) {
 			cout << "Division by 0!" << endl;
 			*rej1 /= *rej2;
 		}
 	}
 	else if (command == "MD") {
-		if (rej2 == 0) {
+		if (*rej2 == 0) {
 			cout << "Division by 0!" << endl;
 			*rej1 = *rej1 % *rej2;
 		}
