@@ -41,6 +41,8 @@ class FileManager {
 	void delete_file(string name);
 	void open_file(string name);
 	void close_file(string name);
+	void copy_file(string name1, string name2);
+	void file_info(string name);
 };
 extern Planist planist;
 

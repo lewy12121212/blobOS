@@ -298,6 +298,7 @@ void Shell::not_recognized() {
 	std::cout << parsed[0] << ": command not found" << std::endl;
 }
 
+//Tu chyba trzeba zaktualizować to wypisywanie <- Ania F do Ani C
 void Shell::help() {
 	set_color(white);
 	printf(R"EOF(
@@ -624,6 +625,7 @@ void Shell::touch() {
 	else if (parsed.size() == 2) {
 		set_color(white);
 		FM.create_file(parsed[1]);
+		std::cout << "File created" << std::endl;
 	}
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
@@ -642,6 +644,7 @@ void Shell::rm() {
 	else if (parsed.size() == 2) {
 		set_color(white);
 		FM.delete_file(parsed[1]);
+		std::cout << "File deleted" << std::endl;
 	}
 	else if (parsed.size() == 1) {
 		std::string exc = parsed[0] + ": " + "missing operand";
@@ -750,7 +753,8 @@ void Shell::copy() {
 		throw exc;
 	}
 	else if (parsed.size() == 3) {
-		std::cout << "Kopiowanie pliku" << std::endl;
+		std::cout << "File is copied" << std::endl;
+		FM.copy_file(parsed[1], parsed[2]);
 	}
 	else {
 		std::string exc = parsed[0] + ": " + "extra operand \'" + parsed[2] + "\'";
@@ -768,7 +772,9 @@ void Shell::fileinfo() {
 		Help::fileinfo();
 	}
 	else if (parsed.size() == 2) {
-		std::cout << "file info" << std::endl;
+		//std::cout << "file info" << std::endl;
+		FM.file_info(parsed[1]);
+		//Tu też zaraz zrobię funkcję <- Ania F
 	}
 	else {
 		std::string temp = parsed[0] + ": " + "extra operand" + " \'" + parsed[1] + "\'";
@@ -792,8 +798,6 @@ void Shell::go() {
 }
 
 void Shell::editor(std::string filename){
-	//Do testowania plików
-	//FM.show_disc();
 	std::string poczatkowy = FM.show_file(parsed[1]);
 	std::vector<char>tekst;
 	system("cls");
@@ -815,8 +819,6 @@ void Shell::editor(std::string filename){
 					tekst.pop_back();
 					std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
 					std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
-					//Do testowania plików
-					//FM.show_disc();
 					for (auto i : tekst) {
 						std::cout << i;
 					}
@@ -831,8 +833,6 @@ void Shell::editor(std::string filename){
 				system("cls");
 				std::cout << "Press \'CTRL\' + \'S\' to exit and save file." << std::endl;
 				std::cout << "Press \'CTRL\' + \'Q\' to exit without saving." << std::endl;
-				//Do testowania plików
-				//FM.show_disc();
 				for (auto i : tekst) {
 					std::cout << i;
 				}
@@ -845,7 +845,7 @@ void Shell::editor(std::string filename){
 			poczatkowy.push_back(tekst[i]);
 		}
 		//Pozwala na edycję w konsoli bez sprawdzania zamka, sprawdza go przed zapisem i ewentualnie go pomija
-		FM.edit_file(parsed[1], poczatkowy);
+		FM.edit_file_editor(parsed[1], poczatkowy);
 	}
 	system("cls");
 }
@@ -863,9 +863,9 @@ void Shell:: write() {
 		if (FM.find_file(parsed[1]) > -1) {
 			std::string temp;
 			for (auto it = parsed.begin() + 2; it != parsed.end(); it++) {
-				temp +=" "+ *it;
+				temp += *it;
 			}
-			FM.edit_file_editor(parsed[1],temp);
+			FM.add_to_file(parsed[1],temp);
 		}
 		else {
 			std::string exc = "File " + parsed[1] + " does not exist";
